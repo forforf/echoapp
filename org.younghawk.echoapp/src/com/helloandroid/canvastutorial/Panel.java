@@ -1,6 +1,7 @@
 package com.helloandroid.canvastutorial;
 
 import java.util.ArrayList;
+import org.younghawk.echoapp.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;

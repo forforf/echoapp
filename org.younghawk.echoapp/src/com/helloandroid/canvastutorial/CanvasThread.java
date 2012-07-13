@@ -2,6 +2,7 @@ package com.helloandroid.canvastutorial;
 
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
+import org.younghawk.echoapp.R;
 
 public class CanvasThread extends Thread {
     private SurfaceHolder _surfaceHolder;
