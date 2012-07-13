@@ -1,4 +1,4 @@
-package com.helloandroid.canvastutorial;
+package org.younghawk.echoapp;
 
 import java.util.ArrayList;
 import org.younghawk.echoapp.R;

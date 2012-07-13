@@ -1,4 +1,4 @@
-package com.helloandroid.canvastutorial;
+package org.younghawk.echoapp;
 
 import android.app.Activity;
 import android.os.Bundle;

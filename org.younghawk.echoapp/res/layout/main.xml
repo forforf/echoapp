@@ -4,8 +4,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<com.helloandroid.canvastutorial.Panel android:id="@+id/SurfaceView01" android:layout_width="wrap_content" 
+<org.younghawk.echoapp.Panel android:id="@+id/SurfaceView01" android:layout_width="wrap_content" 
 
 android:layout_height="wrap_content" android:maxHeight="40dip">
-</com.helloandroid.canvastutorial.Panel>
+</org.younghawk.echoapp.Panel>
 </LinearLayout>
