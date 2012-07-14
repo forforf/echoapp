@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, Canvastutorial!</string>
-    <string name="app_name">Canvastutorial</string>
+    <string name="hello">Hello World, EchoApp!</string>
+    <string name="app_name">EchoApp</string>
+    <string name="canvas_title">Echo Location Results</string>
+    <string name="ping_button">Ping</string>
 </resources>

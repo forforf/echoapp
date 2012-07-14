@@ -15,7 +15,7 @@
 	
 	<Button 
 	    android:id="@+id/PingButton" 
-	    android:text="Ping"
+	    android:text="@string/ping_button"
 	    android:layout_width="match_parent"
 	    android:layout_height="16sp"
 	    android:layout_weight="1"
