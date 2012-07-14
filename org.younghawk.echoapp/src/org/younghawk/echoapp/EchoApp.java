@@ -17,6 +17,7 @@ public class EchoApp extends Activity {
     	Log.v("pingButton", "Ping Button Pressed");
     	String signal_instructions = getString(R.string.signal_instructions);
     	Log.v("jsonTest", signal_instructions);
+    	SignalGenerator sig_gen = SignalGenerator.create(signal_instructions);
     }
     
    
