@@ -3,4 +3,13 @@
     <string name="app_name">EchoApp</string>
     <string name="activity_title">Echo Locator</string>
     <string name="ping_button">Ping</string>
+    <string name="signal_instructions">
+        [ 
+          {\"waveformClass\": \"null\",    \"iterations\": 2 },
+          {\"waveformClass\": \"impulse\", \"iterations\", 1 },
+          {\"waveformClass\": \"null\",    \"iterations\": 3 },
+          {\"waveformClass\": \"impulse\", \"iterations\", 1 },
+          {\"waveformClass\": \"null\",    \"iterations\": 2 },
+        ]
+    </string>
 </resources>

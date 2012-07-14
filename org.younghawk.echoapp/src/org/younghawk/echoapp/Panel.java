@@ -32,19 +32,21 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 
 
 	 public Panel(Context context) {
-		   super(context);
-		    getHolder().addCallback(this);
-		    canvasthread = new CanvasThread(getHolder(), this);
-		    setFocusable(true);
+		 
+		 super(context);
+		 //sets Panel as the handler for surface events
+		 getHolder().addCallback(this);
+		 canvasthread = new CanvasThread(getHolder(), this);
+		 setFocusable(true);
 
 	    }
 
 
 	@Override
 	public void onDraw(Canvas canvas) {
-		Log.d("ondraw", "lefutott");
+		//Log.d("ondraw", "entered onDraw");
 		Paint paint = new Paint();
-		int isRusty = 1;
+		//int isRusty = 1;
 
 		Bitmap kangoo = BitmapFactory.decodeResource(getResources(),
 				R.drawable.kangoo);

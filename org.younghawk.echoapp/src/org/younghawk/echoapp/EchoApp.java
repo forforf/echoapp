@@ -15,6 +15,8 @@ public class EchoApp extends Activity {
     
     public void pingButton(View view) {
     	Log.v("pingButton", "Ping Button Pressed");
+    	String signal_instructions = getString(R.string.signal_instructions);
+    	Log.v("jsonTest", signal_instructions);
     }
     
    
