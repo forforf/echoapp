@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
-<org.younghawk.echoapp.Panel android:id="@+id/SurfaceView01" android:layout_width="wrap_content" 
+	<org.younghawk.echoapp.Panel 
+	    android:id="@+id/SurfaceView01" 
+	    android:layout_width="wrap_content" 
+		android:layout_height="0dip" 
+		android:maxHeight="40dip"
+		android:layout_weight="8"
+		>
+	</org.younghawk.echoapp.Panel>
+	
+	<Button 
+	    android:id="@+id/PingButton" 
+	    android:text="Ping"
+	    android:layout_width="match_parent"
+	    android:layout_height="16sp"
+	    android:layout_weight="1"
+	    />
 
-android:layout_height="wrap_content" android:maxHeight="40dip">
-</org.younghawk.echoapp.Panel>
 </LinearLayout>
