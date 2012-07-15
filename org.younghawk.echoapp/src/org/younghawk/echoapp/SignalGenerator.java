@@ -8,7 +8,7 @@ public class SignalGenerator {
     public static class WaveFactory {
 
     }
-	public static SignalGenerator create(String user_instructions) throws JSONException {
+	public static SignalGenerator create(String user_instructions, int wave_samples) throws JSONException {
 		JSONArray user_instr;
 		Log.v("SignalGenerator says", user_instructions);
 
