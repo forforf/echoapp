@@ -1,5 +1,7 @@
 package org.younghawk.echoapp;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,8 +18,13 @@ public class EchoApp extends Activity {
     public void pingButton(View view) {
     	Log.v("pingButton", "Ping Button Pressed");
     	String signal_instructions = getString(R.string.signal_instructions);
-    	Log.v("jsonTest", signal_instructions);
-    	SignalGenerator sig_gen = SignalGenerator.create(signal_instructions);
+    	try {
+			SignalGenerator sig_gen = SignalGenerator.create(signal_instructions);
+		} catch (JSONException e) {
+			Log.v("pingButton", "Failed to create Signal Generator");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
    
