@@ -25,6 +25,8 @@ public class EchoApp extends Activity {
 			SignalGenerator sig_gen = SignalGenerator.create(signal_instructions, wave_samples);
 			Log.v("pingButton", "Signal Generator created");
 			
+
+			
 		} catch (JSONException e) {
 			Log.v("pingButton", "Failed to create Signal Generator");
 			// TODO Auto-generated catch block

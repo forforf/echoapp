@@ -20,7 +20,7 @@ public class SignalGenerator {
 			int iterations = wave_instr.getInt("iterations");
 			Log.v("SignalGenerator instr", waveform);
 			Log.v("SignalGenerator instr", "" + iterations);
-			SignalType sig_type = Signal.create(waveform, iterations);
+			SignalType sig_type = Signal.create(waveform, wave_samples);
 			Log.v("SignalGenerator sig_type","signal obj created");
 			
 		}
