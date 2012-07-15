@@ -12,13 +12,17 @@ public class SignalGenerator {
 
 		//parse the json instructions
 		user_instr = new JSONArray(user_instructions);
-		Log.v("SignalGenerator", "Has user_instr now");
+		
+		
 		for (int i=0; i<user_instr.length(); i++) {
 			JSONObject wave_instr = user_instr.getJSONObject(i);
 			String waveform = wave_instr.getString("waveform");
 			int iterations = wave_instr.getInt("iterations");
 			Log.v("SignalGenerator instr", waveform);
 			Log.v("SignalGenerator instr", "" + iterations);
+			SignalType sig_type = Signal.create(waveform, iterations);
+			Log.v("SignalGenerator sig_type","signal obj created");
+			
 		}
 
 		return new SignalGenerator();	

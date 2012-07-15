@@ -1,6 +1,6 @@
 package org.younghawk.echoapp;
 
-public class PcmImpulse {
+public class PcmImpulse implements SignalType {
     //Maximum value the impulse will take
     public static final int Max = 32767;
     
