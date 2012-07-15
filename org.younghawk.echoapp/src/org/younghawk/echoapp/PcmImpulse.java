@@ -89,5 +89,9 @@ public class PcmImpulse implements SignalType {
        signal = impulseData;
   
    }
+   
+   public int[] getSignal() {
+   	return signal;
+   }
 }
 

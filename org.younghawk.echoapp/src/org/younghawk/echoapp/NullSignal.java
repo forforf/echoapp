@@ -34,4 +34,8 @@ public class NullSignal implements SignalType {
     private NullSignal(int[] nullData) {
         signal = nullData;
     }
+    
+    public int[] getSignal() {
+    	return signal;
+    }
 }

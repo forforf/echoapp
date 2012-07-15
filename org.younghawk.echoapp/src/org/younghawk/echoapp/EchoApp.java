@@ -1,5 +1,7 @@
 package org.younghawk.echoapp;
 
+import java.util.Arrays;
+
 import org.json.JSONException;
 
 import android.app.Activity;
@@ -24,6 +26,7 @@ public class EchoApp extends Activity {
     	try {
 			SignalGenerator sig_gen = SignalGenerator.create(signal_instructions, wave_samples);
 			Log.v("pingButton", "Signal Generator created");
+			Log.v("pingButton", "Signal: " + Arrays.toString( sig_gen.getSignal() ) );
 			
 
 			
