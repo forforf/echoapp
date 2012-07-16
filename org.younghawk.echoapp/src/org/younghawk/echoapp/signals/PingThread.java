@@ -47,7 +47,8 @@ public class PingThread implements Runnable {
 			if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != pcm_signal.length/2) {
 				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + pcm_signal.length + " expected" );
 			} else {
-				//TODO capture transmit time
+				//OPTIONAL - Better is to capture initial signal at receiver
+				//TODO capture transmit time 
 				//capture nano time here
 				track.play();
 				//and capture nano time here, and send them to be averaged
