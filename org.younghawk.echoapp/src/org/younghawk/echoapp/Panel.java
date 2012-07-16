@@ -16,7 +16,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 
-
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	private CanvasThread canvasthread;
 	
@@ -27,9 +26,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    canvasthread = new CanvasThread(getHolder(), this);
 	    setFocusable(true);
 	}
-
-	 
-
 
 	 public Panel(Context context) {
 		 
@@ -57,8 +53,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		
 	}
 	 
-	 
-	 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -71,7 +65,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    canvasthread.setRunning(true);
 	    canvasthread.start();
 
-		
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
@@ -86,7 +79,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 				// we will try it again and again...
 			}
 		}
-
 	}
 
 
