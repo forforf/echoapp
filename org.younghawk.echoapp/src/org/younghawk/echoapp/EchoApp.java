@@ -3,6 +3,7 @@ package org.younghawk.echoapp;
 import java.util.Arrays;
 
 import org.json.JSONException;
+import org.younghawk.echoapp.signals.SignalGenerator;
 
 import android.app.Activity;
 import android.content.res.Resources;

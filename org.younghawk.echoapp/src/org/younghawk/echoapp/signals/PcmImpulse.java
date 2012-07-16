@@ -1,4 +1,4 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.signals;
 
 public class PcmImpulse implements SignalType {
     //Maximum value the impulse will take

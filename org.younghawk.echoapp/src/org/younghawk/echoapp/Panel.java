@@ -48,10 +48,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		Paint paint = new Paint();
 		//int isRusty = 1;
 
-		Bitmap kangoo = BitmapFactory.decodeResource(getResources(),
-				R.drawable.kangoo);
+		//Bitmap kangoo = BitmapFactory.decodeResource(getResources(),
+		//		R.drawable.kangoo);
 		canvas.drawColor(Color.BLACK);
-		canvas.drawBitmap(kangoo, 130, 10, null);
+		//canvas.drawBitmap(kangoo, 130, 10, null);
 		paint.setColor(Color.RED);
 		canvas.drawCircle(20,  50,  25, paint);
 		

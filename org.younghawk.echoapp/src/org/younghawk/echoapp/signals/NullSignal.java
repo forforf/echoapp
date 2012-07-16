@@ -1,4 +1,4 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.signals;
 
 public class NullSignal implements SignalType {
     //All signal values
