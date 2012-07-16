@@ -1,6 +1,6 @@
 package org.younghawk.echoapp.signals;
 
-//TODO: Enforce an interface, right now it's just a container
+//TODO: Add interface for getting filter mask
 public interface SignalType {
     public int[] getSignal();
 }

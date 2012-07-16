@@ -59,7 +59,7 @@ public class PcmImpulse implements SignalType {
     //factory method
     public static PcmImpulse create(int wave_samples) {
         if (wave_samples % 2 == 1) { //i.e. duration is odd
-        	Log.w("echoapp PcmImpulse", "wave samples was odd, adding additional sample to make it even, samples: " + wave_samples);
+        	Log.w("echoapp PcmImpulse", "wave samples was odd, adding additional sample to make it even, original samples: " + wave_samples);
             wave_samples += 1;
         }
         int dataStart = -(wave_samples/2);

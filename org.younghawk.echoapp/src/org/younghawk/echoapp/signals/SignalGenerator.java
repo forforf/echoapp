@@ -1,16 +1,10 @@
 package org.younghawk.echoapp.signals;
 
-import java.util.Arrays;
-
 import org.json.*;
-
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
-import android.util.Log;
 
 public class SignalGenerator {
 	
+	//helper methods
 	public static class ArrayCalcs {
 		public static int[] flatten(int[][] arr){
 			int elements_count = 0;
@@ -43,13 +37,13 @@ public class SignalGenerator {
 			if (arr.length % 2 == 0){
 			    shorts = new short[arr.length];
 			    for(int i=0; i<arr.length; i++) {
-			    	Integer intObj = new Integer(arr[i]); 
+			    	Integer intObj = Integer.valueOf(arr[i]); 
 				    shorts[i] = intObj.shortValue();
 			    }
 			} else {
 				shorts = new short[arr.length + 1];
 				for(int i=0; i<arr.length; i++) {
-			    	Integer intObj = new Integer(arr[i]); 
+			    	Integer intObj = Integer.valueOf(arr[i]); 
 				    shorts[i] = intObj.shortValue();
 			    }
 				shorts[arr.length] = 0;
@@ -62,32 +56,36 @@ public class SignalGenerator {
 
 	public static SignalGenerator create(String user_instructions, int wave_samples) throws JSONException {
 		JSONArray user_instr;
-		Log.v("SignalGenerator says", user_instructions);
 
 		//parse the json instructions
 		user_instr = new JSONArray(user_instructions);
-		
+
+		//each instruction defines a signal and iteration
+		//each iteration is an array, and each signal is an array
+		//so we have an array[iterations][signal data]
 		int[][] sigs = new int[user_instr.length()][];
 		
 		for (int i=0; i<user_instr.length(); i++) {
+			//get the user instructions
 			JSONObject wave_instr = user_instr.getJSONObject(i);
 			String waveform = wave_instr.getString("waveform");
 			int iterations = wave_instr.getInt("iterations");
-			Log.v("SignalGenerator instr", waveform);
-			Log.v("SignalGenerator instr", "" + iterations);
+			
+			//create the signal accordingly
 			SignalType sig_type = Signal.create(waveform, wave_samples);
-			Log.v("SignalGenerator sig_type","signal obj created");
             int[] sig = sig_type.getSignal();
-			Log.v("SignalGenerator sig_type", Arrays.toString(sig));
+            
+            //iterate the signal based on # of iterations in instructions
 			int[] sig_iters = ArrayCalcs.copy(sig, iterations);
-			Log.v("SignalGenerator sig", Arrays.toString(sig_iters));
 			sigs[i] = sig_iters;
 		}
 
+		//flatten the signal
 		int[] int_signal = ArrayCalcs.flatten(sigs);
-		Log.v("SignalGenerator full_signal", Arrays.toString(int_signal));
+		
+		//AudioTrack requires shorts so convert it
 		short[] pcm_signal = ArrayCalcs.toShort(int_signal);
-		Log.v("SignalGenerator shorts", Arrays.toString(pcm_signal));
+		
 		return new SignalGenerator(pcm_signal);	
 	}
 	

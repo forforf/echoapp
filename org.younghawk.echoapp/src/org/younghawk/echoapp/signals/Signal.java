@@ -3,25 +3,23 @@ package org.younghawk.echoapp.signals;
 import android.util.Log;
 
 public class Signal {
+	private static final String IMPULSE="impulse";
+	private static final String NULLSIGNAL="null";
 	
-	
-    //TODO: Move hardcoded strings of the signal class names out
+	//Create the appropriate waveform
 	public static SignalType create(String waveform_name, int wave_samples) {
-		Log.v("EchoApp SignalType", "Creating signal");
 		
-		SignalType sig_type;
+		SignalType sig_type = null;
 		AbstractSignalFactory signalFactory = null;
 		
-		if ("impulse".equals(waveform_name)) {
-			Log.v("EchoApp SignalType", "Creating impulse signal");
+		if (Signal.IMPULSE.equals(waveform_name)) {
 			ImpulseFactory impulseFactory = new ImpulseFactory();
 			signalFactory = (AbstractSignalFactory) impulseFactory;
-		} else if ("null".equals(waveform_name)) {
-			Log.v("EchoApp SignalType", "Creating null signal");
+		
+		} else if (Signal.NULLSIGNAL.equals(waveform_name)) {
 			NullSignalFactory nullFactory = new NullSignalFactory();
-			Log.v("EchoApp SignalType", "Created null signal factory");
 			signalFactory = nullFactory;
-			Log.v("EchoApp SignalType", "Assigned null signal factory to signal factory");
+
 		} else {
 			String log_message = "Unknown signal type: " + waveform_name + "; using NullSignal instead";
 			Log.w("SignalType", log_message);
@@ -29,11 +27,12 @@ public class Signal {
 			signalFactory = (AbstractSignalFactory) nullFactory;
 		}
 		
-		Log.v("EchoApp SignalType", "Now creating signal");
-		sig_type = signalFactory.createSignal(wave_samples);
+		if (signalFactory != null){
+			sig_type = signalFactory.createSignal(wave_samples);
+		}
 		
+		//NOTE: This can conceivably return null, but only under abnormal circumstances
 		return sig_type;
 	}
-
 
 }
