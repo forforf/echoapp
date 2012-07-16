@@ -6,6 +6,9 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +31,20 @@ public class EchoApp extends Activity {
 			Log.v("pingButton", "Signal Generator created");
 			Log.v("pingButton", "Signal: " + Arrays.toString( sig_gen.getSignal() ) );
 			
+			short[] pcm_signal = sig_gen.getSignal();
+			
+			Log.v("pingButton Audio", "signal length: " + pcm_signal.length);
+			try { 
+				AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, pcm_signal.length, AudioTrack.MODE_STATIC );
+				int result = track.write(pcm_signal, 0, pcm_signal.length);
+				if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != pcm_signal.length/2)
+					Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + pcm_signal.length + " expected" );
+		            //throw new Exception("track.write returned " + result + ". " + pcm_signal.length + " expected");
+				track.play();
+			} catch (IllegalArgumentException e) {
+				Log.e("pingButton", "Unable to create audio track");
+				e.printStackTrace();
+			}
 
 			
 		} catch (JSONException e) {

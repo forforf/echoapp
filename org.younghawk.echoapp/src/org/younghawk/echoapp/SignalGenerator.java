@@ -4,6 +4,9 @@ import java.util.Arrays;
 
 import org.json.*;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.util.Log;
 
 public class SignalGenerator {
@@ -34,6 +37,26 @@ public class SignalGenerator {
 			}
 			return copies;
 		}
+		
+		public static short[] toShort(int[] arr){
+			short[] shorts;
+			if (arr.length % 2 == 0){
+			    shorts = new short[arr.length];
+			    for(int i=0; i<arr.length; i++) {
+			    	Integer intObj = new Integer(arr[i]); 
+				    shorts[i] = intObj.shortValue();
+			    }
+			} else {
+				shorts = new short[arr.length + 1];
+				for(int i=0; i<arr.length; i++) {
+			    	Integer intObj = new Integer(arr[i]); 
+				    shorts[i] = intObj.shortValue();
+			    }
+				shorts[arr.length] = 0;
+				
+			}
+			return shorts;
+		}
 	
 	}
 
@@ -45,8 +68,6 @@ public class SignalGenerator {
 		user_instr = new JSONArray(user_instructions);
 		
 		int[][] sigs = new int[user_instr.length()][];
-		
-		
 		
 		for (int i=0; i<user_instr.length(); i++) {
 			JSONObject wave_instr = user_instr.getJSONObject(i);
@@ -63,19 +84,20 @@ public class SignalGenerator {
 			sigs[i] = sig_iters;
 		}
 
-		int[] full_signal = ArrayCalcs.flatten(sigs);
-		Log.v("SignalGenerator full_signal", Arrays.toString(full_signal));
-		return new SignalGenerator(full_signal);	
-		
+		int[] int_signal = ArrayCalcs.flatten(sigs);
+		Log.v("SignalGenerator full_signal", Arrays.toString(int_signal));
+		short[] pcm_signal = ArrayCalcs.toShort(int_signal);
+		Log.v("SignalGenerator shorts", Arrays.toString(pcm_signal));
+		return new SignalGenerator(pcm_signal);	
 	}
 	
-	private int[] signal;
+	private short[] signal;
 	
-	private SignalGenerator(int[] sig) {
+	private SignalGenerator(short[] sig) {
         signal = sig;
 	}
 	
-	public int[] getSignal(){
+	public short[] getSignal(){
 		return signal;
 	}
 }

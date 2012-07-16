@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="samples_per_wav">   8</integer>
+    <integer name="samples_per_wav">   32</integer>
 </resources>
