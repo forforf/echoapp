@@ -2,10 +2,10 @@ package org.younghawk.echoapp.signals;
 
 public class NullSignal implements SignalType {
     //All signal values
-    public static final int NullVal = 0;
+    private static final int NullVal = 0;
 
     //integer array of singal vallues
-    public int[] signal;
+    private int[] signal;
 
     //factory
     public static NullSignal create(int duration) {

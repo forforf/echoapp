@@ -1,11 +1,13 @@
 package org.younghawk.echoapp.signals;
 
+import android.util.Log;
+
 public class PcmImpulse implements SignalType {
     //Maximum value the impulse will take
-    public static final int Max = 32767;
+    private static final int Max = 32767;
     
     //Integer Array of Signal Data
-    public int[] signal;
+    private int[] signal;
 
     public static class Calc{
         public static double getMaxValue(double[] data){
@@ -18,8 +20,8 @@ public class PcmImpulse implements SignalType {
              return maxValue;
         }
 
-        public static double getExponentDenominator(int duration){
-            double d8 = (double) duration/8;
+        public static double getExponentDenominator(int wave_samples){
+            double d8 = (double) wave_samples/8;
             double d8sq = d8*d8;
             double expDenom = d8sq*Math.E;
             return expDenom;
@@ -30,44 +32,44 @@ public class PcmImpulse implements SignalType {
             return expNum;
         }
 
-        public static double getEnvelopeExponent(int duration, int t){
+        public static double getEnvelopeExponent(int wave_samples, int t){
             double num = Calc.getExponentNumerator(t);
-            double den = Calc.getExponentDenominator(duration);
+            double den = Calc.getExponentDenominator(wave_samples);
             double envExp = num / den;
             return envExp;
         }
 
-        public static double getEnvelope(int duration, int t){
-            double envExp = Calc.getEnvelopeExponent(duration, t);
-            double env = 2*duration*Math.exp(envExp);
+        public static double getEnvelope(int wave_samples, int t){
+            double envExp = Calc.getEnvelopeExponent(wave_samples, t);
+            double env = 2*wave_samples*Math.exp(envExp);
             return env;
         }
 
-        public static double getModulatingWaveform(int duration, int t){
-            double modWav = Math.sin(Math.PI*t/duration);
+        public static double getModulatingWaveform(int wave_samples, int t){
+            double modWav = Math.sin(Math.PI*t/wave_samples);
             return modWav;
         }
 
-        public static double getImpulseWaveform(int duration, int t){
-            double imp = getEnvelope(duration, t)*getModulatingWaveform(duration, t);
+        public static double getImpulseWaveform(int wave_samples, int t){
+            double imp = getEnvelope(wave_samples, t)*getModulatingWaveform(wave_samples, t);
             return imp;
         }
     }
 
     //factory method
-    public static PcmImpulse create(int duration) {
-        //ToDo: Log a warning that the odd duration was incremented to be even
-        if (duration % 2 == 1) { //i.e. duration is odd
-            duration += 1;
+    public static PcmImpulse create(int wave_samples) {
+        if (wave_samples % 2 == 1) { //i.e. duration is odd
+        	Log.w("echoapp PcmImpulse", "wave samples was odd, adding additional sample to make it even, samples: " + wave_samples);
+            wave_samples += 1;
         }
-        int dataStart = -(duration/2);
-        int dataEnd = duration/2;
+        int dataStart = -(wave_samples/2);
+        int dataEnd = wave_samples/2;
         int currentData = dataStart;
         int i = 0;
-        double[] impulseData = new double[duration+1];
+        double[] impulseData = new double[wave_samples+1];
             
         while (currentData <= dataEnd){
-           impulseData[i] = PcmImpulse.Calc.getImpulseWaveform(duration, currentData);
+           impulseData[i] = PcmImpulse.Calc.getImpulseWaveform(wave_samples, currentData);
            i++;
            currentData++;
         }
@@ -80,18 +82,16 @@ public class PcmImpulse implements SignalType {
             scaledImpulseData[i] = (int) (scaleFactor * impulseData[i]);
         }
         
-        //int scaledImpulseData = (int) PcmImpulse
         return new PcmImpulse(scaledImpulseData);
     }
 
    //initialization
    private PcmImpulse(int[] impulseData) {
        signal = impulseData;
-  
    }
    
    public int[] getSignal() {
-   	return signal;
+	   return signal;
    }
 }
 
