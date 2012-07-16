@@ -2,42 +2,52 @@ package org.younghawk.echoapp.signals;
 
 import android.util.Log;
 
+/**
+ * Container for a blank signal
+ */
 public class NullSignal implements SignalType {
     //A Null signal has a value of 0 for its wave samples
-    private static final int NullVal = 0;
+    private static final int NULL_SIGNAL_VALUE = 0;
 
-    //integer array of singal vallues
-    private int[] signal;
+    //integer array of signal vallues
+    private int[] mSignal;
 
-    //factory
+    /**
+     * Factory for pre-initializing waveform data
+     * @param wave_samples
+     * @return
+     */
     public static NullSignal create(int wave_samples) {
-        if (wave_samples % 2 == 1) //i.e. duration is odd
+    	
+    	//the number of wave samples should be even
+        if (wave_samples % 2 == 1) //i.e. wave samples are odd
         	Log.w("echoapp NullSignal", "wave samples was odd, adding additional sample to make it even, original samples: " + wave_samples);
             wave_samples += 1;
 
         //This is not the most efficient way, but it is
         //consistent with other signals.
-        int dataStart = -(wave_samples/2);
-        int dataEnd = wave_samples/2;
-        int currentData = dataStart;
+        int data_start = -(wave_samples/2);
+        int data_end = wave_samples/2;
+        int current_data = data_start;
         int i = 0;
-        int[] nullData = new int[wave_samples+1];
+        int[] null_data = new int[wave_samples+1];
             
-        while (currentData <= dataEnd) {
-           nullData[i] = NullVal;
+        //Assign signal values
+        while (current_data <= data_end) {
+           null_data[i] = NULL_SIGNAL_VALUE;
            i++;
-           currentData++;
+           current_data++;
         } 
         
-        return new NullSignal(nullData);
+        return new NullSignal(null_data);
     }
 
-    //initialization
+    //object initialization
     private NullSignal(int[] nullData) {
-        signal = nullData;
+        mSignal = nullData;
     }
     
     public int[] getSignal() {
-    	return signal;
+    	return mSignal;
     }
 }

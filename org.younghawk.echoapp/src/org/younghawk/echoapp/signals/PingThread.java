@@ -10,8 +10,8 @@ import android.media.AudioTrack;
 import android.util.Log;
 
 public class PingThread implements Runnable {
-	private Thread pThread;
-	private short[] pcm_signal;
+	private Thread mPingThread;
+	private short[] mPcmSignal;
 		
 	//factory
 	public static PingThread create(String instructions, int wave_samples) {
@@ -21,15 +21,13 @@ public class PingThread implements Runnable {
 		//TODO: Handle null
 		sig_gen = SignalGenerator.create(instructions, wave_samples);
 		pcm_signal = sig_gen.getSignal();
-		  
 
-		
 		return new PingThread(pcm_signal);
 	}
 
 	private PingThread(short[] pcm_signal) {
-		this.pcm_signal = pcm_signal;
-		this.pThread = new Thread(this);
+		this.mPcmSignal = pcm_signal;
+		this.mPingThread = new Thread(this);
 	}
 
 	@Override
@@ -40,12 +38,12 @@ public class PingThread implements Runnable {
 												44100, 
 												AudioFormat.CHANNEL_OUT_MONO, 
 												AudioFormat.ENCODING_PCM_16BIT, 
-												pcm_signal.length, 
+												mPcmSignal.length, 
 												AudioTrack.MODE_STATIC );
 			
-			int result = track.write(pcm_signal, 0, pcm_signal.length);
-			if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != pcm_signal.length/2) {
-				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + pcm_signal.length + " expected" );
+			int result = track.write(mPcmSignal, 0, mPcmSignal.length);
+			if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != mPcmSignal.length/2) {
+				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + mPcmSignal.length + " expected" );
 			} else {
 				//OPTIONAL - Better is to capture initial signal at receiver
 				//TODO capture transmit time 
