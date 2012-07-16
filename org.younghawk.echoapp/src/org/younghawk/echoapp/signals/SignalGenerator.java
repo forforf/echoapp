@@ -2,6 +2,8 @@ package org.younghawk.echoapp.signals;
 
 import org.json.*;
 
+import android.util.Log;
+
 public class SignalGenerator {
 	
 	//helper methods
@@ -54,32 +56,57 @@ public class SignalGenerator {
 	
 	}
 
-	public static SignalGenerator create(String user_instructions, int wave_samples) throws JSONException {
-		JSONArray user_instr;
+	public static SignalGenerator create(String user_instructions, int wave_samples)  {
+		JSONArray user_instr = null;
 
 		//parse the json instructions
-		user_instr = new JSONArray(user_instructions);
+		try {
+			user_instr = new JSONArray(user_instructions);
+		} catch (JSONException e) {
+			Log.e("EchoApp", "SignalGenerator failed to parse the JSON instructions array");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		//If we failed to parse the user instructions, then don't
+		// create the Signal Generator
+		if (user_instr == null){
+			Log.e("EchoApp", "SignalGenerator could not be created");
+			return null;
+		}
+		
 		//each instruction defines a signal and iteration
 		//each iteration is an array, and each signal is an array
 		//so we have an array[iterations][signal data]
 		int[][] sigs = new int[user_instr.length()][];
 		
-		for (int i=0; i<user_instr.length(); i++) {
-			//get the user instructions
-			JSONObject wave_instr = user_instr.getJSONObject(i);
-			String waveform = wave_instr.getString("waveform");
-			int iterations = wave_instr.getInt("iterations");
-			
-			//create the signal accordingly
-			SignalType sig_type = Signal.create(waveform, wave_samples);
-            int[] sig = sig_type.getSignal();
-            
-            //iterate the signal based on # of iterations in instructions
-			int[] sig_iters = ArrayCalcs.copy(sig, iterations);
-			sigs[i] = sig_iters;
-		}
+			for (int i=0; i<user_instr.length(); i++) {
+				//get the user instructions
+				JSONObject wave_instr = null;
+				String waveform = null;;
+				int iterations = 0;
+				
+				//parsing the instruction elements
+				try {
+					wave_instr = user_instr.getJSONObject(i);
+					waveform = wave_instr.getString("waveform");
+					iterations = wave_instr.getInt("iterations");
+				} catch (JSONException e) {
+					Log.e("EchoApp", "SignalGenerator failed to parse instruction set: " + i);
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				//create the signal accordingly
+				SignalType sig_type = Signal.create(waveform, wave_samples);
+	            int[] sig = sig_type.getSignal();
+	            
+	            //iterate the signal based on # of iterations in instructions
+				int[] sig_iters = ArrayCalcs.copy(sig, iterations);
+				sigs[i] = sig_iters;
+			}
 
+		
 		//flatten the signal
 		int[] int_signal = ArrayCalcs.flatten(sigs);
 		
