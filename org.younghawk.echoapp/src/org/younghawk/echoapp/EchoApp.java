@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-public class EchoApp extends Activity {
+public class EchoApp extends Activity implements Runnable{
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,13 @@ public class EchoApp extends Activity {
     }
     
     public void pingButton(View view) {
-    	Log.v("pingButton", "Ping Button Pressed");
+    	Log.v("pingButton", "Ping Button Pressed, starting signal thread");
+    	Thread pingThread = new Thread(this);
+    	pingThread.start();
+    	
+    }
+    
+    public void run(){
     	String signal_instructions = getString(R.string.signal_instructions);
     	Resources res = getResources();
     	int wave_samples = res.getInteger(R.integer.samples_per_wav);
@@ -50,8 +56,7 @@ public class EchoApp extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
     }
-    
-   
 
 }
