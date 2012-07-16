@@ -29,12 +29,9 @@ public class EchoApp extends Activity {
     	int wave_samples = res.getInteger(R.integer.samples_per_wav);
     	try {
 			SignalGenerator sig_gen = SignalGenerator.create(signal_instructions, wave_samples);
-			Log.v("pingButton", "Signal Generator created");
-			Log.v("pingButton", "Signal: " + Arrays.toString( sig_gen.getSignal() ) );
 			
 			short[] pcm_signal = sig_gen.getSignal();
 			
-			Log.v("pingButton Audio", "signal length: " + pcm_signal.length);
 			try { 
 				AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, pcm_signal.length, AudioTrack.MODE_STATIC );
 				int result = track.write(pcm_signal, 0, pcm_signal.length);
@@ -49,7 +46,7 @@ public class EchoApp extends Activity {
 
 			
 		} catch (JSONException e) {
-			Log.v("pingButton", "Failed to create Signal Generator");
+			Log.e("pingButton", "Failed to create Signal Generator");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
