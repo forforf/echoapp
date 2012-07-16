@@ -1,0 +1,4 @@
+This is an android app I'm working on. The plan is for it to use echo location to determine distance to boundaries. However, there are lots of issues to suss out before its a workable app.
+
+Current State:
+- Able to send echolocation signal to speaker.
