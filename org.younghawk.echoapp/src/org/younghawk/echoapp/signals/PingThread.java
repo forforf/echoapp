@@ -9,27 +9,45 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
+/**
+ * Create the signal generator with the instructions and sample size
+ * Then run the thread that sends the signal to the speaker.
+ * @author Dave2
+ *
+ */
 public class PingThread implements Runnable {
 	private Thread mPingThread;
 	private short[] mPcmSignal;
 		
-	//factory
-	public static PingThread create(String instructions, int wave_samples) {
+	/**
+	 * Factory to initialize the waveform signal
+	 * @param instructions
+	 * @param num_of_samples
+	 * @return
+	 */
+	public static PingThread create(String instructions, int num_of_samples) {
 		SignalGenerator sig_gen = null;
 		short[] pcm_signal = null;
 
 		//TODO: Handle null
-		sig_gen = SignalGenerator.create(instructions, wave_samples);
+		sig_gen = SignalGenerator.create(instructions, num_of_samples);
 		pcm_signal = sig_gen.getSignal();
 
 		return new PingThread(pcm_signal);
 	}
-
+	
+	/**
+	 * Create the thread object with the waveform signal
+	 * @param pcm_signal
+	 */
 	private PingThread(short[] pcm_signal) {
 		this.mPcmSignal = pcm_signal;
 		this.mPingThread = new Thread(this);
 	}
 
+	/**
+	 * Play the waveform in a thread
+	 */
 	@Override
 	public void run() {
 
@@ -58,7 +76,5 @@ public class PingThread implements Runnable {
 			Log.e("pingButton", "Unable to create audio track (Illegal Arguments)");
 			e.printStackTrace();
 		}
-
 	}
-
 }

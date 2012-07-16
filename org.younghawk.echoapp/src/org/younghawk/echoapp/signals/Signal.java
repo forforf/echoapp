@@ -1,13 +1,21 @@
 package org.younghawk.echoapp.signals;
 
 import android.util.Log;
-
+/**
+ * Concrete Factory that selects the appropriate class based
+ * on the waveform name
+ */
 public class Signal {
 	private static final String IMPULSE="impulse";
 	private static final String NULLSIGNAL="null";
 	
-	//Create the appropriate waveform
-	public static SignalType create(String waveform_name, int wave_samples) {
+	/**
+	 * Factory to create the appropriate wave form
+	 * @param waveform_name
+	 * @param num_of_samples
+	 * @return
+	 */
+	public static SignalType create(String waveform_name, int num_of_samples) {
 		
 		SignalType sig_type = null;
 		AbstractSignalFactory signalFactory = null;
@@ -28,10 +36,11 @@ public class Signal {
 		}
 		
 		if (signalFactory != null){
-			sig_type = signalFactory.createSignal(wave_samples);
+			sig_type = signalFactory.createSignal(num_of_samples);
 		}
 		
 		//NOTE: This can conceivably return null, but only under abnormal circumstances
+		//TODO: Handle a null return value prior to release
 		return sig_type;
 	}
 

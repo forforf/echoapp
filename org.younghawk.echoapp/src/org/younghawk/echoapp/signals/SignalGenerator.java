@@ -4,10 +4,24 @@ import org.json.*;
 
 import android.util.Log;
 
+/**
+ * Container that creates and holds waveform information
+ *
+ */
 public class SignalGenerator {
 	
-	//helper methods
+	/**
+	 * Container for Array helper methods
+	 *
+	 */
 	public static class ArrayCalcs {
+		
+		/**
+		 * Flattens a 2D array to a 1D array
+		 * Used to concatenate waveforms
+		 * @param arr
+		 * @return
+		 */
 		public static int[] flatten(int[][] arr){
 			int elements_count = 0;
 			for (int i=0;i<arr.length;i++){
@@ -25,6 +39,12 @@ public class SignalGenerator {
 			return flat_array;
 		}
 		
+		/**
+		 * Duplicates an array the given number of iterations
+		 * @param arr
+		 * @param iters
+		 * @return
+		 */
 		public static int[] copy(int[] arr, int iters){
 			if (arr == null) return arr;
 			int[] copies = new int[arr.length * iters];
@@ -34,6 +54,14 @@ public class SignalGenerator {
 			return copies;
 		}
 		
+		/**
+		 * Converts an int array to a short array
+		 * All values of the int array should be between -32768 to 32767
+		 * for predictable behavior
+		 * @param arr
+		 * @return
+		 */
+		//TODO: Check and issue warning if int array value is greater than short
 		public static short[] toShort(int[] arr){
 			short[] shorts;
 			if (arr.length % 2 == 0){
@@ -56,7 +84,13 @@ public class SignalGenerator {
 	
 	}
 
-	public static SignalGenerator create(String user_instructions, int wave_samples)  {
+	/**
+	 * Factory for converting the instructions into the full signal waveform
+	 * @param user_instructions
+	 * @param num_of_samples
+	 * @return
+	 */
+	public static SignalGenerator create(String user_instructions, int num_of_samples)  {
 		JSONArray user_instr = null;
 
 		//parse the json instructions
@@ -98,7 +132,7 @@ public class SignalGenerator {
 				}
 				
 				//create the signal accordingly
-				SignalType sig_type = Signal.create(waveform, wave_samples);
+				SignalType sig_type = Signal.create(waveform, num_of_samples);
 	            int[] sig = sig_type.getSignal();
 	            
 	            //iterate the signal based on # of iterations in instructions
@@ -116,13 +150,13 @@ public class SignalGenerator {
 		return new SignalGenerator(pcm_signal);	
 	}
 	
-	private short[] signal;
+	private short[] mSignal;
 	
 	private SignalGenerator(short[] sig) {
-        signal = sig;
+        this.mSignal = sig;
 	}
 	
 	public short[] getSignal(){
-		return signal;
+		return this.mSignal;
 	}
 }
