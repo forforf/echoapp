@@ -34,19 +34,31 @@ public class PingThread implements Runnable {
 
 	@Override
 	public void run() {
-			//short[] pcm_signal = sig_gen.getSignal();
-		
-			try { 
-				AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, pcm_signal.length, AudioTrack.MODE_STATIC );
-				int result = track.write(pcm_signal, 0, pcm_signal.length);
-				if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != pcm_signal.length/2)
-					Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + pcm_signal.length + " expected" );
-		            //throw new Exception("track.write returned " + result + ". " + pcm_signal.length + " expected");
+
+		try { 
+			AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 
+												44100, 
+												AudioFormat.CHANNEL_OUT_MONO, 
+												AudioFormat.ENCODING_PCM_16BIT, 
+												pcm_signal.length, 
+												AudioTrack.MODE_STATIC );
+			
+			int result = track.write(pcm_signal, 0, pcm_signal.length);
+			if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != pcm_signal.length/2) {
+				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + pcm_signal.length + " expected" );
+			} else {
+				//TODO capture transmit time
+				//capture nano time here
 				track.play();
-			} catch (IllegalArgumentException e) {
-				Log.e("pingButton", "Unable to create audio track");
-				e.printStackTrace();
+				//and capture nano time here, and send them to be averaged
+				//to determine send time (or better yet, perform math using sample rate)
 			}
+			
+			
+		} catch (IllegalArgumentException e) {
+			Log.e("pingButton", "Unable to create audio track (Illegal Arguments)");
+			e.printStackTrace();
+		}
 
 	}
 
