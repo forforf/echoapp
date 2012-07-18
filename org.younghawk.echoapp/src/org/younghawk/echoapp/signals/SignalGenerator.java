@@ -152,6 +152,11 @@ public class SignalGenerator {
 	
 	private short[] mSignal;
 	
+	/**
+	 * Create the Signal Genrator from the waveform signal
+	 * @param sig
+	 */
+			
 	private SignalGenerator(short[] sig) {
         this.mSignal = sig;
 	}

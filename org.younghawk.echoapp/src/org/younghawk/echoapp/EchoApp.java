@@ -38,7 +38,7 @@ public class EchoApp extends Activity{
 		String signal_instructions = getString(R.string.signal_instructions);
     	Resources res = getResources();
     	int wave_samples = res.getInteger(R.integer.samples_per_wav);
-    	Thread pingThread = new Thread(PingThread.create(signal_instructions, wave_samples));
-    	pingThread.start();    	    	
+    	Thread pingThread = new Thread(PingThread.create(signal_instructions, wave_samples), "PingThread");
+  	    pingThread.start();
     }
 }

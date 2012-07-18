@@ -16,7 +16,7 @@ import android.util.Log;
  *
  */
 public class PingThread implements Runnable {
-	private Thread mPingThread;
+	//private Thread mPingThread; //used if we want/need to reference self as thread
 	private short[] mPcmSignal;
 		
 	/**
@@ -29,10 +29,14 @@ public class PingThread implements Runnable {
 		SignalGenerator sig_gen = null;
 		short[] pcm_signal = null;
 
-		//TODO: Handle null
+		
 		sig_gen = SignalGenerator.create(instructions, num_of_samples);
-		pcm_signal = sig_gen.getSignal();
-
+		if (sig_gen!=null) {
+			Log.i("EchoApp","Created Signal Generator");
+		    pcm_signal = sig_gen.getSignal();
+		} else {
+			return null;
+		}
 		return new PingThread(pcm_signal);
 	}
 	
@@ -42,11 +46,12 @@ public class PingThread implements Runnable {
 	 */
 	private PingThread(short[] pcm_signal) {
 		this.mPcmSignal = pcm_signal;
-		this.mPingThread = new Thread(this);
+		//this.mPingThread = new Thread(this);  //this thread object
 	}
 
 	/**
 	 * Play the waveform in a thread
+	 * Implementation of Runnable
 	 */
 	@Override
 	public void run() {
