@@ -65,7 +65,10 @@ public class PingThread implements Runnable  {
 												AudioTrack.MODE_STATIC );
 			
 			int result = track.write(mPcmSignal, 0, mPcmSignal.length);
-			if (result == AudioTrack.ERROR_INVALID_OPERATION  || result != mPcmSignal.length/2) {
+			if (result == AudioTrack.ERROR_INVALID_OPERATION  || 
+					result == AudioTrack.ERROR_BAD_VALUE ||
+					result != mPcmSignal.length/2) {
+				
 				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + mPcmSignal.length + " expected" );
 			} else {
 				//OPTIONAL - Better is to capture initial signal at receiver
