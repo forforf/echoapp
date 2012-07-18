@@ -17,7 +17,8 @@ import android.view.SurfaceView;
 
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
-	private CanvasThread canvasthread;
+	private CanvasThread canvasthread = null;
+	private int tester = 0;
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
@@ -36,20 +37,20 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		 setFocusable(true);
 
 	    }
-
+	 
 
 	@Override
 	public void onDraw(Canvas canvas) {
-		//Log.d("ondraw", "entered onDraw");
 		Paint paint = new Paint();
-		//int isRusty = 1;
 
-		//Bitmap kangoo = BitmapFactory.decodeResource(getResources(),
-		//		R.drawable.kangoo);
 		canvas.drawColor(Color.BLACK);
 		//canvas.drawBitmap(kangoo, 130, 10, null);
 		paint.setColor(Color.RED);
-		canvas.drawCircle(20,  50,  25, paint);
+		canvas.drawCircle(20,  50+tester,  25, paint);
+		tester++;
+		if (tester>150){
+			tester=0;
+		}
 		
 	}
 	 
@@ -62,6 +63,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
+		if (canvasthread.getState()==Thread.State.TERMINATED) { 
+            canvasthread = new CanvasThread(getHolder(), this);
+       }
 	    canvasthread.setRunning(true);
 	    canvasthread.start();
 

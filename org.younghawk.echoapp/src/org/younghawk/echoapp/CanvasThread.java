@@ -1,6 +1,7 @@
 package org.younghawk.echoapp;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.SurfaceHolder;
 //import org.younghawk.echoapp.R;
 
@@ -25,9 +26,16 @@ public class CanvasThread extends Thread {
             c = null;
             try {
                 c = _surfaceHolder.lockCanvas(null);
-                synchronized (_surfaceHolder) {
-                    _panel.onDraw(c);
-                }
+                if (c!=null) {
+	                synchronized (_surfaceHolder) {
+	                	//Log.v("EchoApp", "" + _panel);
+	                	if(_panel!=null){
+	                        _panel.onDraw(c);
+	                	} else {
+	                		Log.e("EchoApp", "Panel unexpectedly went null");
+	                	}
+	                }
+                } //TODO: capture data on why canvas would be null
             } finally {
                 // do this in a finally so that if an exception is thrown
                 // during the above, we don't leave the Surface in an

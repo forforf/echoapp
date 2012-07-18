@@ -19,6 +19,10 @@ import org.younghawk.echoapp.signals.PingThread;
  * Main Activity for the Echo App
  */
 public class EchoApp extends Activity{
+	//Threads that may be active
+	private Thread mPingThread = null;
+	
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,10 +39,14 @@ public class EchoApp extends Activity{
      */
     public void pingButton(View view) {
     	Log.v("pingButton", "Ping Button Pressed");
-		String signal_instructions = getString(R.string.signal_instructions);
+    	String signal_instructions = getString(R.string.signal_instructions);
     	Resources res = getResources();
     	int wave_samples = res.getInteger(R.integer.samples_per_wav);
-    	Thread pingThread = new Thread(PingThread.create(signal_instructions, wave_samples), "PingThread");
-  	    pingThread.start();
+    	if (mPingThread!=null && mPingThread.isAlive() ) {
+    		// let existing thread finish for now
+    	} else {
+    	    mPingThread = new Thread(PingThread.create(signal_instructions, wave_samples), "PingThread");
+    	    mPingThread.start();
+    	}
     }
 }

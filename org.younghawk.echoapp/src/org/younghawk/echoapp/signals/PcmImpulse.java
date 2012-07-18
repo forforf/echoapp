@@ -11,7 +11,7 @@ public class PcmImpulse implements SignalType {
     private static final int MAX_ABS_VALUE = 32767;
     
     //Integer Array of Signal Data
-    private int[] mSignal;
+    public int[] mSignal;
 
     /**
      * Helpers for calculating impulse waveform

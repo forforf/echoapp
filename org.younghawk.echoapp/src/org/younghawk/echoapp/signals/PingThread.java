@@ -15,7 +15,7 @@ import android.util.Log;
  * @author Dave2
  *
  */
-public class PingThread implements Runnable {
+public class PingThread implements Runnable  {
 	//private Thread mPingThread; //used if we want/need to reference self as thread
 	private short[] mPcmSignal;
 		
@@ -33,7 +33,7 @@ public class PingThread implements Runnable {
 		sig_gen = SignalGenerator.create(instructions, num_of_samples);
 		if (sig_gen!=null) {
 			Log.i("EchoApp","Created Signal Generator");
-		    pcm_signal = sig_gen.getSignal();
+		    pcm_signal = sig_gen.mSignal;
 		} else {
 			return null;
 		}
@@ -80,6 +80,6 @@ public class PingThread implements Runnable {
 		} catch (IllegalArgumentException e) {
 			Log.e("pingButton", "Unable to create audio track (Illegal Arguments)");
 			e.printStackTrace();
-		}
+		} 
 	}
 }

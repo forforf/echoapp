@@ -6,9 +6,12 @@ import android.util.Log;
 
 /**
  * Container that creates and holds waveform information
- *
  */
 public class SignalGenerator {
+	
+	 // Public variables are used rather than getters or setters
+	 // as recommended by Google
+	public short[] mSignal;
 	
 	/**
 	 * Container for Array helper methods
@@ -61,27 +64,34 @@ public class SignalGenerator {
 		 * @param arr
 		 * @return
 		 */
-		//TODO: Check and issue warning if int array value is greater than short
 		public static short[] toShort(int[] arr){
-			short[] shorts;
-			if (arr.length % 2 == 0){
-			    shorts = new short[arr.length];
-			    for(int i=0; i<arr.length; i++) {
-			    	Integer intObj = Integer.valueOf(arr[i]); 
-				    shorts[i] = intObj.shortValue();
-			    }
-			} else {
-				shorts = new short[arr.length + 1];
-				for(int i=0; i<arr.length; i++) {
-			    	Integer intObj = Integer.valueOf(arr[i]); 
-				    shorts[i] = intObj.shortValue();
-			    }
-				shorts[arr.length] = 0;
-				
+			short[] shorts = new short[arr.length];
+		    for(int i=0;i<arr.length;i++) {
+		    	shorts[i] = clipToShort(arr[i]);
 			}
 			return shorts;
 		}
-	
+
+		/**
+		 * Clips integers to Short
+		 * Since integers are 4 bytes and shorts are only 2 bytes
+		 * TODO: Better solution is to refactor signal classes to use shorts rather than ints (lot of work)
+		 * @param x
+		 * @return
+		 */
+		public static short clipToShort(int x) {
+			if (x>32767) {
+				Log.w("EchoApp", "Somehow a value > 32767 was obtained, clipping to 32767");
+				x = 32767;
+			} else if (x<-32768) {
+				Log.w("EchoApp", "Somehow a value < -32768 was obtained, clipping to -32768");
+				x = -32768;
+			}
+			 
+			Integer intObj = Integer.valueOf(x);
+			return intObj.shortValue();
+		 }
+		
 	}
 
 	/**
@@ -133,10 +143,21 @@ public class SignalGenerator {
 				
 				//create the signal accordingly
 				SignalType sig_type = Signal.create(waveform, num_of_samples);
-	            int[] sig = sig_type.getSignal();
-	            
+				
+				int[] sig = null;
+				if (sig_type!=null){
+					sig = sig_type.getSignal();
+				} else {
+					Log.e("EchoApp", "Unable to create Signal (Waveform Type)");
+				}
+				
 	            //iterate the signal based on # of iterations in instructions
-				int[] sig_iters = ArrayCalcs.copy(sig, iterations);
+				int[] sig_iters = null;
+				if (sig!=null) {
+					sig_iters = ArrayCalcs.copy(sig, iterations);
+				} else {
+					Log.e("EchoApp", "sig was null");
+				}
 				sigs[i] = sig_iters;
 			}
 
@@ -150,7 +171,6 @@ public class SignalGenerator {
 		return new SignalGenerator(pcm_signal);	
 	}
 	
-	private short[] mSignal;
 	
 	/**
 	 * Create the Signal Genrator from the waveform signal
@@ -161,7 +181,4 @@ public class SignalGenerator {
         this.mSignal = sig;
 	}
 	
-	public short[] getSignal(){
-		return this.mSignal;
-	}
 }

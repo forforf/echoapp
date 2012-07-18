@@ -10,7 +10,7 @@ public class NullSignal implements SignalType {
     private static final int NULL_SIGNAL_VALUE = 0;
 
     //integer array of signal vallues
-    private int[] mSignal;
+    public int[] mSignal;
 
     /**
      * Factory for pre-initializing waveform data
@@ -42,7 +42,10 @@ public class NullSignal implements SignalType {
         return new NullSignal(null_data);
     }
 
-    //object initialization
+    /**
+     * Constructor
+     * @param nullData
+     */
     private NullSignal(int[] nullData) {
         mSignal = nullData;
     }
