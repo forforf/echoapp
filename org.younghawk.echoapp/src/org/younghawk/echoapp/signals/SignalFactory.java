@@ -5,7 +5,7 @@ import android.util.Log;
  * Concrete Factory that selects the appropriate class based
  * on the waveform name
  */
-public class Signal {
+public class SignalFactory {
 	private static final String IMPULSE="impulse";
 	private static final String NULLSIGNAL="null";
 	
@@ -20,11 +20,11 @@ public class Signal {
 		SignalType sig_type = null;
 		AbstractSignalFactory signalFactory = null;
 		
-		if (Signal.IMPULSE.equals(waveform_name)) {
+		if (SignalFactory.IMPULSE.equals(waveform_name)) {
 			ImpulseFactory impulseFactory = new ImpulseFactory();
 			signalFactory = (AbstractSignalFactory) impulseFactory;
 		
-		} else if (Signal.NULLSIGNAL.equals(waveform_name)) {
+		} else if (SignalFactory.NULLSIGNAL.equals(waveform_name)) {
 			NullSignalFactory nullFactory = new NullSignalFactory();
 			signalFactory = nullFactory;
 

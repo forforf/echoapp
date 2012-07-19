@@ -7,6 +7,8 @@
 
 package org.younghawk.echoapp;
 
+import java.util.Arrays;
+
 import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
 import org.younghawk.echoapp.signals.PingThread;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+//TODO: Convert from Callbacks (RecordAudioEvents) to Messages
 /**
  * Main Activity for the Echo App
  */
@@ -60,7 +63,9 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     	if (mPingThread!=null && mPingThread.isAlive() ) {
     		// let existing thread finish for now
     	} else {
-    	    mPingThread = new Thread(PingThread.create(mSignal_instructions, mWave_samples), "PingThread");
+    		PingThread pThr = PingThread.create(mSignal_instructions, mWave_samples);
+    	    mPingThread = new Thread(pThr, "PingThread");
+    	    Log.v("EchoApp", "Activity has filter mask: " + Arrays.toString(pThr.mPcmFilterMask));
     	    mPingThread.start();
     	}
     }

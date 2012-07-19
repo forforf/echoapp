@@ -9,9 +9,10 @@ import android.util.Log;
  */
 public class SignalGenerator {
 	
-	 // Public variables are used rather than getters or setters
-	 // as recommended by Google
+	// Public variables are used rather than getters or setters
+	// as recommended by Google
 	public short[] mSignal;
+	public short[] mFilterMask;
 	
 	/**
 	 * Container for Array helper methods
@@ -123,6 +124,7 @@ public class SignalGenerator {
 		//each iteration is an array, and each signal is an array
 		//so we have an array[iterations][signal data]
 		int[][] sigs = new int[user_instr.length()][];
+		int[][] filter_masks = new int[user_instr.length()][];
 		
 			for (int i=0; i<user_instr.length(); i++) {
 				//get the user instructions
@@ -141,12 +143,14 @@ public class SignalGenerator {
 					e.printStackTrace();
 				}
 				
-				//create the signal accordingly
-				SignalType sig_type = Signal.create(waveform, num_of_samples);
+				//create the signal and filter mask accordingly
+				SignalType sig_type = SignalFactory.create(waveform, num_of_samples);
 				
 				int[] sig = null;
+				int[] sig_filter_mask = null;
 				if (sig_type!=null){
 					sig = sig_type.getSignal();
+					sig_filter_mask = sig_type.filterMask();
 				} else {
 					Log.e("EchoApp", "Unable to create Signal (Waveform Type)");
 				}
@@ -159,16 +163,27 @@ public class SignalGenerator {
 					Log.e("EchoApp", "sig was null");
 				}
 				sigs[i] = sig_iters;
+				
+				//build filtermask basedon # of iterations
+				int[] filter_mask_iters = null;
+				if (sig_filter_mask!=null){
+					filter_mask_iters = ArrayCalcs.copy(sig_filter_mask, iterations);	
+				} else {
+					Log.e("EchoApp", "filter mask was null");
+				}
+				filter_masks[i] = filter_mask_iters;
 			}
 
 		
-		//flatten the signal
+		//flatten the signal and filter mask
 		int[] int_signal = ArrayCalcs.flatten(sigs);
+		int[] int_filter_mask = ArrayCalcs.flatten(filter_masks);
 		
 		//AudioTrack requires shorts so convert it
 		short[] pcm_signal = ArrayCalcs.toShort(int_signal);
+		short[] filter_mask_gen = ArrayCalcs.toShort(int_filter_mask);
 		
-		return new SignalGenerator(pcm_signal);	
+		return new SignalGenerator(pcm_signal, filter_mask_gen);	
 	}
 	
 	
@@ -177,8 +192,9 @@ public class SignalGenerator {
 	 * @param sig
 	 */
 			
-	private SignalGenerator(short[] sig) {
+	private SignalGenerator(short[] sig, short[] filter_mask) {
         this.mSignal = sig;
+        this.mFilterMask = filter_mask;
 	}
 	
 }

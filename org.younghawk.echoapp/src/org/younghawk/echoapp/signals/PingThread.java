@@ -1,5 +1,7 @@
 package org.younghawk.echoapp.signals;
 
+import java.util.Arrays;
+
 import org.json.JSONException;
 import org.younghawk.echoapp.R;
 
@@ -18,6 +20,7 @@ import android.util.Log;
 public class PingThread implements Runnable  {
 	//private Thread mPingThread; //used if we want/need to reference self as thread
 	private short[] mPcmSignal;
+	public short[] mPcmFilterMask;
 		
 	/**
 	 * Factory to initialize the waveform signal
@@ -26,26 +29,32 @@ public class PingThread implements Runnable  {
 	 * @return
 	 */
 	public static PingThread create(String instructions, int num_of_samples) {
+		
+		//TODO: Can SignalGenerator be moved out of the thread for better performance?
 		SignalGenerator sig_gen = null;
 		short[] pcm_signal = null;
+		short[] filter_mask = null;
 
 		
 		sig_gen = SignalGenerator.create(instructions, num_of_samples);
 		if (sig_gen!=null) {
 			Log.i("EchoApp","Created Signal Generator");
 		    pcm_signal = sig_gen.mSignal;
+		    filter_mask = sig_gen.mFilterMask;
+		    //Log.v("EchoApp", "FilterMask: " + Arrays.toString(filter_mask));
 		} else {
 			return null;
 		}
-		return new PingThread(pcm_signal);
+		return new PingThread(pcm_signal, filter_mask);
 	}
 	
 	/**
 	 * Create the thread object with the waveform signal
 	 * @param pcm_signal
 	 */
-	private PingThread(short[] pcm_signal) {
+	private PingThread(short[] pcm_signal, short[] filter_mask) {
 		this.mPcmSignal = pcm_signal;
+		this.mPcmFilterMask = filter_mask;
 		//this.mPingThread = new Thread(this);  //this thread object
 	}
 

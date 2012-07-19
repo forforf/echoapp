@@ -31,6 +31,27 @@ public class PcmImpulse implements SignalType {
              }
              return max_value;
         }
+        
+        public static int getMaxValue(int[] data){
+            int max_value = data[0];
+            for(int val: data){
+                if(val > max_value){
+                    max_value = val;
+                }
+            }
+            return max_value;
+        }
+        
+        public static int getMinValue(int[] data){
+            int min_value = data[0];
+            for(int val: data){
+                if(val < min_value){
+                    min_value = val;
+                }
+            }
+            return min_value;
+        }
+        
 
         /**
          * Returns the denominator of the exponent of the impulse wave function 
@@ -152,6 +173,39 @@ public class PcmImpulse implements SignalType {
    
    public int[] getSignal() {
 	   return mSignal;
+   }
+   
+   //TODO: Convert variables to proper case format
+   public int[] filterMask() {
+	   int[] filterMask = new int[mSignal.length];
+	   int maxVal = Calc.getMaxValue(mSignal);
+	   int minVal = Calc.getMinValue(mSignal);
+	   
+	   final int MATCH_HI = 1;
+	   final int MATCH_LO = -1;
+	   final int NO_MATCH = 0;
+	   
+	   //For better filter matching use a range for peak matching
+	   final double PEAK_FUDGE = 0.98;
+	   
+	   //Match values that are within PEAK_FUDGE
+	   for (int i=0;i<mSignal.length;i++) {
+
+		   double approx_max_dbl = maxVal * PEAK_FUDGE;
+		   int approx_max = (int) Math.round(approx_max_dbl);
+		   double approx_min_dbl = minVal * PEAK_FUDGE;
+		   int approx_min = (int) Math.round(approx_min_dbl);
+		   
+		   filterMask[i] = NO_MATCH;
+		   
+		   if (mSignal[i] >= approx_max) {
+			   filterMask[i] = MATCH_HI;
+		   } 
+		   if (mSignal[i] <= approx_min) {
+			   filterMask[i] = MATCH_LO;
+		   }
+	   }
+	   return filterMask;
    }
 }
 

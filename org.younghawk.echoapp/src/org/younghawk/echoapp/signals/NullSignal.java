@@ -53,4 +53,12 @@ public class NullSignal implements SignalType {
     public int[] getSignal() {
     	return mSignal;
     }
+    
+    public int[] filterMask() {
+    	int[] filterMask = new int[mSignal.length];
+        for (int i=0;i<mSignal.length;i++) {
+        	filterMask[i] = 0; //Null Signal has no mask
+        }
+        return filterMask;
+    }
 }
