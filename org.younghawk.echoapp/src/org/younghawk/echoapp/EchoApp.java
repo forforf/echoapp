@@ -21,15 +21,24 @@ import android.view.View;
  * Main Activity for the Echo App
  */
 public class EchoApp extends Activity implements RecordAudioEvents {
-	//Threads that may be active
+	//used to ensure only one audio resource thread is running at a time
 	private Thread mPingThread = null;
 	
+	//Waveform data
+	String mSignal_instructions;
+	Resources mRes;
+	int mWave_samples;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        //set variables with initial values
+        mSignal_instructions = getString(R.string.signal_instructions);
+    	mRes = getResources();
+    	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
     }
     
     /**
@@ -43,19 +52,17 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     	Log.v("EchoApp pingButton", "Ping Button Pressed");
     	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
     	listenThread.start();
-    	String signal_instructions = getString(R.string.signal_instructions);
-    	Resources res = getResources();
-    	int wave_samples = res.getInteger(R.integer.samples_per_wav);
-    	if (mPingThread!=null && mPingThread.isAlive() ) {
-    		// let existing thread finish for now
-    	} else {
-    	    mPingThread = new Thread(PingThread.create(signal_instructions, wave_samples), "PingThread");
-    	    mPingThread.start();
-    	}
     }
     
     public void onRecordReady() {
     	Log.v("EchoApp", "Activity recevied onRecordReady callback");
+    	
+    	if (mPingThread!=null && mPingThread.isAlive() ) {
+    		// let existing thread finish for now
+    	} else {
+    	    mPingThread = new Thread(PingThread.create(mSignal_instructions, mWave_samples), "PingThread");
+    	    mPingThread.start();
+    	}
     }
     
     public void onRecordDone(short[] buffer) {
