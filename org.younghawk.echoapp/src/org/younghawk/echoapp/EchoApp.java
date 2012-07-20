@@ -9,6 +9,7 @@ package org.younghawk.echoapp;
 
 import java.util.Arrays;
 
+import org.younghawk.echoapp.listen.AudioEnergyFilter;
 import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
 import org.younghawk.echoapp.signals.PingThread;
@@ -28,9 +29,12 @@ public class EchoApp extends Activity implements RecordAudioEvents {
 	private Thread mPingThread = null;
 	
 	//Waveform data
-	String mSignal_instructions;
-	Resources mRes;
-	int mWave_samples;
+	private String mSignal_instructions;
+	private Resources mRes;
+	private int mWave_samples;
+	
+	//FilterMask for decoding echoes
+	private short[] mFilterMask;
 	
     /** Called when the activity is first created. */
     @Override
@@ -64,14 +68,18 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     		// let existing thread finish for now
     	} else {
     		PingThread pThr = PingThread.create(mSignal_instructions, mWave_samples);
+    		mFilterMask = pThr.mPcmFilterMask;
     	    mPingThread = new Thread(pThr, "PingThread");
-    	    Log.v("EchoApp", "Activity has filter mask: " + Arrays.toString(pThr.mPcmFilterMask));
+    	    //Log.v("EchoApp", "Activity has filter mask: " + Arrays.toString(pThr.mPcmFilterMask));
     	    mPingThread.start();
     	}
     }
     
     public void onRecordDone(short[] buffer) {
     	Log.v("EchoApp", "Activity recevied onRecordDone callback");
+    	AudioEnergyFilter rxEnergyFilter = AudioEnergyFilter.create(buffer, mFilterMask);
+    	int[] rxEnergy = rxEnergyFilter.mAudioEnergy;
+    	//Log.v("EchoApp", "Filtered Audio:\n" + Arrays.toString(rxEnergy));
     	
     	//TODO: Remove test code
     	int zero_count = 0;
@@ -79,16 +87,16 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     	int small_neg_count = 0;
     	int big_pos_count = 0;
     	int big_neg_count = 0;
-    	for (int i=0;i<buffer.length;i++){
-    		if (buffer[i]==0){
+    	for (int i=0;i<rxEnergy.length;i++){
+    		if (rxEnergy[i]==0){
     			zero_count++;
-    		} else if (buffer[i]<256 && buffer[i]>0) {
+    		} else if (rxEnergy[i]<32767 && rxEnergy[i]>0) {
     			small_pos_count++;
-    		} else if (buffer[i]>-256 && buffer[i]<0) {
+    		} else if (rxEnergy[i]>-32767 && rxEnergy[i]<0) {
     			small_neg_count++;
-    		} else if (buffer[i]>=256) {
+    		} else if (rxEnergy[i]>=32767) {
     			big_pos_count++;
-    		} else if (buffer[i]<=-256) {
+    		} else if (rxEnergy[i]<=-32767) {
     			big_neg_count++;
     		}
     		//	tv.append(" " +buffer[i]);
