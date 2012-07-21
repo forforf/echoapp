@@ -13,10 +13,10 @@ public class ListenThread implements Runnable {
 	//public static final int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;  
 	public short[] mBuffer;
 	public static final int SAMPPERSEC = 44100; 
-	public static final int MAX_SAMPLE_TIME = 1; //in seconds
+	public static final double MAX_SAMPLE_TIME = 1; //in seconds
 	
 	public static ListenThread create(RecordAudioEvents callback) {
-		int buffersizeshorts = SAMPPERSEC * MAX_SAMPLE_TIME; //for 16bit PCM
+		int buffersizeshorts = (int) Math.round((double) SAMPPERSEC * MAX_SAMPLE_TIME); //for 16bit PCM
         int buffersizebytes = buffersizeshorts * 2;
         short[] buffer = new short[buffersizeshorts];
     	AudioRecord audioRecord = null;

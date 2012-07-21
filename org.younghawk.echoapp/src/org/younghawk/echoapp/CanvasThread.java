@@ -15,6 +15,7 @@ public class CanvasThread extends Thread {
         _panel = panel;
     }
 
+    //Used to flag the thread whether it should be running or not
     public void setRunning(boolean run) {
         _run = run;
     }
@@ -26,6 +27,8 @@ public class CanvasThread extends Thread {
             c = null;
             try {
                 c = _surfaceHolder.lockCanvas(null);
+                
+                //This is the point in the thread that we call the onDraw method in our Panel class
                 if (c!=null) {
 	                synchronized (_surfaceHolder) {
 	                	//Log.v("EchoApp", "" + _panel);

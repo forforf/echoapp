@@ -16,7 +16,8 @@ public class PcmImpulse implements SignalType {
     /**
      * Helpers for calculating impulse waveform
      */
-    private static class Calc{
+    public static class Calc{
+    	//TODO: Move to a util package
     	/**
     	 * returns the maximum value within the array
     	 * @param data

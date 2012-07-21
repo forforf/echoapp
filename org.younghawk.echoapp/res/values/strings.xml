@@ -12,8 +12,7 @@
           {\"waveform\": \"null\",    \"iterations\": 5 },
           {\"waveform\": \"impulse\", \"iterations\": 1 },
           {\"waveform\": \"null\",    \"iterations\": 7 },
-          {\"waveform\": \"impulse\", \"iterations\": 1 },
-          {\"waveform\": \"null\",    \"iterations\": 2 }
+          {\"waveform\": \"impulse\", \"iterations\": 1 }
         ]
     </string>
 </resources>

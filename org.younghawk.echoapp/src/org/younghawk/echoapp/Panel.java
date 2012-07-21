@@ -1,17 +1,14 @@
 package org.younghawk.echoapp;
 
-import java.util.ArrayList;
-import org.younghawk.echoapp.R;
+import org.younghawk.echoapp.graph.Grapher;
+import org.younghawk.echoapp.signals.PcmImpulse;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -19,36 +16,73 @@ import android.view.SurfaceView;
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	private CanvasThread canvasthread = null;
 	private int tester = 0;
+	private boolean testFlag = false;
+	
+	//Container for graph
+	public int[] mRawGraphData = null;
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
-		// TODO Auto-generated constructor stub
 	    getHolder().addCallback(this);
 	    canvasthread = new CanvasThread(getHolder(), this);
 	    setFocusable(true);
+	    //Send reference back to Main Activity
+	    EchoApp echoApp = (EchoApp) context;
+	    echoApp.setPanel(this);
 	}
 
-	 public Panel(Context context) {
+	public Panel(Context context) {
 		 
-		 super(context);
-		 //sets Panel as the handler for surface events
-		 getHolder().addCallback(this);
-		 canvasthread = new CanvasThread(getHolder(), this);
-		 setFocusable(true);
+		super(context);
+		//sets Panel as the handler for surface events
+		getHolder().addCallback(this);
+		canvasthread = new CanvasThread(getHolder(), this);
+		setFocusable(true);
 
-	    }
+	}
+	 
+	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {
+		float[] scaleData = new float[raw_data.length * 2];
+		int raw_data_max = PcmImpulse.Calc.getMaxValue(raw_data);
+		int raw_data_min = PcmImpulse.Calc.getMinValue(raw_data);
+		float scaledX = raw_data.length / (float) width;
+		float scaledY = (raw_data_max - raw_data_min)/(float) height;
+		for(int i=0;i<raw_data.length;i++) {
+			scaleData[i*2] = (i / scaledX) + (float) xoffset;
+			scaleData[i*2 + 1] = (raw_data[i]/scaledY) + (float) yoffset;
+		}
+		return scaleData;
+	}
 	 
 
 	@Override
 	public void onDraw(Canvas canvas) {
 		Paint paint = new Paint();
+		
+		
+        if (mRawGraphData!=null) {
+        	canvas.drawColor(Color.BLACK);
+        	paint.setColor(Color.GREEN);
+        	float[] scaledPoints = scaleData(mRawGraphData, 400, 400, 60, 260);
+        	canvas.drawPoints(scaledPoints, paint);
+        	if (testFlag==false){
+        		testFlag = true;
+        		Log.i("EchoApp", "STILL NO CIRCLE????????");
+        	} else {
+        		if (mRawGraphData == null) {
+        			Log.i("EchoApp", "NO DATA, WTF?");
+        		}
+        	}
+        	//canvas.drawCircle(50, 50, 30, paint);
+        } else {
+        	canvas.drawColor(Color.BLACK);
+        }
 
-		canvas.drawColor(Color.BLACK);
 		//canvas.drawBitmap(kangoo, 130, 10, null);
 		paint.setColor(Color.RED);
-		canvas.drawCircle(20,  50+tester,  25, paint);
+		canvas.drawCircle(20+tester,  50,  5, paint);
 		tester++;
-		if (tester>150){
+		if (tester>350){
 			tester=0;
 		}
 		
@@ -57,12 +91,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// TODO Auto-generated method stub
+		//Log.v("EchoApp", "SurfaceChanged");
 		
 	}
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+		//Workaround for when the thread is trashed by android (by pressing home, etc)
 		if (canvasthread.getState()==Thread.State.TERMINATED) { 
             canvasthread = new CanvasThread(getHolder(), this);
        }
@@ -72,9 +106,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
 		boolean retry = true;
 		canvasthread.setRunning(false);
+		//keep waiting for the thread to close - Possible cause for long FCs
 		while (retry) {
 			try {
 				canvasthread.join();
@@ -83,6 +117,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 				// we will try it again and again...
 			}
 		}
+	}
+	
+	public void onGraphData(Grapher graph_data){
+		
 	}
 
 

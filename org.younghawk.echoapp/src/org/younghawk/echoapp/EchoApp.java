@@ -28,6 +28,9 @@ public class EchoApp extends Activity implements RecordAudioEvents {
 	//used to ensure only one audio resource thread is running at a time
 	private Thread mPingThread = null;
 	
+	//Get a handle on the Panel View (not sure this is best approach)
+	private Panel mPanel = null;
+	
 	//Waveform data
 	private String mSignal_instructions;
 	private Resources mRes;
@@ -41,8 +44,11 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
+        //get a reference to the Panel view
+        //
         //set variables with initial values
+
         mSignal_instructions = getString(R.string.signal_instructions);
     	mRes = getResources();
     	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
@@ -78,25 +84,30 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     public void onRecordDone(short[] buffer) {
     	Log.v("EchoApp", "Activity recevied onRecordDone callback");
     	AudioEnergyFilter rxEnergyFilter = AudioEnergyFilter.create(buffer, mFilterMask);
-    	int[] rxEnergy = rxEnergyFilter.mAudioEnergy;
+    	int[] rx_energy = rxEnergyFilter.mAudioEnergy;
     	//Log.v("EchoApp", "Filtered Audio:\n" + Arrays.toString(rxEnergy));
     	
+    	if (mPanel != null) {
+             mPanel.mRawGraphData = rx_energy;
+    	} else {
+    		Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
+    	}
     	//TODO: Remove test code
     	int zero_count = 0;
     	int small_pos_count = 0;
     	int small_neg_count = 0;
     	int big_pos_count = 0;
     	int big_neg_count = 0;
-    	for (int i=0;i<rxEnergy.length;i++){
-    		if (rxEnergy[i]==0){
+    	for (int i=0;i<rx_energy.length;i++){
+    		if (rx_energy[i]==0){
     			zero_count++;
-    		} else if (rxEnergy[i]<32767 && rxEnergy[i]>0) {
+    		} else if (rx_energy[i]<32767 && rx_energy[i]>0) {
     			small_pos_count++;
-    		} else if (rxEnergy[i]>-32767 && rxEnergy[i]<0) {
+    		} else if (rx_energy[i]>-32767 && rx_energy[i]<0) {
     			small_neg_count++;
-    		} else if (rxEnergy[i]>=32767) {
+    		} else if (rx_energy[i]>=32767) {
     			big_pos_count++;
-    		} else if (rxEnergy[i]<=-32767) {
+    		} else if (rx_energy[i]<=-32767) {
     			big_neg_count++;
     		}
     		//	tv.append(" " +buffer[i]);
@@ -107,4 +118,14 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     	Log.v("EchoApp", "Large Pos: " + big_pos_count);
     	Log.v("EchoApp", "Large Neg: " + big_neg_count);
     }
+    
+    
+    public void setPanel(Panel panel){
+    	this.mPanel = panel;
+    }
+    
+    //public void updatePanelWithRxData(int[] rx_energy){
+    //	Context context = getActivityContext();
+    //	_panel = (Panel) context;
+    //}
 }
