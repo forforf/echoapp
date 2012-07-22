@@ -12,7 +12,6 @@ import java.util.Arrays;
 import org.younghawk.echoapp.listen.AudioEnergyFilter;
 import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
-import org.younghawk.echoapp.signals.PingThread;
 
 import android.app.Activity;
 import android.content.res.Resources;

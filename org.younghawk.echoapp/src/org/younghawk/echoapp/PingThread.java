@@ -1,9 +1,10 @@
-package org.younghawk.echoapp.signals;
+package org.younghawk.echoapp;
 
 import java.util.Arrays;
 
 import org.json.JSONException;
 import org.younghawk.echoapp.R;
+import org.younghawk.echoapp.signals.SignalGenerator;
 
 import android.content.res.Resources;
 import android.media.AudioFormat;
