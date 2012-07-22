@@ -16,7 +16,8 @@ import android.view.SurfaceView;
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	private CanvasThread canvasthread = null;
 	private int tester = 0;
-	private boolean testFlag = false;
+	private boolean canvasChangeFlag = true;
+	private Paint paint = new Paint();
 	
 	//Container for graph
 	public int[] mRawGraphData = null;
@@ -57,28 +58,21 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void onDraw(Canvas canvas) {
-		Paint paint = new Paint();
-		
-		
         if (mRawGraphData!=null) {
+        	Log.v("EchoApp","If you see a lot of these, that's an issue");
         	canvas.drawColor(Color.BLACK);
         	paint.setColor(Color.GREEN);
+        	//TODO Convert to calculated variable rather than on the fly method
         	float[] scaledPoints = scaleData(mRawGraphData, 400, 400, 60, 260);
         	canvas.drawPoints(scaledPoints, paint);
-        	if (testFlag==false){
-        		testFlag = true;
-        		Log.i("EchoApp", "STILL NO CIRCLE????????");
-        	} else {
-        		if (mRawGraphData == null) {
-        			Log.i("EchoApp", "NO DATA, WTF?");
-        		}
-        	}
+            mRawGraphData = null;
         	//canvas.drawCircle(50, 50, 30, paint);
-        } else {
-        	canvas.drawColor(Color.BLACK);
-        }
+        } 
 
 		//canvas.drawBitmap(kangoo, 130, 10, null);
+        paint.setColor(Color.BLACK);
+        canvas.drawRect(15,45,355,55, paint);
+        
 		paint.setColor(Color.RED);
 		canvas.drawCircle(20+tester,  50,  5, paint);
 		tester++;
