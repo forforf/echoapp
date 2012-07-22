@@ -7,8 +7,6 @@
 
 package org.younghawk.echoapp;
 
-import java.util.Arrays;
-
 import org.younghawk.echoapp.listen.AudioEnergyFilter;
 import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
@@ -16,6 +14,8 @@ import org.younghawk.echoapp.listen.RecordAudioEvents;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 
@@ -24,6 +24,19 @@ import android.view.View;
  * Main Activity for the Echo App
  */
 public class EchoApp extends Activity implements RecordAudioEvents {
+	private static final String TAG = "EchoApp";
+	
+	//Message Constants
+	private static final int ACTIVATE_PING = 0;
+	
+	//The runnable and thread for controlling non-UI related Sonar activities
+	private SonarRunnable mSonarRunnable;
+	private Thread mSonarThread;
+	
+	//Message Handlers
+	private EchoAppHandler mEchoAppHandler;
+	private Handler mSonarHandler;
+	
 	//used to ensure only one audio resource thread is running at a time
 	private Thread mPingThread = null;
 	
@@ -38,11 +51,32 @@ public class EchoApp extends Activity implements RecordAudioEvents {
 	//FilterMask for decoding echoes
 	private short[] mFilterMask;
 	
+	public class EchoAppHandler extends Handler{
+		public void handleMessage(Message msg) {
+			Log.i(TAG, "Main thread got message");
+		}
+	}
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        //Create this threads message handler
+        mEchoAppHandler = new EchoAppHandler();
+        
+        //Spin up threads now so we don't
+        //have to do it on UI commands
+        mSonarRunnable = SonarRunnable.create(mEchoAppHandler);
+        //mSonarHandler = mSonarRunnable.mHandler;
+        mSonarThread = new Thread(mSonarRunnable, "Sonar Thread");
+        mSonarThread.start();
+        
+        mSonarHandler = mSonarRunnable.mHandler;
+        
+
+        
 
         //get a reference to the Panel view
         //
@@ -62,6 +96,14 @@ public class EchoApp extends Activity implements RecordAudioEvents {
      */
     public void pingButton(View view) {
     	Log.v("EchoApp pingButton", "Ping Button Pressed");
+    	if (mSonarHandler!=null) {
+    		Message toSonar = mEchoAppHandler.obtainMessage();
+    		toSonar.what = ACTIVATE_PING;
+    		mSonarHandler.sendMessage(toSonar);
+    	} else {
+    		Log.w(TAG, "Sonar Handler was null");
+    	}
+    	
     	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
     	listenThread.start();
     }
