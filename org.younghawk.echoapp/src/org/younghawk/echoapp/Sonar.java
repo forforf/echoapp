@@ -7,10 +7,10 @@ import android.util.Log;
 
 public class Sonar implements Runnable {
 	private static final String TAG= "EchoApp SonarThread";
-	//Main UI Thread Handler
-	public Handler mParentHandler;
+
 	//This thread handler
 	public final Handler mHandler;
+	
 
 	//Message Handler
 	//I prefer named classes to anonymous classes given no other compelling reason
@@ -21,33 +21,31 @@ public class Sonar implements Runnable {
 	//}
 	
 	//factory method and message handler definition
-	public static Sonar create(Handler parentHandler){
+	public static Sonar create(){
 		Handler handler = new Handler() {
 			public void handleMessage(Message msg) {
 				Log.i(TAG, "Sonar handled message method");
 			}
 		};
-		return new Sonar(parentHandler, handler);
+		return new Sonar(handler);
 	}
 	//constructor
-	private Sonar(Handler parentHandler, Handler myHandler) {
-		this.mParentHandler = parentHandler;
-		Handler handler = new Handler() {
-			public void handleMessage(Message msg) {
-				Log.i(TAG, "Sonar handled message method");
-			}
-		};
+	private Sonar(Handler myHandler) {
 		this.mHandler = myHandler;
 	}
 
 	@Override
 	public void run() {
-		Log.i(TAG, "sonar message handler starting");
+		Log.i(TAG, "sonar thread starting");
 		Looper.prepare();
 
 		Looper.loop();
 	}
 	
+	
+	public void onPing(){
+		Log.i(TAG, "On Ping method called");
+	}
 	public Handler getHandler(){
 		return mHandler;
 	}

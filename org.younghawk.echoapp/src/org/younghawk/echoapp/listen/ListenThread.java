@@ -62,7 +62,7 @@ public class ListenThread implements Runnable {
     		onRecordDone(mBuffer);
     		
     	} catch(Throwable t) {
-    		Log.e("EchoApp", "Recording Failed");
+    		Log.e("EchoApp", "Recording Failed", t);
     	}
 
 	}

@@ -23,39 +23,26 @@ import android.view.View;
 /**
  * Main Activity for the Echo App
  */
-public class EchoApp extends Activity implements RecordAudioEvents {
+public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadListener {
 	private static final String TAG = "EchoApp";
 	
-	//Message Constants
-	private static final int ACTIVATE_PING = 0;
-	
-	//The runnable and thread for controlling non-UI related Sonar activities
-	private Sonar mSonarRunnable;
-	private Thread mSonarThread;
-	
-	//Message Handlers
-	private EchoAppHandler mEchoAppHandler;
-	private Handler mSonarHandler;
-	
-	//used to ensure only one audio resource thread is running at a time
-	private Thread mPingThread = null;
-	
+    private SonarThread mSonarThread;
+    private Handler mMainHandler;
+    
+    
+    //Prexisting Variables
+    private Thread mPingThread = null;
+    
 	//Get a handle on the Panel View (not sure this is best approach)
 	private Panel mPanel = null;
-	
+    
 	//Waveform data
 	private String mSignal_instructions;
 	private Resources mRes;
 	private int mWave_samples;
-	
+
 	//FilterMask for decoding echoes
 	private short[] mFilterMask;
-	
-	public class EchoAppHandler extends Handler{
-		public void handleMessage(Message msg) {
-			Log.i(TAG, "Main thread got message");
-		}
-	}
 	
     /** Called when the activity is first created. */
     @Override
@@ -63,28 +50,15 @@ public class EchoApp extends Activity implements RecordAudioEvents {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        //Create this threads message handler
-        mEchoAppHandler = new EchoAppHandler();
-        
-        //Spin up threads now so we don't
-        //have to do it on UI commands
-        mSonarRunnable = Sonar.create(mEchoAppHandler);
-        //mSonarHandler = mSonarRunnable.mHandler;
-        mSonarThread = new Thread(mSonarRunnable, "Sonar Thread");
+        // Create and launch the sonar thread
+        mSonarThread = new SonarThread(this);
         mSonarThread.start();
-        
-        mSonarHandler = mSonarRunnable.mHandler;
-        
 
-        
+        //create the handler for the UI thread
+        mMainHandler = new Handler();
 
-        //get a reference to the Panel view
-        //
-        //set variables with initial values
 
-        mSignal_instructions = getString(R.string.signal_instructions);
-    	mRes = getResources();
-    	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
+
     }
     
     /**
@@ -96,13 +70,7 @@ public class EchoApp extends Activity implements RecordAudioEvents {
      */
     public void pingButton(View view) {
     	Log.v("EchoApp pingButton", "Ping Button Pressed");
-    	if (mSonarHandler!=null) {
-    		Message toSonar = mEchoAppHandler.obtainMessage();
-    		toSonar.what = ACTIVATE_PING;
-    		mSonarHandler.sendMessage(toSonar);
-    	} else {
-    		Log.w(TAG, "Sonar Handler was null");
-    	}
+        mSonarThread.ping();
     	
     	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
     	listenThread.start();
@@ -164,6 +132,11 @@ public class EchoApp extends Activity implements RecordAudioEvents {
     public void setPanel(Panel panel){
     	this.mPanel = panel;
     }
+
+	@Override
+	public void handleSonarUpdate() {
+		Log.i(TAG,"Echo App handling sonar update");
+	}
     
     //public void updatePanelWithRxData(int[] rx_energy){
     //	Context context = getActivityContext();
