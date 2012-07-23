@@ -5,12 +5,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-public class SonarRunnable implements Runnable {
+public class Sonar implements Runnable {
 	private static final String TAG= "EchoApp SonarThread";
 	//Main UI Thread Handler
 	public Handler mParentHandler;
 	//This thread handler
-	public Handler mHandler;
+	public final Handler mHandler;
 
 	//Message Handler
 	//I prefer named classes to anonymous classes given no other compelling reason
@@ -21,17 +21,22 @@ public class SonarRunnable implements Runnable {
 	//}
 	
 	//factory method and message handler definition
-	public static SonarRunnable create(Handler parentHandler){
+	public static Sonar create(Handler parentHandler){
 		Handler handler = new Handler() {
 			public void handleMessage(Message msg) {
 				Log.i(TAG, "Sonar handled message method");
 			}
 		};
-		return new SonarRunnable(parentHandler, handler);
+		return new Sonar(parentHandler, handler);
 	}
 	//constructor
-	private SonarRunnable(Handler parentHandler, Handler myHandler) {
+	private Sonar(Handler parentHandler, Handler myHandler) {
 		this.mParentHandler = parentHandler;
+		Handler handler = new Handler() {
+			public void handleMessage(Message msg) {
+				Log.i(TAG, "Sonar handled message method");
+			}
+		};
 		this.mHandler = myHandler;
 	}
 

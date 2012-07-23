@@ -30,7 +30,7 @@ public class EchoApp extends Activity implements RecordAudioEvents {
 	private static final int ACTIVATE_PING = 0;
 	
 	//The runnable and thread for controlling non-UI related Sonar activities
-	private SonarRunnable mSonarRunnable;
+	private Sonar mSonarRunnable;
 	private Thread mSonarThread;
 	
 	//Message Handlers
@@ -68,7 +68,7 @@ public class EchoApp extends Activity implements RecordAudioEvents {
         
         //Spin up threads now so we don't
         //have to do it on UI commands
-        mSonarRunnable = SonarRunnable.create(mEchoAppHandler);
+        mSonarRunnable = Sonar.create(mEchoAppHandler);
         //mSonarHandler = mSonarRunnable.mHandler;
         mSonarThread = new Thread(mSonarRunnable, "Sonar Thread");
         mSonarThread.start();
