@@ -51,11 +51,11 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
         setContentView(R.layout.main);
         
         // Create and launch the sonar thread
-        mSonarThread = new SonarThread(this);
-        mSonarThread.start();
+        //mSonarThread = new SonarThread(this);
+        //mSonarThread.start();
 
         //create the handler for the UI thread
-        mMainHandler = new Handler();
+        //mMainHandler = new Handler();
 
         mSignal_instructions = getString(R.string.signal_instructions);
     	mRes = getResources();
@@ -72,7 +72,7 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
      */
     public void pingButton(View view) {
     	Log.v("EchoApp pingButton", "Ping Button Pressed");
-        mSonarThread.ping();
+        //mSonarThread.ping();
     	
     	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
     	listenThread.start();
