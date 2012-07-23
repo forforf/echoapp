@@ -1,5 +1,7 @@
 package org.younghawk.echoapp;
 
+import org.younghawk.echoapp.listen.RecordAudioEvents;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -31,4 +33,5 @@ public class SonarThread extends Thread {
 	public synchronized void ping(){
 		Log.i(TAG, "Sonar Thread received ping request");
 	}
+
 }
