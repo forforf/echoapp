@@ -22,7 +22,7 @@ public class SonarThread extends Thread {
 			Looper.prepare();
 			handler = new Handler();
 			Looper.loop();
-			Log.i(TAG,"Existing Sonar Thread");
+			Log.i(TAG,"Exiting Sonar Thread");
 		} catch (Throwable t) {
 			Log.e(TAG, "halted due to error", t);
 		}

@@ -65,8 +65,9 @@ public class PingThread implements Runnable  {
 	 */
 	@Override
 	public void run() {
-
-		try { 
+        Log.i("EchoApp", "Inside waveform thread - attempting to play audio");        
+		try {
+			Log.i("EchoApp", "Setting up Audio");
 			AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 
 												44100, 
 												AudioFormat.CHANNEL_OUT_MONO, 
@@ -75,6 +76,8 @@ public class PingThread implements Runnable  {
 												AudioTrack.MODE_STATIC );
 			
 			int result = track.write(mPcmSignal, 0, mPcmSignal.length);
+			
+			Log.v("EchoApp", "Audio Track result: " + result);
 			if (result == AudioTrack.ERROR_INVALID_OPERATION  || 
 					result == AudioTrack.ERROR_BAD_VALUE ||
 					result != mPcmSignal.length/2) {
@@ -85,6 +88,7 @@ public class PingThread implements Runnable  {
 				//TODO capture transmit time 
 				//capture nano time here
 				track.play();
+				Log.v("EchoApp AudioTrack", "Track should have played");
 				//and capture nano time here, and send them to be averaged
 				//to determine send time (or better yet, perform math using sample rate)
 			}

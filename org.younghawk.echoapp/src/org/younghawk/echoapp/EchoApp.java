@@ -57,10 +57,12 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
         //create the handler for the UI thread
         mMainHandler = new Handler();
 
-
+        mSignal_instructions = getString(R.string.signal_instructions);
+    	mRes = getResources();
+    	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
 
     }
-    
+     
     /**
      * Handles pingButton presses (click handler defined in layout)
      *   Retrieves the information needed to build a signal from 

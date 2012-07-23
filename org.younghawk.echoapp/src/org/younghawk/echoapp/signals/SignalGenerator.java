@@ -106,9 +106,11 @@ public class SignalGenerator {
 
 		//parse the json instructions
 		try {
+			Log.v("EchoApp", "User instructions: " + user_instructions);
 			user_instr = new JSONArray(user_instructions);
+			
 		} catch (JSONException e) {
-			Log.e("EchoApp", "SignalGenerator failed to parse the JSON instructions array");
+			Log.e("EchoApp", "SignalGenerator failed to parse the JSON instructions array", e);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
