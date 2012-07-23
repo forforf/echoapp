@@ -17,7 +17,7 @@ public class AudioSupervisor {
 		return new AudioSupervisor();
 	}
 	
-	private AudioSupervisor() {
+	private AudioSupervisor() { 
 		
 	}
 }
