@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="Audio Parameters">
+
+                
+         <ListPreference
+           android:title="Samples per Second"
+           android:summary="Higher samples provides higher resolution (better quality), but consumes more CPU (i.e. battery)"
+           android:key="listPref"
+           android:defaultValue="1"
+           android:entries="@array/audio_rates"
+           android:entryValues="@array/audio_rates_values" />       
+                                               
+                
+    </PreferenceCategory>
+
+</PreferenceScreen>

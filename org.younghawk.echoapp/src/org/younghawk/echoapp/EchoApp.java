@@ -12,11 +12,15 @@ import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 
 //TODO: Convert from Callbacks (RecordAudioEvents) to Messages
@@ -44,6 +48,8 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
 	//FilterMask for decoding echoes
 	private short[] mFilterMask;
 	
+	private AudioSupervisor audioSupervisor;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,10 +62,15 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
 
         //create the handler for the UI thread
         //mMainHandler = new Handler();
+        
 
         mSignal_instructions = getString(R.string.signal_instructions);
     	mRes = getResources();
     	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
+    	
+    	
+    	//Create AudioSupervisor to initiate threads
+    	audioSupervisor = AudioSupervisor.create();
 
     }
      
@@ -73,6 +84,9 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     public void pingButton(View view) {
     	Log.v("EchoApp pingButton", "Ping Button Pressed");
         //mSonarThread.ping();
+    	
+    	
+    	
     	
     	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
     	listenThread.start();
@@ -144,4 +158,33 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     //	Context context = getActivityContext();
     //	_panel = (Panel) context;
     //}
+	
+	
+	//TODO: I don't know why I have to do it like this :(
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if ( keyCode == KeyEvent.KEYCODE_MENU ) {
+	        Log.v(TAG, "MENU pressed");
+	        startActivity(new Intent(this, EchoAppPreferences.class));
+	        return true;
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
+	
+	
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.i(TAG, "Options Item Selected");
+    	//startActivity(new Intent(this, EchoAppPreferences.class));
+    	return false;
+        //switch (item.getItemId()) {
+         //   case android.R.id.listPref:
+    	//        Log.i(TAG, "Trying to start EchoAppPreference Activity");
+         //       startActivity(new Intent(this, EchoAppPreferences.class));
+          //      return false;
+         //       break;
+        //}
+        //return super.onOptionsItemSelected(item);
+    }
+   
 }

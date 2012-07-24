@@ -26,6 +26,7 @@ public class CanvasThread extends Thread {
         while (_run) {
             c = null;
             try {
+            	Thread.sleep(20);
                 c = _surfaceHolder.lockCanvas(null);
                 
                 //This is the point in the thread that we call the onDraw method in our Panel class
@@ -39,6 +40,9 @@ public class CanvasThread extends Thread {
 	                	}
 	                }
                 } //TODO: capture data on why canvas would be null
+            } catch (InterruptedException e) {
+            	_run = false;
+            	Log.w("EchoApp", "Thread interupted");
             } finally {
                 // do this in a finally so that if an exception is thrown
                 // during the above, we don't leave the Surface in an

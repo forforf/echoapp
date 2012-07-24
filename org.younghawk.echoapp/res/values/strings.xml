@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">EchoApp</string>
     <string name="activity_title">Echo Locator</string>
     <string name="ping_button">Ping</string>
-    <string name="signal_instructions">
-        [ 
+    <string name="signal_instructions">        [ 
           {\"waveform\": \"null\",    \"iterations\": 2 },
           {\"waveform\": \"impulse\", \"iterations\": 1 },
           {\"waveform\": \"null\",    \"iterations\": 3 },
@@ -13,6 +13,9 @@
           {\"waveform\": \"impulse\", \"iterations\": 1 },
           {\"waveform\": \"null\",    \"iterations\": 7 },
           {\"waveform\": \"impulse\", \"iterations\": 1 }
-        ]
-    </string>
+        ]</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_echo_app_preferences">EchoAppPreferences</string>
+
 </resources>
