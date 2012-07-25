@@ -30,8 +30,8 @@ import android.view.View;
 public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadListener {
 	private static final String TAG = "EchoApp";
 	
-    private SonarThread mSonarThread;
-    private Handler mMainHandler;
+    //private SonarThread mSonarThread;
+    //private Handler mMainHandler;
     
     
     //Prexisting Variables
@@ -71,6 +71,7 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     	
     	//Create AudioSupervisor to initiate threads
     	audioSupervisor = AudioSupervisor.create();
+    	
 
     }
      
@@ -82,18 +83,18 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
      * @param view
      */
     public void pingButton(View view) {
-    	Log.v("EchoApp pingButton", "Ping Button Pressed");
+    	Log.d("EchoApp pingButton", "Ping Button Pressed");
         //mSonarThread.ping();
+    	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
+    	audioSupervisor.startRecording();
     	
     	
-    	
-    	
-    	Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
-    	listenThread.start();
+    	//Thread listenThread = new Thread(ListenThread.create(this), "ListenThread");
+    	//listenThread.start();
     }
     
     public void onRecordReady() {
-    	Log.v("EchoApp", "Activity recevied onRecordReady callback");
+    	Log.d("EchoApp", "Activity recevied onRecordReady callback");
     	
     	if (mPingThread!=null && mPingThread.isAlive() ) {
     		// let existing thread finish for now

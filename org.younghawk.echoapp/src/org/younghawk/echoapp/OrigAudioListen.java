@@ -6,7 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.util.Log;
 
-public class AudioRecordRunner implements Runnable {
+public class OrigAudioListen implements Runnable {
 	public AudioRecord mAudioRecord;
 	public RecordAudioEvents mCallback;
 	//public int buffersizebytes;
@@ -17,7 +17,7 @@ public class AudioRecordRunner implements Runnable {
 	public static final int SAMPPERSEC = 44100; 
 	public static final double MAX_SAMPLE_TIME = 1; //in seconds
 	
-	public static AudioRecordRunner create(RecordAudioEvents callback) {
+	public static OrigAudioListen create(RecordAudioEvents callback) {
 		int buffersizeshorts = (int) Math.round((double) SAMPPERSEC * MAX_SAMPLE_TIME); //for 16bit PCM
         int buffersizebytes = buffersizeshorts * 2;
         short[] buffer = new short[buffersizeshorts];
@@ -35,17 +35,17 @@ public class AudioRecordRunner implements Runnable {
         }
         
         //Don't construct thread if audioRecord is null
-        AudioRecordRunner listenThread = null;
+        OrigAudioListen listenThread = null;
         if (audioRecord!= null) {
         	Log.v("EchoApp", "AudioRecord should be ready?");
-        	listenThread = new AudioRecordRunner(audioRecord, buffer, buffersizeshorts, callback);
+        	listenThread = new OrigAudioListen(audioRecord, buffer, buffersizeshorts, callback);
         } else {
         	Log.e("EchoApp", "Failed to initialize AudioRecord (was null)");
         }
 		return listenThread;
 	}
 	
-	private AudioRecordRunner(AudioRecord audioRecord, short[] buffer, int buffersizeshorts, RecordAudioEvents callback) {
+	private OrigAudioListen(AudioRecord audioRecord, short[] buffer, int buffersizeshorts, RecordAudioEvents callback) {
 		this.mAudioRecord = audioRecord;
 		this.mBuffer = buffer;
 		this.mBuffersizeshorts = buffersizeshorts;

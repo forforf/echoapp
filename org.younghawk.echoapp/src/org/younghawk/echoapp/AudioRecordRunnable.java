@@ -1,7 +1,9 @@
 package org.younghawk.echoapp;
 
-import android.media.AudioRecord;
 import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 public class AudioRecordRunnable implements Runnable {
@@ -11,6 +13,7 @@ public class AudioRecordRunnable implements Runnable {
 	public short[] mBuffer;
 	public static final int SAMPPERSEC = 44100; 
 	public static final double MAX_SAMPLE_TIME = 1; //in seconds
+	public Handler handler;
 	
 	
 	public static AudioRecordRunnable create() {
@@ -49,11 +52,16 @@ public class AudioRecordRunnable implements Runnable {
 		this.mBuffersizeshorts = buffersizeshorts;
 	}
 	
-	@Override
+	@Override	
 	public void run() {
 		Log.v(TAG, "Running Audio Record Thread");
 		try {
 			Log.v(TAG, "Trying to start AudioRecord: " + mAudioRecord);
+			Looper.prepare();
+			handler = new Handler() {
+				
+			};
+			Looper.loop();
     		//mAudioRecord.startRecording();
     		//onRecordReady();
 
@@ -65,6 +73,5 @@ public class AudioRecordRunnable implements Runnable {
     	}
 
 	}
-	
-	
+		
 }
