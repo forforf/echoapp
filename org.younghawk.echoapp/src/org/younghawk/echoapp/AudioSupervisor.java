@@ -1,5 +1,7 @@
 package org.younghawk.echoapp;
 
+import org.younghawk.echoapp.listen.AudioEnergyFilter;
+
 import android.media.AudioRecord;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -25,13 +27,17 @@ public class AudioSupervisor implements Callback {
 	private static final double MAX_SAMPLE_TIME = 1.0; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
 	private AudioRecord mAudioRecord;
+	private PingThread mPinger;
+	private short[] mFilter;
+	
 	
 	//Message Definitions
 	private static final int RECORD_READY = 0;
 	private static final int BUFFER_DATA = 1;
+	private static final int FILTER_DATA = 2;
 
 
-	public static AudioSupervisor create() {
+	public static AudioSupervisor create(String instructions, int num_of_samples) {
 		HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
 		mAudioRecordThr.start();
         
@@ -40,6 +46,10 @@ public class AudioSupervisor implements Callback {
         
         AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
         //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
+        
+        //TODO: This ins't a thread it's a runnable, rename
+        //TODO: This should get spun up in its own handler thread like the others
+        PingThread pinger = PingThread.create(instructions, num_of_samples);
         
         Looper arLooper = mAudioRecordThr.getLooper();
         Handler audioHandler = null;
@@ -57,10 +67,22 @@ public class AudioSupervisor implements Callback {
         	Log.e(TAG, "Buffer Looper was null, was thread started?");
         } 
         
-		return new AudioSupervisor(mAudioRecordThr, mAudioBufferThr, audioHandler, bufferHandler, audioRecordWrapper);
+		return new AudioSupervisor(
+				mAudioRecordThr, 
+				mAudioBufferThr, 
+				audioHandler, 
+				bufferHandler, 
+				audioRecordWrapper,
+				pinger);
 	}
 	
-	private AudioSupervisor(HandlerThread audioRecThr, HandlerThread audioBufThr, Handler audioHandler, Handler bufferHandler, AudioRecordWrapper audioRecordWrapper) {
+	private AudioSupervisor(HandlerThread audioRecThr, 
+			HandlerThread audioBufThr, 
+			Handler audioHandler, 
+			Handler bufferHandler, 
+			AudioRecordWrapper audioRecordWrapper,
+			PingThread pinger) {
+		
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
 		this.mAudioRecordHandler = audioHandler;
@@ -68,6 +90,8 @@ public class AudioSupervisor implements Callback {
 		this.mMainHandler = new Handler(this);
 		this.mAudioRecordWrapper = audioRecordWrapper;
 		this.mAudioRecord = audioRecordWrapper.mAudioRecord;
+		this.mPinger = pinger;
+		this.mFilter = pinger.mPcmFilterMask;
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -83,6 +107,14 @@ public class AudioSupervisor implements Callback {
 				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 				Message bufferMsg = Message.obtain(mMainHandler, BUFFER_DATA, mAudioRecordWrapper.mBuffer);
 				mMainHandler.sendMessage(bufferMsg);
+				
+				//Apply Filter
+				//TODO: Requires refactoring, expensive operation here - perhaps its own thread?
+				//TODO: Also class is inside deprecated package
+				AudioEnergyFilter rxEnergyFilter = AudioEnergyFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
+		    	int[] rx_energy = rxEnergyFilter.mAudioEnergy;
+		    	Message filterMsg = Message.obtain(mMainHandler, FILTER_DATA, rx_energy);
+		    	mMainHandler.sendMessage(filterMsg);
 			}
 		});
 	}
@@ -96,6 +128,9 @@ public class AudioSupervisor implements Callback {
 		case BUFFER_DATA:
 			onBufferData(msg.obj);
 			break;
+		case FILTER_DATA:
+			onFilterData(msg.obj);
+			break;
 		}
 		
 		return true;
@@ -108,6 +143,11 @@ public class AudioSupervisor implements Callback {
 	public void onBufferData(Object objBuffer){
 		short[] buffer = (short[]) objBuffer;
 		Log.d(TAG, "Main thread notified of buffer with " + buffer.length + " samples");
+	}
+	
+	public void onFilterData(Object objFilterData) {
+		int[] filter_data = (int[]) objFilterData;
+		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 	}
 }
 

@@ -64,13 +64,14 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
         //mMainHandler = new Handler();
         
 
+        //TODO: Move to audio supervisor
         mSignal_instructions = getString(R.string.signal_instructions);
     	mRes = getResources();
     	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
     	
     	
     	//Create AudioSupervisor to initiate threads
-    	audioSupervisor = AudioSupervisor.create();
+    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples);
     	
 
     }
