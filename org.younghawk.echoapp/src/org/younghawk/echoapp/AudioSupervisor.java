@@ -30,15 +30,17 @@ public class AudioSupervisor implements Callback {
 	private PingThread mPinger;
 	private short[] mFilter;
 	private AudioFilter mAudioFilter;
+	private AudioUpdates mCallback;
+
 	
 	
 	//Message Definitions
-	private static final int RECORD_READY = 0;
-	private static final int BUFFER_DATA = 1;
-	private static final int FILTER_DATA = 2;
+	//private static final int RECORD_READY = 0;
+	//private static final int BUFFER_DATA = 1;
+	//private static final int FILTER_DATA = 2;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
-	public static AudioSupervisor create(String instructions, int num_of_samples) {
+	public static AudioSupervisor create(String instructions, int num_of_samples, AudioUpdates callback) {
 		HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
 		mAudioRecordThr.start();
         
@@ -89,7 +91,8 @@ public class AudioSupervisor implements Callback {
 				pingerHandler,
 				audioRecordWrapper,
 				pinger,
-				audioFilter);
+				audioFilter,
+				callback);
 	}
 	
 	private AudioSupervisor(HandlerThread audioRecThr, 
@@ -100,7 +103,8 @@ public class AudioSupervisor implements Callback {
 			Handler pingHandler,
 			AudioRecordWrapper audioRecordWrapper,
 			PingThread pinger,
-			AudioFilter audioFilter) {
+			AudioFilter audioFilter,
+			AudioUpdates callback) {
 		
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
@@ -114,6 +118,7 @@ public class AudioSupervisor implements Callback {
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
+		this.mCallback = callback;
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -124,18 +129,25 @@ public class AudioSupervisor implements Callback {
 			public void run() {
 				Log.d(TAG, "Trying to start AudioRecord: " + mAudioRecord + " on thread: " + Thread.currentThread().getName());
 				mAudioRecord.startRecording();
-				mMainHandler.sendEmptyMessage(RECORD_READY);
+				mMainHandler.sendEmptyMessage(MsgIds.RECORD_READY);
 				int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
 				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
-				Message bufferMsg = Message.obtain(mMainHandler, BUFFER_DATA, mAudioRecordWrapper.mBuffer);
-				mMainHandler.sendMessage(bufferMsg);
 				
+				Log.d(TAG, "Im Alive 1");
+				Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
+				Log.d(TAG, "Im Alive 2");
+				mMainHandler.sendMessage(bufferMsg);
+				Log.d(TAG, "Im Alive 3");
 				//Apply Filter
 				//TODO: Requires refactoring, expensive operation here - perhaps its own thread?
 				//TODO: Also class is inside deprecated package
 				//AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
+				Log.d(TAG, "Audio Filter: " + mAudioFilter.toString());
+				Log.d(TAG, "Im Alive 4");
 		    	int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
-		    	Message filterMsg = Message.obtain(mMainHandler, FILTER_DATA, rx_energy);
+		    	Log.d(TAG, "Im Alive 5");
+		    	Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
+		    	Log.d(TAG, "Im Alive 6");
 		    	mMainHandler.sendMessage(filterMsg);
 			}
 		});
@@ -144,18 +156,18 @@ public class AudioSupervisor implements Callback {
 	@Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
-		case RECORD_READY:
+		case MsgIds.RECORD_READY:
 			onRecordReady();
 			break;
-		case BUFFER_DATA:
+		case MsgIds.BUFFER_DATA:
 			onBufferData(msg.obj);
 			break;
-		case FILTER_DATA:
+		case MsgIds.FILTER_DATA:
 			onFilterData(msg.obj);
 			break;
 		}
 		
-		return true;
+		return false;
 	}
 	
 	public void onRecordReady(){
@@ -165,18 +177,6 @@ public class AudioSupervisor implements Callback {
 		Log.d(TAG,"Audio Supervisor sending ping to Pinger Thread");
 		mPingerHandler.post(mPinger);
 		
-		
-		/*
-		if (mPinger!=null && mPinger.isAlive() ) {
-    		// let existing thread finish for now
-    	} else {
-    		//PingThread pThr = PingThread.create(mSignal_instructions, mWave_samples);
-    		//mFilterMask = pThr.mPcmFilterMask;
-    		//TODO: Spin up the thread first then send message to it to activate ping
-    	    Thread pingThread = new Thread(mPinger, "PingThread");
-    	    //Log.v("EchoApp", "Activity has filter mask: " + Arrays.toString(pThr.mPcmFilterMask));
-    	    pingThread.start();
-		*/
 	}
 	
 	//IMPORTANT: In the current implementation this is called only once
@@ -196,33 +196,40 @@ public class AudioSupervisor implements Callback {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 		
+		mCallback.updateFilterData(filter_data);
     	//TODO: Remove test code
     	int zero_count = 0;
-    	int small_pos_count = 0;
-    	int small_neg_count = 0;
-    	int big_pos_count = 0;
-    	int big_neg_count = 0;
+    	int noise_count = 0;
+    	int small_count = 0;
+    	int big_count = 0;
+    	int very_big_count = 0;
+    	int ZERO = 0;
+    	int NOISE = 256;
+    	int SMALL = 16024;
+    	int BIG = 64536;
+    	
     	
     	for (int i=0;i<filter_data.length;i++){
-    		if (filter_data[i]==0){
+    		int abs_data = Math.abs(filter_data[i]);
+    		if (abs_data==ZERO){
     			zero_count++;
-    		} else if (filter_data[i]<32767 && filter_data[i]>0) {
-    			small_pos_count++;
-    		} else if (filter_data[i]>-32767 && filter_data[i]<0) {
-    			small_neg_count++;
-    		} else if (filter_data[i]>=32767) {
-    			big_pos_count++;
-    		} else if (filter_data[i]<=-32767) {
-    			big_neg_count++;
+    		} else if (abs_data<=NOISE && abs_data>ZERO) {
+    			noise_count++;
+    		} else if (abs_data<=SMALL && abs_data>NOISE) {
+    			small_count++;
+    		} else if (abs_data<=BIG && abs_data>SMALL) {
+    			big_count++;
+    		} else if (abs_data>BIG) {
+    			very_big_count++;
     		}
     		//	tv.append(" " +buffer[i]);
     	}
     	
     	Log.d(TAG, "Zeros: " + zero_count);
-    	Log.d(TAG, "Small Pos: " + small_pos_count);
-    	Log.d(TAG, "Small Neg: " + small_neg_count);
-    	Log.d(TAG, "Large Pos: " + big_pos_count);
-    	Log.d(TAG, "Large Neg: " + big_neg_count);
+    	Log.d(TAG, "Noise: " + noise_count);
+    	Log.d(TAG, "Small: " + small_count);
+    	Log.d(TAG, "Big: " + big_count);
+    	Log.d(TAG, "Very Big: " + very_big_count);
 	}
 }
 

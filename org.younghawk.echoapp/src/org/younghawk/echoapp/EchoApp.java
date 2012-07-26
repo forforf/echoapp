@@ -26,7 +26,7 @@ import android.view.View;
 /**
  * Main Activity for the Echo App
  */
-public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadListener {
+public class EchoApp extends Activity implements SonarThreadListener, AudioUpdates {
 	private static final String TAG = "EchoApp";
 	
     //private SonarThread mSonarThread;
@@ -70,7 +70,7 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     	
     	
     	//Create AudioSupervisor to initiate threads
-    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples);
+    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, this);
     	
 
     }
@@ -93,20 +93,13 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     	//listenThread.start();
     }
     
-    public void onRecordReady() {
-    	Log.d("EchoApp", "Activity recevied onRecordReady callback");
-    	
-    	if (mPingThread!=null && mPingThread.isAlive() ) {
-    		// let existing thread finish for now
-    	} else {
-    		PingThread pThr = PingThread.create(mSignal_instructions, mWave_samples);
-    		mFilterMask = pThr.mPcmFilterMask;
-    	    mPingThread = new Thread(pThr, "PingThread");
-    	    //Log.v("EchoApp", "Activity has filter mask: " + Arrays.toString(pThr.mPcmFilterMask));
-    	    mPingThread.start();
-    	}
-    }
+    //public void onRecordReady() {
+    //	Log.d("EchoApp", "Activity recevied onRecordReady callback");
+   
+    //}
     
+    
+    //deprecated
     public void onRecordDone(short[] buffer) {
     	Log.v("EchoApp", "Activity recevied onRecordDone callback");
     	//AudioFilter rxEnergyFilter = AudioFilter.create(buffer, mFilterMask);
@@ -164,4 +157,13 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
         //return super.onOptionsItemSelected(item);
     }
    
+    public void updateFilterData(int[] filter_data){
+    	Log.d(TAG, "updateFilterData callback");
+    	if (mPanel != null) {
+    		mPanel.mRawGraphData = filter_data;
+    	} else {
+    		Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
+   	}
+
+    }
 }
