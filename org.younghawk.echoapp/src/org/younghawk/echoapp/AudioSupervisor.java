@@ -1,5 +1,8 @@
 package org.younghawk.echoapp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import android.media.AudioRecord;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -204,13 +207,28 @@ public class AudioSupervisor implements Callback {
     	int big_count = 0;
     	int very_big_count = 0;
     	int ZERO = 0;
-    	int NOISE = 256;
-    	int SMALL = 16024;
-    	int BIG = 64536;
+    	int NOISE = 200; // mean 150-200 stddev 190-240  TODO: Check from app
+    	int SMALL = 440;
+    	int BIG = 680;
+    	int SIGNAL_THRESH = 8192;
+    	ArrayList<Integer> vb_idxs = new ArrayList<Integer>();
+    	ArrayList<Integer>  b_idxs = new ArrayList<Integer>();
+    	int[] signal_idxs = new int[2];
+    	signal_idxs[0] = -1;
+    	signal_idxs[1] = -1;
     	
-    	
+    	int sum=0;
     	for (int i=0;i<filter_data.length;i++){
+    		
     		int abs_data = Math.abs(filter_data[i]);
+    		sum += abs_data;
+    		if (abs_data>=SIGNAL_THRESH){
+    			if(signal_idxs[0]<=0){
+    				signal_idxs[0] = i;
+    			} else {
+    				signal_idxs[1] = i;
+    			}
+    		}
     		if (abs_data==ZERO){
     			zero_count++;
     		} else if (abs_data<=NOISE && abs_data>ZERO) {
@@ -219,17 +237,25 @@ public class AudioSupervisor implements Callback {
     			small_count++;
     		} else if (abs_data<=BIG && abs_data>SMALL) {
     			big_count++;
+    			b_idxs.add(i);
     		} else if (abs_data>BIG) {
     			very_big_count++;
+    			vb_idxs.add(i);
     		}
     		//	tv.append(" " +buffer[i]);
     	}
     	
+    	Log.d(TAG, "Average: " + (double)sum/filter_data.length);
+    	Log.d(TAG, "Standard Dev: " + Stat.calcStanDev(filter_data.length, filter_data));
+    	Log.d(TAG, "Signal Indices: " + Arrays.toString(signal_idxs));
+    	Log.d(TAG, "Signal Width: " + (signal_idxs[1] - signal_idxs[0]));
     	Log.d(TAG, "Zeros: " + zero_count);
     	Log.d(TAG, "Noise: " + noise_count);
     	Log.d(TAG, "Small: " + small_count);
     	Log.d(TAG, "Big: " + big_count);
     	Log.d(TAG, "Very Big: " + very_big_count);
+    	//Log.d(TAG, "Big Indexes: " + b_idxs.toString());
+    	//Log.d(TAG, "Very Big Indexes: " + vb_idxs.toString());
 	}
 }
 
