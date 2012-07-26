@@ -19,6 +19,7 @@ import android.util.Log;
  *
  */
 public class PingThread implements Runnable  {
+	private static final String TAG = "EchoApp PingThread";
 	//private Thread mPingThread; //used if we want/need to reference self as thread
 	private short[] mPcmSignal;
 	public short[] mPcmFilterMask;
@@ -65,9 +66,9 @@ public class PingThread implements Runnable  {
 	 */
 	@Override
 	public void run() {
-        Log.i("EchoApp", "Inside waveform thread - attempting to play audio");        
+		Log.d(TAG, "Attempting ping on thread: " + Thread.currentThread().getName());
 		try {
-			Log.i("EchoApp", "Setting up Audio");
+			Log.d(TAG, "Setting up Audio");
 			AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 
 												44100, 
 												AudioFormat.CHANNEL_OUT_MONO, 
@@ -77,25 +78,25 @@ public class PingThread implements Runnable  {
 			
 			int result = track.write(mPcmSignal, 0, mPcmSignal.length);
 			
-			Log.v("EchoApp", "Audio Track result: " + result);
+			Log.d(TAG, "Audio Track result: " + result);
 			if (result == AudioTrack.ERROR_INVALID_OPERATION  || 
 					result == AudioTrack.ERROR_BAD_VALUE ||
 					result != mPcmSignal.length/2) {
 				
-				Log.e("EchoApp AudioTrack","track.write returned " + result + ". " + mPcmSignal.length + " expected" );
+				Log.e(TAG,"track.write returned " + result + ". " + mPcmSignal.length + " expected" );
 			} else {
 				//OPTIONAL - Better is to capture initial signal at receiver
 				//TODO capture transmit time 
 				//capture nano time here
 				track.play();
-				Log.v("EchoApp AudioTrack", "Track should have played");
+				Log.d(TAG, "Track should have played");
 				//and capture nano time here, and send them to be averaged
 				//to determine send time (or better yet, perform math using sample rate)
 			}
 			
 			
 		} catch (IllegalArgumentException e) {
-			Log.e("pingButton", "Unable to create audio track (Illegal Arguments)");
+			Log.e(TAG, "Unable to create audio track (Illegal Arguments)");
 			e.printStackTrace();
 		} 
 	}
