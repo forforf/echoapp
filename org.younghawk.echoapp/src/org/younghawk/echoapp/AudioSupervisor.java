@@ -20,13 +20,15 @@ public class AudioSupervisor implements Callback {
 	private Handler mAudioBufferHandler; //Handler for data thread
 	private Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
-	private AudioRecord mAudioRecord;
+	private AudioRecordWrapper mAudioRecordWrapper;
 	private static final int SAMPPERSEC = 44100; 
 	private static final double MAX_SAMPLE_TIME = 1.0; //in seconds
-	public short[] mBuffer;  //TODO: Make sure this is uded correctly
+	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
+	private AudioRecord mAudioRecord;
 	
 	//Message Definitions
 	private static final int RECORD_READY = 0;
+	private static final int BUFFER_DATA = 1;
 
 
 	public static AudioSupervisor create() {
@@ -36,7 +38,8 @@ public class AudioSupervisor implements Callback {
         HandlerThread mAudioBufferThr = new HandlerThread("Audio Buffering");
         mAudioBufferThr.start();
         
-        AudioRecord audioRecord = AudioRecordFactory.create(SAMPPERSEC, MAX_SAMPLE_TIME);
+        AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
+        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
         
         Looper arLooper = mAudioRecordThr.getLooper();
         Handler audioHandler = null;
@@ -54,16 +57,17 @@ public class AudioSupervisor implements Callback {
         	Log.e(TAG, "Buffer Looper was null, was thread started?");
         } 
         
-		return new AudioSupervisor(mAudioRecordThr, mAudioBufferThr, audioHandler, bufferHandler, audioRecord);
+		return new AudioSupervisor(mAudioRecordThr, mAudioBufferThr, audioHandler, bufferHandler, audioRecordWrapper);
 	}
 	
-	private AudioSupervisor(HandlerThread audioRecThr, HandlerThread audioBufThr, Handler audioHandler, Handler bufferHandler, AudioRecord audioRecord) {
+	private AudioSupervisor(HandlerThread audioRecThr, HandlerThread audioBufThr, Handler audioHandler, Handler bufferHandler, AudioRecordWrapper audioRecordWrapper) {
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
 		this.mAudioRecordHandler = audioHandler;
 		this.mAudioBufferHandler = bufferHandler;
 		this.mMainHandler = new Handler(this);
-		this.mAudioRecord = audioRecord;
+		this.mAudioRecordWrapper = audioRecordWrapper;
+		this.mAudioRecord = audioRecordWrapper.mAudioRecord;
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -75,6 +79,10 @@ public class AudioSupervisor implements Callback {
 				Log.d(TAG, "Trying to start AudioRecord: " + mAudioRecord + " on thread: " + Thread.currentThread().getName());
 				mAudioRecord.startRecording();
 				mMainHandler.sendEmptyMessage(RECORD_READY);
+				int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
+				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
+				Message bufferMsg = Message.obtain(mMainHandler, BUFFER_DATA, mAudioRecordWrapper.mBuffer);
+				mMainHandler.sendMessage(bufferMsg);
 			}
 		});
 	}
@@ -85,6 +93,9 @@ public class AudioSupervisor implements Callback {
 		case RECORD_READY:
 			onRecordReady();
 			break;
+		case BUFFER_DATA:
+			onBufferData(msg.obj);
+			break;
 		}
 		
 		return true;
@@ -92,6 +103,11 @@ public class AudioSupervisor implements Callback {
 	
 	public void onRecordReady(){
 		Log.d(TAG,"Main thread notified that Audio Recorder is Ready");
+	}
+	
+	public void onBufferData(Object objBuffer){
+		short[] buffer = (short[]) objBuffer;
+		Log.d(TAG, "Main thread notified of buffer with " + buffer.length + " samples");
 	}
 }
 
