@@ -1,6 +1,6 @@
 package org.younghawk.echoapp.listen;
 
-public class AudioEnergyFilter {
+public class OrigAudioFilter {
 	public static class Calc{
 		
 		/**
@@ -27,7 +27,7 @@ public class AudioEnergyFilter {
 	    }
 	}
 
-	  public static AudioEnergyFilter create(short[] audio_buffer, short[] filter) {
+	  public static OrigAudioFilter create(short[] audio_buffer, short[] filter) {
 		  int[] audioEnergy = new int[audio_buffer.length];
 		  int windowsize = filter.length;   
 
@@ -37,14 +37,14 @@ public class AudioEnergyFilter {
 
 		  }
 
-		  return new AudioEnergyFilter(audio_buffer, filter, audioEnergy);
+		  return new OrigAudioFilter(audio_buffer, filter, audioEnergy);
 	  }
 
 	  public short[] mAudioBuffer;
 	  public short[] mFilter;
 	  public int[] mAudioEnergy;
 
-	  private AudioEnergyFilter(short[] audio_buffer, short[] filter, int[] audioEnergy) {
+	  private OrigAudioFilter(short[] audio_buffer, short[] filter, int[] audioEnergy) {
 		  mAudioBuffer = audio_buffer;
 		  mFilter = filter;
 		  mAudioEnergy = audioEnergy;

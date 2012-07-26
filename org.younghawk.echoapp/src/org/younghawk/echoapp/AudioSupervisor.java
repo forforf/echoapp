@@ -1,7 +1,5 @@
 package org.younghawk.echoapp;
 
-import org.younghawk.echoapp.listen.AudioEnergyFilter;
-
 import android.media.AudioRecord;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -29,6 +27,7 @@ public class AudioSupervisor implements Callback {
 	private AudioRecord mAudioRecord;
 	private PingThread mPinger;
 	private short[] mFilter;
+	private AudioFilter mAudioFilter;
 	
 	
 	//Message Definitions
@@ -50,6 +49,7 @@ public class AudioSupervisor implements Callback {
         //TODO: This ins't a thread it's a runnable, rename
         //TODO: This should get spun up in its own handler thread like the others
         PingThread pinger = PingThread.create(instructions, num_of_samples);
+        AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
         
         Looper arLooper = mAudioRecordThr.getLooper();
         Handler audioHandler = null;
@@ -73,7 +73,8 @@ public class AudioSupervisor implements Callback {
 				audioHandler, 
 				bufferHandler, 
 				audioRecordWrapper,
-				pinger);
+				pinger,
+				audioFilter);
 	}
 	
 	private AudioSupervisor(HandlerThread audioRecThr, 
@@ -81,7 +82,8 @@ public class AudioSupervisor implements Callback {
 			Handler audioHandler, 
 			Handler bufferHandler, 
 			AudioRecordWrapper audioRecordWrapper,
-			PingThread pinger) {
+			PingThread pinger,
+			AudioFilter audioFilter) {
 		
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
@@ -92,6 +94,7 @@ public class AudioSupervisor implements Callback {
 		this.mAudioRecord = audioRecordWrapper.mAudioRecord;
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
+		this.mAudioFilter = audioFilter;
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -111,8 +114,8 @@ public class AudioSupervisor implements Callback {
 				//Apply Filter
 				//TODO: Requires refactoring, expensive operation here - perhaps its own thread?
 				//TODO: Also class is inside deprecated package
-				AudioEnergyFilter rxEnergyFilter = AudioEnergyFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
-		    	int[] rx_energy = rxEnergyFilter.mAudioEnergy;
+				//AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
+		    	int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
 		    	Message filterMsg = Message.obtain(mMainHandler, FILTER_DATA, rx_energy);
 		    	mMainHandler.sendMessage(filterMsg);
 			}
@@ -148,6 +151,34 @@ public class AudioSupervisor implements Callback {
 	public void onFilterData(Object objFilterData) {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
+		
+    	//TODO: Remove test code
+    	int zero_count = 0;
+    	int small_pos_count = 0;
+    	int small_neg_count = 0;
+    	int big_pos_count = 0;
+    	int big_neg_count = 0;
+    	
+    	for (int i=0;i<filter_data.length;i++){
+    		if (filter_data[i]==0){
+    			zero_count++;
+    		} else if (filter_data[i]<32767 && filter_data[i]>0) {
+    			small_pos_count++;
+    		} else if (filter_data[i]>-32767 && filter_data[i]<0) {
+    			small_neg_count++;
+    		} else if (filter_data[i]>=32767) {
+    			big_pos_count++;
+    		} else if (filter_data[i]<=-32767) {
+    			big_neg_count++;
+    		}
+    		//	tv.append(" " +buffer[i]);
+    	}
+    	
+    	Log.d(TAG, "Zeros: " + zero_count);
+    	Log.d(TAG, "Small Pos: " + small_pos_count);
+    	Log.d(TAG, "Small Neg: " + small_neg_count);
+    	Log.d(TAG, "Large Pos: " + big_pos_count);
+    	Log.d(TAG, "Large Neg: " + big_neg_count);
 	}
 }
 

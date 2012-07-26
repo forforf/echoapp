@@ -7,7 +7,6 @@
 
 package org.younghawk.echoapp;
 
-import org.younghawk.echoapp.listen.AudioEnergyFilter;
 import org.younghawk.echoapp.listen.ListenThread;
 import org.younghawk.echoapp.listen.RecordAudioEvents;
 
@@ -110,40 +109,16 @@ public class EchoApp extends Activity implements RecordAudioEvents, SonarThreadL
     
     public void onRecordDone(short[] buffer) {
     	Log.v("EchoApp", "Activity recevied onRecordDone callback");
-    	AudioEnergyFilter rxEnergyFilter = AudioEnergyFilter.create(buffer, mFilterMask);
-    	int[] rx_energy = rxEnergyFilter.mAudioEnergy;
+    	//AudioFilter rxEnergyFilter = AudioFilter.create(buffer, mFilterMask);
+    	//int[] rx_energy = rxEnergyFilter.mAudioEnergy;
     	//Log.v("EchoApp", "Filtered Audio:\n" + Arrays.toString(rxEnergy));
     	
     	if (mPanel != null) {
-             mPanel.mRawGraphData = rx_energy;
+             //mPanel.mRawGraphData = rx_energy;
     	} else {
     		Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
     	}
-    	//TODO: Remove test code
-    	int zero_count = 0;
-    	int small_pos_count = 0;
-    	int small_neg_count = 0;
-    	int big_pos_count = 0;
-    	int big_neg_count = 0;
-    	for (int i=0;i<rx_energy.length;i++){
-    		if (rx_energy[i]==0){
-    			zero_count++;
-    		} else if (rx_energy[i]<32767 && rx_energy[i]>0) {
-    			small_pos_count++;
-    		} else if (rx_energy[i]>-32767 && rx_energy[i]<0) {
-    			small_neg_count++;
-    		} else if (rx_energy[i]>=32767) {
-    			big_pos_count++;
-    		} else if (rx_energy[i]<=-32767) {
-    			big_neg_count++;
-    		}
-    		//	tv.append(" " +buffer[i]);
-    	}
-    	Log.v("EchoApp", "Zeros: " + zero_count);
-    	Log.v("EchoApp", "Small Pos: " + small_pos_count);
-    	Log.v("EchoApp", "Small Neg: " + small_neg_count);
-    	Log.v("EchoApp", "Large Pos: " + big_pos_count);
-    	Log.v("EchoApp", "Large Neg: " + big_neg_count);
+
     }
     
     
