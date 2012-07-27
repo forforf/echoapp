@@ -1,12 +1,8 @@
 package org.younghawk.echoapp;
 
-import java.util.Arrays;
 
-import org.json.JSONException;
-import org.younghawk.echoapp.R;
 import org.younghawk.echoapp.signals.SignalGenerator;
 
-import android.content.res.Resources;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -18,9 +14,8 @@ import android.util.Log;
  * @author Dave2
  *
  */
-public class PingThread implements Runnable  {
+public class PingRunner implements Runnable  {
 	private static final String TAG = "EchoApp PingThread";
-	//private Thread mPingThread; //used if we want/need to reference self as thread
 	private short[] mPcmSignal;
 	public short[] mPcmFilterMask;
 		
@@ -30,7 +25,7 @@ public class PingThread implements Runnable  {
 	 * @param num_of_samples
 	 * @return
 	 */
-	public static PingThread create(String instructions, int num_of_samples) {
+	public static PingRunner create(String instructions, int num_of_samples) {
 		
 		//TODO: Can SignalGenerator be moved out of the thread for better performance?
 		SignalGenerator sig_gen = null;
@@ -47,14 +42,14 @@ public class PingThread implements Runnable  {
 		} else {
 			return null;
 		}
-		return new PingThread(pcm_signal, filter_mask);
+		return new PingRunner(pcm_signal, filter_mask);
 	}
 	
 	/**
 	 * Create the thread object with the waveform signal
 	 * @param pcm_signal
 	 */
-	private PingThread(short[] pcm_signal, short[] filter_mask) {
+	private PingRunner(short[] pcm_signal, short[] filter_mask) {
 		this.mPcmSignal = pcm_signal;
 		this.mPcmFilterMask = filter_mask;
 		//this.mPingThread = new Thread(this);  //this thread object
@@ -85,13 +80,10 @@ public class PingThread implements Runnable  {
 				
 				Log.e(TAG,"track.write returned " + result + ". " + mPcmSignal.length + " expected" );
 			} else {
-				//OPTIONAL - Better is to capture initial signal at receiver
-				//TODO capture transmit time 
-				//capture nano time here
+				//Note: We detect the signal at the receiver as opposed
+			    //to specifying it here (for now)
 				track.play();
 				Log.d(TAG, "Track should have played");
-				//and capture nano time here, and send them to be averaged
-				//to determine send time (or better yet, perform math using sample rate)
 			}
 			
 			

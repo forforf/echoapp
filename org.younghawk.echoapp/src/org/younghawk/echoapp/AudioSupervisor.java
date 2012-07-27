@@ -17,87 +17,88 @@ import android.util.Log;
  */
 public class AudioSupervisor implements Callback {
 	private static final String TAG = "EchoApp AudioSupervisor";
+	//This class should be a singleton
+	private static AudioSupervisor instance = null;
+	
+	//TODO: Migrate to executor and thread factory.
 	public HandlerThread mAudioRecordThr;
 	public HandlerThread mAudioBufferThr;
 	public HandlerThread mPingerThr;
-	private Handler mAudioRecordHandler; //Handler for hw thread
-	private Handler mAudioBufferHandler; //Handler for data thread
-	private Handler mPingerHandler; //Handler for pinger thread
-	private Handler mMainHandler; //Handler for this thread (main thread)
+	private final Handler mAudioRecordHandler; //Handler for hw thread
+	private final Handler mAudioBufferHandler; //Handler for data thread
+	private final Handler mPingerHandler; //Handler for pinger thread
+	private final Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
 	private AudioRecordWrapper mAudioRecordWrapper;
 	private static final int SAMPPERSEC = 44100; 
 	private static final double MAX_SAMPLE_TIME = 1.0; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
 	private AudioRecord mAudioRecord;
-	private PingThread mPinger;
+	private PingRunner mPinger;
 	private short[] mFilter;
 	private AudioFilter mAudioFilter;
 	private AudioUpdates mCallback;
 
-	
-	
-	//Message Definitions
-	//private static final int RECORD_READY = 0;
-	//private static final int BUFFER_DATA = 1;
-	//private static final int FILTER_DATA = 2;
-
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
 	public static AudioSupervisor create(String instructions, int num_of_samples, AudioUpdates callback) {
-		HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
-		mAudioRecordThr.start();
-        
-        HandlerThread mAudioBufferThr = new HandlerThread("Audio Buffering");
-        mAudioBufferThr.start();
-        
-        HandlerThread mPingerThr = new HandlerThread("Play Audio Ping");
-        mPingerThr.start();
-        
-        AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
-        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
-        
-        //TODO: This ins't a thread it's a runnable, rename
-        //TODO: This should get spun up in its own handler thread like the others
-        PingThread pinger = PingThread.create(instructions, num_of_samples);
-        AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
-        
-        Looper arLooper = mAudioRecordThr.getLooper();
-        Handler audioHandler = null;
-        if (arLooper!=null) {
-        	audioHandler = new Handler(arLooper); 
-        } else {
-        	Log.e(TAG, "Audio Looper was null, was thread started?");
-        }
-        
-        Looper bufLooper = mAudioBufferThr.getLooper();
-        Handler bufferHandler = new Handler(bufLooper);
-        if (bufLooper!=null){
-        	bufferHandler = new Handler(bufLooper);
-        } else {
-        	Log.e(TAG, "Buffer Looper was null, was thread started?");
-        }
-        
-        Looper pingLooper = mPingerThr.getLooper();
-        Handler pingerHandler = new Handler(pingLooper);
-        if (pingLooper!=null){
-        	pingerHandler = new Handler(pingLooper);
-        } else {
-        	Log.e(TAG, "Pinger Looper was null, was thread started?");
-        }
-        
-		return new AudioSupervisor(
-				mAudioRecordThr, 
-				mAudioBufferThr,
-				mPingerThr,
-				audioHandler, 
-				bufferHandler,
-				pingerHandler,
-				audioRecordWrapper,
-				pinger,
-				audioFilter,
-				callback);
+	    if(instance!=null){
+	        return instance;
+	    } else {
+	    
+	        HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
+	        mAudioRecordThr.start();
+
+	        HandlerThread mAudioBufferThr = new HandlerThread("Audio Buffering");
+	        mAudioBufferThr.start();
+
+	        HandlerThread mPingerThr = new HandlerThread("Play Audio Ping");
+	        mPingerThr.start();
+
+	        AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
+	        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
+
+	        //TODO: This ins't a thread it's a runnable, rename
+	        //TODO: This should get spun up in its own handler thread like the others
+	        PingRunner pinger = PingRunner.create(instructions, num_of_samples);
+	        AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
+
+	        Looper arLooper = mAudioRecordThr.getLooper();
+	        Handler audioHandler = null;
+	        if (arLooper!=null) {
+	            audioHandler = new Handler(arLooper); 
+	        } else {
+	            Log.e(TAG, "Audio Looper was null, was thread started?");
+	        }
+
+	        Looper bufLooper = mAudioBufferThr.getLooper();
+	        Handler bufferHandler = new Handler(bufLooper);
+	        if (bufLooper!=null){
+	            bufferHandler = new Handler(bufLooper);
+	        } else {
+	            Log.e(TAG, "Buffer Looper was null, was thread started?");
+	        }
+
+	        Looper pingLooper = mPingerThr.getLooper();
+	        Handler pingerHandler = new Handler(pingLooper);
+	        if (pingLooper!=null){
+	            pingerHandler = new Handler(pingLooper);
+	        } else {
+	            Log.e(TAG, "Pinger Looper was null, was thread started?");
+	        }
+
+	        return new AudioSupervisor(
+	                mAudioRecordThr, 
+	                mAudioBufferThr,
+	                mPingerThr,
+	                audioHandler, 
+	                bufferHandler,
+	                pingerHandler,
+	                audioRecordWrapper,
+	                pinger,
+	                audioFilter,
+	                callback);
+	    }
 	}
-	
 	private AudioSupervisor(HandlerThread audioRecThr, 
 			HandlerThread audioBufThr,
 			HandlerThread pingThr,
@@ -105,7 +106,7 @@ public class AudioSupervisor implements Callback {
 			Handler bufferHandler,
 			Handler pingHandler,
 			AudioRecordWrapper audioRecordWrapper,
-			PingThread pinger,
+			PingRunner pinger,
 			AudioFilter audioFilter,
 			AudioUpdates callback) {
 		
@@ -171,6 +172,27 @@ public class AudioSupervisor implements Callback {
 		}
 		
 		return false;
+	}
+	
+	public void shutDown() {
+	    //There may be more to do, but this at least
+	    //cleans up the running threads.
+	    Log.d(TAG, "Shutting threads down");
+	    if (mAudioRecordThr!=null){
+	        mAudioRecordThr.quit();
+	        mAudioRecordThr = null;
+	    }
+
+        if (mAudioBufferThr!=null) {
+            mAudioBufferThr.quit();
+            mAudioBufferThr = null;
+        }
+
+        if (mPingerThr!=null) {
+            mPingerThr.quit();
+            mPingerThr = null;
+        }
+        Log.d(TAG, "Threads shut down");
 	}
 	
 	public void onRecordReady(){
