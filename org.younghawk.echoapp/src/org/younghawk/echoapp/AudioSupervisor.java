@@ -221,8 +221,23 @@ public class AudioSupervisor implements Callback {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 		
-		mCallback.updateFilterData(filter_data);
+		//mCallback.updateFilterData(filter_data);
+		
+		//temp test code
+		SignalAnalyzer sig_data = SignalAnalyzer.create(filter_data, SAMPPERSEC);
+		
+		//test
+		int[] pow_echo = sig_data.mEchoSignal;
+		for (int i=0;i<pow_echo.length;i++) {
+		    pow_echo[i] = (int) Math.pow(pow_echo[i], 2);
+		}
+		mCallback.updateFilterData(pow_echo);
+		
+		//mCallback.updateFilterData(sig_data.mEchoSignal);
+		
+		
     	//TODO: Remove test code
+		/*
     	int zero_count = 0;
     	int noise_count = 0;
     	int small_count = 0;
@@ -278,6 +293,8 @@ public class AudioSupervisor implements Callback {
     	Log.d(TAG, "Very Big: " + very_big_count);
     	//Log.d(TAG, "Big Indexes: " + b_idxs.toString());
     	//Log.d(TAG, "Very Big Indexes: " + vb_idxs.toString());
+    	 * 
+    	 */
 	}
 }
 

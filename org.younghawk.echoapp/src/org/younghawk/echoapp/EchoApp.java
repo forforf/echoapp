@@ -34,6 +34,8 @@ public class EchoApp extends Activity implements AudioUpdates {
 
 	private AudioSupervisor audioSupervisor;
 	
+	//TODO: Think about creating audioSupervisor in onStart
+	//If you do, see if that solved the thread duplication problem in and of itself.
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
