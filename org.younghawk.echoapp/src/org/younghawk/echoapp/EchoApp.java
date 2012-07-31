@@ -7,6 +7,9 @@
 
 package org.younghawk.echoapp;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -33,7 +36,7 @@ public class EchoApp extends Activity implements AudioUpdates {
 	private int mWave_samples;
 
 	private AudioSupervisor audioSupervisor;
-	private PlotSupervisor plotSupervisor;
+	public PlotSupervisor plotSupervisor;
 	
 	//TODO: Think about creating audioSupervisor in onStart
 	//If you do, see if that solved the thread duplication problem in and of itself.
@@ -54,6 +57,16 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//Create AudioSupervisor to initiate threads
     	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
     	
+    	Log.d(TAG, "Plot Timer: " + (long) (plotSupervisor.mPlotter.PX_DWELL_TIME*1000));
+    	Timer myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {          
+            @Override
+            public void run() {
+                TimerMethod();
+            }
+            
+        }, 0, (long) (plotSupervisor.mPlotter.PX_DWELL_TIME*1000));
+    	
     }
     
     public void onPause() {
@@ -73,7 +86,6 @@ public class EchoApp extends Activity implements AudioUpdates {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
     	audioSupervisor.startRecording();
-
     }
       
     public void setPanel(Panel panel){
@@ -107,4 +119,26 @@ public class EchoApp extends Activity implements AudioUpdates {
         //}
 
     }
+    
+    //Testing
+    private void TimerMethod()
+    {
+        //This method is called directly by the timer
+        //and runs in the same thread as the timer.
+
+        //We call the method that will work with the UI
+        //through the runOnUiThread method.
+        this.runOnUiThread(Timer_Tick);
+    }
+
+
+    private Runnable Timer_Tick = new Runnable() {
+        public void run() {
+            Log.d(TAG, "Q Size: " + plotSupervisor.mPlotter.mScaledSamples.size());
+        //This method runs in the same thread as the UI.               
+        
+        //Do something to the UI thread here
+    
+        }
+    };
 }

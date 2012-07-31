@@ -1,5 +1,8 @@
 package org.younghawk.echoapp;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
@@ -18,13 +21,14 @@ public class PlotSupervisor implements Callback {
     public final Handler mPlotterHandler; //Handler for Plotter thread
     
     public static Plotter mPlotter = Plotter.create();
-    
-    
+    public static Timer dwellTimer = new Timer();
     
     public static PlotSupervisor create() {
         if(instance!=null){
             return instance;
         } else {
+            
+            
             
             HandlerThread plotThr = new HandlerThread("Plotter");
             plotThr.start();
@@ -38,7 +42,7 @@ public class PlotSupervisor implements Callback {
                         int[] audio_buffer = (int[]) msg.obj;
                         Log.d(TAG, "audio_buffer size: " + audio_buffer.length);
                         mPlotter.addToQ(audio_buffer);
-                        Log.d(TAG, "Q Size: " + mPlotter.mScaledSamples.size());
+                        //Log.d(TAG, "Q Size: " + mPlotter.mScaledSamples.size());
                     }
                 };
             } else {
@@ -85,6 +89,21 @@ public class PlotSupervisor implements Callback {
     
     public float[] getPlotLineData(){
         return mPlotter.getPlotData();
+    }
+    
+    public void startQCheckTimer(){
+        Timer q_timer = new Timer();
+        q_timer.schedule(new TimerTask(){
+            @Override
+            public void run() {
+                checkQ();
+            }
+        }, (long) (mPlotter.PX_DWELL_TIME * 1000));
+        
+    }
+    
+    public void checkQ() {
+        Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
     }
     
     public boolean handleMessage(Message msg) {

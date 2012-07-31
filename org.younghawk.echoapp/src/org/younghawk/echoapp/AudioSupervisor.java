@@ -88,7 +88,7 @@ public class AudioSupervisor implements Callback {
 	        } else {
 	            Log.e(TAG, "Pinger Looper was null, was thread started?");
 	        }
-
+	        
 	        instance =  new AudioSupervisor(
 	                mAudioRecordThr, 
 	                mAudioBufferThr,
