@@ -20,7 +20,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	private Paint paint = new Paint();
 	
 	//Container for graph
-	public int[] mRawGraphData = null;
+	//public int[] mRawGraphData = null;
+	
+	//Data to Plot
+	Plotter plotter = Plotter.create();
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
@@ -58,17 +61,23 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void onDraw(Canvas canvas) {
+	    /*
         if (mRawGraphData!=null) {
         	Log.v("EchoApp","If you see a lot of these, that's an issue");
         	canvas.drawColor(Color.BLACK);
         	paint.setColor(Color.GREEN);
         	//TODO Convert to calculated variable rather than on the fly method
-        	float[] scaledPoints = scaleData(mRawGraphData, 400, 400, 60, 260);
+        	//float[] scaledPoints = scaleData(mRawGraphData, 400, 400, 60, 260);
         	canvas.drawPoints(scaledPoints, paint);
             mRawGraphData = null;
         	//canvas.drawCircle(50, 50, 30, paint);
         } 
-
+        */
+	    
+	    if (plotter!=null){
+	        paint.setColor(Color.GREEN);
+	        canvas.drawLines(plotter.getPlotData(), paint);
+	    }
 		//canvas.drawBitmap(kangoo, 130, 10, null);
         paint.setColor(Color.BLACK);
         canvas.drawRect(15,45,355,55, paint);

@@ -37,10 +37,13 @@ public class AudioSupervisor implements Callback {
 	private PingRunner mPinger;
 	private short[] mFilter;
 	private AudioFilter mAudioFilter;
+	
+	//TODO: Undesired coupling between Supervisors
+	private PlotSupervisor mPlotSupervisor;
 	private AudioUpdates mCallback;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
-	public static AudioSupervisor create(String instructions, int num_of_samples, AudioUpdates callback) {
+	public static AudioSupervisor create(String instructions, int num_of_samples, PlotSupervisor plotSupervisor, AudioUpdates callback) {
 	    if(instance!=null){
 	        return instance;
 	    } else {
@@ -61,7 +64,7 @@ public class AudioSupervisor implements Callback {
 	        //TODO: This should get spun up in its own handler thread like the others
 	        PingRunner pinger = PingRunner.create(instructions, num_of_samples);
 	        AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
-
+	        
 	        Looper arLooper = mAudioRecordThr.getLooper();
 	        Handler audioHandler = null;
 	        if (arLooper!=null) {
@@ -86,7 +89,7 @@ public class AudioSupervisor implements Callback {
 	            Log.e(TAG, "Pinger Looper was null, was thread started?");
 	        }
 
-	        return new AudioSupervisor(
+	        instance =  new AudioSupervisor(
 	                mAudioRecordThr, 
 	                mAudioBufferThr,
 	                mPingerThr,
@@ -96,7 +99,10 @@ public class AudioSupervisor implements Callback {
 	                audioRecordWrapper,
 	                pinger,
 	                audioFilter,
+	                plotSupervisor,
 	                callback);
+	        
+	        return instance;
 	    }
 	}
 	private AudioSupervisor(HandlerThread audioRecThr, 
@@ -108,6 +114,7 @@ public class AudioSupervisor implements Callback {
 			AudioRecordWrapper audioRecordWrapper,
 			PingRunner pinger,
 			AudioFilter audioFilter,
+			PlotSupervisor plotSupervisor,
 			AudioUpdates callback) {
 		
 		this.mAudioRecordThr = audioRecThr;
@@ -122,6 +129,7 @@ public class AudioSupervisor implements Callback {
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
+		this.mPlotSupervisor = plotSupervisor;
 		this.mCallback = callback;
 	}
 	
@@ -138,6 +146,7 @@ public class AudioSupervisor implements Callback {
 				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 				
 				Log.d(TAG, "Im Alive 1");
+				//Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
 				Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
 				Log.d(TAG, "Im Alive 2");
 				mMainHandler.sendMessage(bufferMsg);
@@ -164,7 +173,7 @@ public class AudioSupervisor implements Callback {
 			onRecordReady();
 			break;
 		case MsgIds.BUFFER_DATA:
-			onBufferData(msg.obj);
+		    mPlotSupervisor.onBufferData(msg.obj);
 			break;
 		case MsgIds.FILTER_DATA:
 			onFilterData(msg.obj);
@@ -204,14 +213,23 @@ public class AudioSupervisor implements Callback {
 		
 	}
 	
+    //IMPORTANT: In the current implementation this is called only once
+    //since the buffer size = audio data size. Changing to be more flexible
+    //will require this method to execute via a thread handler post, and
+    //flushing and stitching buffers together would need to be handled.
+    public void onBufferData(Object objBuffer){
+        short[] buffer = (short[]) objBuffer;
+        Log.d(TAG, "AudioSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
+    }
+	
 	//IMPORTANT: In the current implementation this is called only once
 	//since the buffer size = audio data size. Changing to be more flexible
 	//will require this method to execute via a thread handler post, and
 	//flushing and stitching buffers together would need to be handled.
-	public void onBufferData(Object objBuffer){
-		short[] buffer = (short[]) objBuffer;
-		Log.d(TAG, "Main thread notified of buffer with " + buffer.length + " samples");
-	}
+	//public void onBufferData(Object objBuffer){
+	//	short[] buffer = (short[]) objBuffer;
+	//	Log.d(TAG, "Main thread notified of buffer with " + buffer.length + " samples");
+	//}
 	
 	//IMPORTANT:In the current implementation this is called only once
 	//since the buffer size = audio data size. Changing to be more flexible

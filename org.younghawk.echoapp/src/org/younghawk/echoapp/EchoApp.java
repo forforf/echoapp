@@ -33,6 +33,7 @@ public class EchoApp extends Activity implements AudioUpdates {
 	private int mWave_samples;
 
 	private AudioSupervisor audioSupervisor;
+	private PlotSupervisor plotSupervisor;
 	
 	//TODO: Think about creating audioSupervisor in onStart
 	//If you do, see if that solved the thread duplication problem in and of itself.
@@ -47,8 +48,12 @@ public class EchoApp extends Activity implements AudioUpdates {
     	mRes = getResources();
     	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
     	
+    	//Manages plotting
+    	//TODO: Uncouple plotSuperviosr from audioSupervisor (maybe via Dispatcher?)
+    	plotSupervisor = PlotSupervisor.create();
     	//Create AudioSupervisor to initiate threads
-    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, this);	
+    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
+    	
     }
     
     public void onPause() {
@@ -94,12 +99,12 @@ public class EchoApp extends Activity implements AudioUpdates {
     }
    
     public void updateFilterData(int[] filter_data){
-        Log.d(TAG, "updateFilterData callback");
-        if (mPanel != null) {
-            mPanel.mRawGraphData = filter_data;
-        } else {
-            Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
-        }
+        Log.d(TAG, "updateFilterData callback - does nothing");
+        //if (mPanel != null) {
+        //    mPanel.mRawGraphData = filter_data;
+        //} else {
+        //    Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
+        //}
 
     }
 }
