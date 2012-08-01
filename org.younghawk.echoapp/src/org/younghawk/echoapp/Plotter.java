@@ -1,6 +1,7 @@
 package org.younghawk.echoapp;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 import android.util.Log;
 
@@ -25,11 +26,113 @@ public class Plotter {
     public static final int VERT_LINES_PLOT_SIZE= 4 * PLOT_WIDTH;
     public static final float[] VERT_LINES_TO_PLOT = new float[VERT_LINES_PLOT_SIZE]; 
     public static final int[] DATA_BUFFER = new int[PTS_PER_PX]; //holds any leftover incoming data
+    public static int testCtr = 0;
+    
     //public final int Xoffset;
     //public final int Yoffset;
-    public ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>(); //TODO: Figure out optimum instantiation size
+    //TODO: Figure out optimum instantiation size
+    //TODO: Refactor so it isn't static?
+    public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>();
+    public static final ArrayDeque<Float>[] PlotQ = new ArrayDeque[PLOT_WIDTH];
+    public static boolean plotReady = false;
     
-    
+    //Refactor so this isn't staic
+    public static float[] toCanvasPointsArray(ArrayDeque<Float>[] plot_q, int x_offset, int y_offset ) {
+        ArrayList<Float> temp = new ArrayList<Float>();
+        float x=0;
+        float y=0;
+        float x_shift = (float) x_offset;
+        float y_shift = (float) y_offset + PLOT_HEIGHT/2;
+        
+        for (int i=0;i<PLOT_WIDTH;i++) {
+            x = (float) i;
+            //TODO: Evaluate performance of removing each vs convert to Array and iterating
+            if (plot_q[i]!=null){
+                //Log.d(TAG, "size: " + plot_q[i].size() );
+                for(int j=0;j<plot_q[i].size();j++) {
+                    //Log.d(TAG, "x: " + x);
+                    //Log.d(TAG, "x_shift: " + x_shift);
+                    temp.add(x + x_shift);
+                    temp.add( plot_q[i].pollFirst() + y_shift);
+                }
+            } else {
+                //Do anything?
+            }
+        }
+        int canvas_pts_size = temp.size();
+        Float[] temp2 = temp.toArray(new Float[canvas_pts_size]);
+        
+        float[] canvas_pts = new float[canvas_pts_size];
+        for (int k=0;k<canvas_pts_size;k++) {
+            if (temp2[k]!=null) {
+                canvas_pts[k] = (float) temp2[k];
+            } else {
+                Log.e(TAG, "Somehow a null got into the set of canvas points");
+            }
+        }
+        return canvas_pts;
+    }
+     
+    //Refactor so this isn't static
+    public static synchronized void fillPlotQ(){
+        //shift PlotQ down 1
+        for(int i=1;i<PLOT_WIDTH;i++) {
+            PlotQ[i-1] = PlotQ[i];
+        }
+
+        //ArrayDeque<Float> last_element = PlotQ[PLOT_WIDTH-1];
+        
+        //Add new y values at end of PlotQ 
+        if (PlotQ[PLOT_WIDTH-1]==null) {
+            //Log.d(TAG, "Last element was null");
+            PlotQ[PLOT_WIDTH-1] = new ArrayDeque();
+        } else {
+            //Log.d(TAG, "Last element was not null");
+            PlotQ[PLOT_WIDTH-1].clear();
+        }
+         
+        
+        //testCtr++;
+        
+        //PlotQ[PLOT_WIDTH-1].add((float) testCtr);
+        //Log.d(TAG, "Last (PlotQ) Element: " + last_element);
+        //Log.d(TAG, "Last PlotQ!! Element: " + PlotQ[PLOT_WIDTH-1]);
+        
+        //Log.d(TAG, "PlotQ samples size: " + mScaledSamples.size());
+       
+        if (Plotter.mScaledSamples.size()>0) {
+            //last_element = new ArrayDeque();
+            Log.d(TAG, "First sample size to grab " +  Plotter.mScaledSamples.getFirst() );
+            for(int i=0;i<PTS_PER_PX;i++){
+                PlotQ[PLOT_WIDTH-1].add( Plotter.mScaledSamples.removeFirst() );
+            }
+            Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
+        }
+        plotReady = true;
+         /*
+            for(int i=0;i<PTS_PER_PX;i++){
+                Log.d(TAG, "Presize: " + mScaledSamples.size());
+                Float y = null;
+                try {
+                    y = mScaledSamples.removeFirst();
+                } catch (Exception e) {
+                    Log.w(TAG, "removeFirst() caused: " + e);
+                }
+                Log.d(TAG, "Postsize: " + mScaledSamples.size());
+                if(last_element==null){
+                    //Log.d(TAG, "PlotQ setting last element");
+                    last_element = new ArrayDeque();
+                }
+                if(y!=null){
+                    Log.d(TAG, "Added: " + y);
+                    last_element.add(y);
+                }
+            }
+            PlotQ[PLOT_WIDTH-1] = last_element;
+            Log.d(TAG, "Last PlotQ Element: " + last_element);
+        }
+        */  
+    }
  
     public static Plotter create() {
         if(instance!=null){

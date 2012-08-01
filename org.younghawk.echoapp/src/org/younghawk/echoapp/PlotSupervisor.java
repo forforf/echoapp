@@ -1,7 +1,7 @@
 package org.younghawk.echoapp;
 
+import java.util.ArrayDeque;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -22,6 +22,23 @@ public class PlotSupervisor implements Callback {
     
     public static Plotter mPlotter = Plotter.create();
     public static Timer dwellTimer = new Timer();
+    public boolean pauseQCheck = true;
+
+    private Runnable checkingQ = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
+            Plotter.fillPlotQ();
+            ArrayDeque<Float> last_pts = Plotter.PlotQ[0];
+            if(last_pts!=null) {
+                Log.d(TAG, "Num of pts in last position of PlotQ: " + last_pts.size());    
+            }
+            
+            if (!pauseQCheck){
+                mPlotterHandler.postDelayed(checkingQ, (long) (Plotter.PX_DWELL_TIME * 1000) );
+            }
+        }
+    };
     
     public static PlotSupervisor create() {
         if(instance!=null){
@@ -50,6 +67,8 @@ public class PlotSupervisor implements Callback {
             }
             
             Plotter plotter = Plotter.create();
+            
+
             
             instance = new PlotSupervisor(plotThr, plotHandler, plotter);
             return instance;
@@ -91,19 +110,21 @@ public class PlotSupervisor implements Callback {
         return mPlotter.getPlotData();
     }
     
-    public void startQCheckTimer(){
-        Timer q_timer = new Timer();
-        q_timer.schedule(new TimerTask(){
-            @Override
-            public void run() {
-                checkQ();
-            }
-        }, (long) (mPlotter.PX_DWELL_TIME * 1000));
-        
+    public void startQCheck() {
+        Log.d(TAG, "Starting Q Check");
+        pauseQCheck = false;
+        mPlotterHandler.postDelayed(checkingQ, 1000);
+
     }
+    
+    public void stopQCheck() {
+        pauseQCheck = true;
+    }
+
     
     public void checkQ() {
         Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
+        
     }
     
     public boolean handleMessage(Message msg) {

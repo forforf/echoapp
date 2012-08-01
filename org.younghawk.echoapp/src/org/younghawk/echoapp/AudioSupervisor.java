@@ -31,7 +31,7 @@ public class AudioSupervisor implements Callback {
 	//Audio Data
 	private AudioRecordWrapper mAudioRecordWrapper;
 	private static final int SAMPPERSEC = 44100; 
-	private static final double MAX_SAMPLE_TIME = 1.0; //in seconds
+	private static final double MAX_SAMPLE_TIME = 0.5; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
 	private AudioRecord mAudioRecord;
 	private PingRunner mPinger;

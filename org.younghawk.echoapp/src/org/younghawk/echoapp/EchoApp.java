@@ -7,8 +7,7 @@
 
 package org.younghawk.echoapp;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,7 +27,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     
 	//Get a handle on the Panel View (not sure this is best approach)
 	// see setPanel();
-	private Panel mPanel = null;
+	public Panel mPanel = null;
     
 	//Waveform data
 	private String mSignal_instructions;
@@ -45,7 +44,15 @@ public class EchoApp extends Activity implements AudioUpdates {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-       
+        
+        //float[] testDebug = new float[]{ 3.0f, 2.4f, 1.0f, -3.3f, 0.4f };
+        //short[] testDebug = new short[]{3,2,1,5,-5};
+        //Log.d(TAG, Arrays.toString(testDebug));
+        //CollectionGrapher debugArray = CollectionGrapher.create(0, 100, 300, 40, testDebug);
+        //Log.d(TAG, Arrays.toString(debugArray.mCanvasPts));
+        //mPanel.setDebugArray(debugArray);
+        
+        
         //TODO: Move to audio supervisor
         mSignal_instructions = getString(R.string.signal_instructions);
     	mRes = getResources();
@@ -57,15 +64,6 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//Create AudioSupervisor to initiate threads
     	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
     	
-    	Log.d(TAG, "Plot Timer: " + (long) (plotSupervisor.mPlotter.PX_DWELL_TIME*1000));
-    	Timer myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {          
-            @Override
-            public void run() {
-                TimerMethod();
-            }
-            
-        }, 0, (long) (plotSupervisor.mPlotter.PX_DWELL_TIME*1000));
     	
     }
     
@@ -86,6 +84,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
     	audioSupervisor.startRecording();
+        plotSupervisor.startQCheck();
     }
       
     public void setPanel(Panel panel){
