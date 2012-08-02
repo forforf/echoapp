@@ -1,9 +1,8 @@
 package org.younghawk.echoapp;
 
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import org.younghawk.echoapp.graph.Grapher;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -18,13 +17,30 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
-    private Executor executor = Executors.newFixedThreadPool(2);
+    private Executor mExecutor = Executors.newFixedThreadPool(4);
+    private ImmutableRect mSurfaceRect = null;
+    
+    private ArrayList<Painter> mDrawList = new ArrayList<Painter>();
+    
+    /*
+    private Runnable mInitDraw = new FullPainter(){
+        @Override
+        public void safeDraw(Canvas c){
+            c.drawColor(Color.BLACK);
+            paint.setColor(Color.CYAN);
+            c.drawText("Initial Full Painter",100,400, paint);
+        }
+        
+
+    };
+    */
     
 	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
 	private int tester = 0;  //deprecating moving to bitmap client
 	private Paint paint = new Paint(); //deprecating moving to bitmap client
 	private CollectionGrapher debugArray;  //deprecating moving to bitmap client
-	public Rect dirty_rect;  //deprecating moving to bitmap client
+	public Rect dirty_rect;  //deprecating moving to bitmap clientA
+	
 	
 	//Container for graph
 	//public int[] mRawGraphData = null;
@@ -52,8 +68,17 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		setFocusable(true);
 	}
 	
+	private void drawPaintersInList(ArrayList<Painter> drawList){
+	    for (Painter p : drawList){
+	        mExecutor.execute(p);
+	    }
+	}
+	
+	//Deprecating
     private void initialDraw() {
-        executor.execute(new Runnable(){
+        //mExecutor.execute(mInitDraw);
+        /*
+        mExecutor.execute(new Runnable(){
             @Override
             public void run() {
                 Log.d(TAG, "Running initial draw in thread");
@@ -79,6 +104,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
             }
 
         });
+        */
     }
 	/*
 	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {
@@ -140,14 +166,35 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	 
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
-		//Log.v("EchoApp", "SurfaceChanged");
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+	    mSurfaceRect = new ImmutableRect(width, height);
+	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
+		
 		
 	}
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-        initialDraw();
+	    Canvas c = holder.lockCanvas(null);
+	    try {
+	        Rect dangerRect = holder.getSurfaceFrame();
+	        mSurfaceRect = new ImmutableRect(dangerRect.width(), dangerRect.height());
+	    } finally {
+	        holder.unlockCanvasAndPost(c);
+	    }
+	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
+	    
+	    FullPainter init_draw = new FullPainter(holder){
+	        @Override
+	        public void safeDraw(Canvas c, Paint paint){
+	            c.drawColor(Color.BLACK);
+	            paint.setColor(Color.CYAN);
+	            c.drawText("Initial Full Painter",100,400, paint);
+	        }
+	    };
+	    mDrawList.add(init_draw);
+	    drawPaintersInList(mDrawList);
+	    mDrawList.clear();
+        //initialDraw();
         
 		//Workaround for when the thread is trashed by android (by pressing home, etc)
 		//if (canvasthread.getState()==Thread.State.TERMINATED) { 
@@ -159,22 +206,21 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		boolean retry = true;
-		canvasthread.setRunning(false);
+	    mSurfaceRect = null;
+		//boolean retry = true;
+		//canvasthread.setRunning(false);
 		//keep waiting for the thread to close - Possible cause for long FCs
-		while (retry) {
-			try {
-				canvasthread.join();
-				retry = false;
-			} catch (InterruptedException e) {
-				// we will try it again and again...
-			}
-		}
+		//while (retry) {
+		//	try {
+		//		canvasthread.join();
+		//		retry = false;
+		//	} catch (InterruptedException e) {
+		//		// we will try it again and again...
+		//	}
+		//}
 	}
 	
-	public void onGraphData(Grapher graph_data){
-		
-	}
+
 
 
 }   

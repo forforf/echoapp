@@ -9,12 +9,12 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-public class PanelManager {
+public class PanelManager implements PanelUpdates {
     private static final String TAG = "EchoApp PanelManager";
   //This class should be a singleton
     private static PanelManager instance = null;
     
-    public SurfaceHolder mSurfaceHolder;
+    public SurfaceHolder mSurfaceHolder; 
     
     private Executor executor = Executors.newFixedThreadPool(2);
     private Paint paint = new Paint();
@@ -37,7 +37,7 @@ public class PanelManager {
     }
     private PanelManager(SurfaceHolder surfHold) {
         this.mSurfaceHolder = surfHold;
-        initialDraw();
+        //initialDraw();
     }
     
     private void initialDraw() {
@@ -49,7 +49,8 @@ public class PanelManager {
                 try {
                     if (c!=null) {
                         synchronized (mSurfaceHolder) {
-                            paint.setColor(Color.YELLOW);
+                            //paint.setColor(Color.YELLOW);
+                            c.drawColor(Color.GREEN);
                         }
                     } //TODO: capture data on why canvas would be null
 
@@ -69,5 +70,15 @@ public class PanelManager {
         //BitmapConfig conf = Bitmap.Config.ARGB_8888; // see other conf types
         //Bitmap bmp = Bitmap.createBitmap(w, h, conf); // this creates a MUTABLE bitmap
         //Canvas temp = new Canvas(bmp);
+    }
+    
+    public void panelCreated(SurfaceHolder holder, int w, int h){
+
+    }
+    public void panelChanged(SurfaceHolder holder, int format, int w, int h){
+        
+    }
+    public void panelNotAvailable(SurfaceHolder holder){
+        
     }
 }
