@@ -39,7 +39,7 @@ public class CanvasThread extends Thread {
 	                synchronized (_surfaceHolder) {
 	                	//Log.v("EchoApp", "" + _panel);
 	                	if(_panel!=null){
-	                        _panel.onDraw(c);
+	                       // _panel.onDraw(c);
 	                	} else {
 	                		Log.e("EchoApp", "Panel unexpectedly went null");
 	                	}

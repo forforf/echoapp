@@ -20,26 +20,84 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     private Executor mExecutor = Executors.newFixedThreadPool(4);
     private ImmutableRect mSurfaceRect = null;
     
-    private ArrayList<Painter> mDrawList = new ArrayList<Painter>();
-    
-    /*
-    private Runnable mInitDraw = new FullPainter(){
-        @Override
-        public void safeDraw(Canvas c){
-            c.drawColor(Color.BLACK);
-            paint.setColor(Color.CYAN);
-            c.drawText("Initial Full Painter",100,400, paint);
-        }
-        
-
-    };
-    */
+    private ArrayList<Runnable> mDrawList = new ArrayList<Runnable>();
     
 	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
 	private int tester = 0;  //deprecating moving to bitmap client
 	private Paint paint = new Paint(); //deprecating moving to bitmap client
 	private CollectionGrapher debugArray;  //deprecating moving to bitmap client
 	public Rect dirty_rect;  //deprecating moving to bitmap clientA
+	
+	private Runnable mInitDraw = new Runnable(){
+	    @Override
+	    public void run() {
+	        Log.d(TAG, "Running initial draw in thread");
+	        SurfaceHolder holder = getHolder();
+	        Canvas c = holder.lockCanvas(null);
+	        //TODO: See if there's a way to factor this out from the thread
+	        try {
+	            if (c!=null) {
+	                synchronized (holder) {
+	                    c.drawColor(Color.BLACK);
+	                    paint.setColor(Color.CYAN);
+	                    c.drawText("Initial Full Painter",100,400, paint);
+	                }
+	            } //TODO: capture data on why canvas would be null
+
+	        } finally {
+	            // do this in a finally so that if an exception is thrown
+	            // during the above, we don't leave the Surface in an
+	            // inconsistent state
+	            if (c != null) {
+	                holder.unlockCanvasAndPost(c);
+	            }
+	        }
+	    };
+	};
+	
+	private Runnable mRadarDraw = new Runnable(){
+	    @Override
+	    public void run() {
+	        Log.d(TAG, "Running radar draw in looping thread");
+	        int tester = 0;
+	        while(!Thread.currentThread().isInterrupted()){
+	            SurfaceHolder holder = getHolder();
+	            Rect dirty_rect = new Rect(15,45,380,55);
+	            Canvas c = holder.lockCanvas(dirty_rect);
+	            //TODO: See if there's a way to factor this out from the thread
+	            try {
+	                if (c!=null) {
+	                    synchronized (holder) {
+	                        paint.setColor(Color.GRAY);
+	                        c.drawRect(dirty_rect, paint);
+	                        
+	                        paint.setColor(Color.RED);
+	                        c.drawCircle(20+tester,  50,  5, paint);
+	                        tester++;
+	                        if (tester>350){
+	                            tester=0;
+	                        }                }
+	                } //TODO: capture data on why canvas would be null
+
+	            } finally {
+	                // do this in a finally so that if an exception is thrown
+	                // during the above, we don't leave the Surface in an
+	                // inconsistent state
+	                if (c != null) {
+	                    holder.unlockCanvasAndPost(c);
+	                }
+	            }
+	        }
+	        try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                Log.d(TAG, "Thread was interupted, it should be caught on the next tick");
+            }
+	    };
+	};
+	
+	
 	
 	
 	//Container for graph
@@ -68,73 +126,17 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		setFocusable(true);
 	}
 	
-	private void drawPaintersInList(ArrayList<Painter> drawList){
-	    for (Painter p : drawList){
-	        mExecutor.execute(p);
+	private void drawPaintersInList(ArrayList<Runnable> drawList){
+	    for (Runnable r : drawList){
+	        mExecutor.execute(r);
 	    }
 	}
 	
-	//Deprecating
-    private void initialDraw() {
-        //mExecutor.execute(mInitDraw);
-        /*
-        mExecutor.execute(new Runnable(){
-            @Override
-            public void run() {
-                Log.d(TAG, "Running initial draw in thread");
-                SurfaceHolder holder = getHolder();
-                Canvas c = holder.lockCanvas(null);
-                try {
-                    if (c!=null) {
-                        synchronized (holder) {
-                            c.drawColor(Color.BLACK);
-                            paint.setColor(Color.CYAN);
-                            c.drawText("Initial Draw",100,400, paint);
-                        }
-                    } //TODO: capture data on why canvas would be null
 
-                } finally {
-                    // do this in a finally so that if an exception is thrown
-                    // during the above, we don't leave the Surface in an
-                    // inconsistent state
-                    if (c != null) {
-                        holder.unlockCanvasAndPost(c);
-                    }
-                }
-            }
-
-        });
-        */
-    }
-	/*
-	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {
-		float[] scaleData = new float[raw_data.length * 2];
-		int raw_data_max = PcmImpulse.Calc.getMaxValue(raw_data);
-		int raw_data_min = PcmImpulse.Calc.getMinValue(raw_data);
-		float scaledX = raw_data.length / (float) width;
-		float scaledY = (raw_data_max - raw_data_min)/(float) height;
-		for(int i=0;i<raw_data.length;i++) {
-			scaleData[i*2] = (i / scaledX) + (float) xoffset;
-			scaleData[i*2 + 1] = (raw_data[i]/scaledY) + (float) yoffset;
-		}
-		return scaleData;
-	}
-	*/
-	
+/*	
 	@Override
 	public void onDraw(Canvas canvas) {
-	    /*
-        if (mRawGraphData!=null) {
-        	Log.v("EchoApp","If you see a lot of these, that's an issue");
-        	canvas.drawColor(Color.BLACK);
-        	paint.setColor(Color.GREEN);
-        	//TODO Convert to calculated variable rather than on the fly method
-        	//float[] scaledPoints = scaleData(mRawGraphData, 400, 400, 60, 260);
-        	canvas.drawPoints(scaledPoints, paint);
-            mRawGraphData = null;
-        	//canvas.drawCircle(50, 50, 30, paint);
-        } 
-        */
+
 	    //if(DebugData.currentDebugData!=null){
 	    //    paint.setColor(Color.CYAN);
 	    //    canvas.drawPoints(DebugData.currentDebugData, paint);
@@ -150,6 +152,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    //    canvas.drawLines(plotter.getPlotData(), paint);
 	    //}
 		//canvas.drawBitmap(kangoo, 130, 10, null);
+
         paint.setColor(Color.GRAY);
         canvas.drawRect(15,45,380,55, paint);
         if (dirty_rect==null){
@@ -164,7 +167,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		}
 		
 	}
-	 
+*/
+
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	    mSurfaceRect = new ImmutableRect(width, height);
@@ -183,18 +187,26 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    }
 	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
 	    
-	    FullPainter init_draw = new FullPainter(holder){
-	        @Override
-	        public void safeDraw(Canvas c, Paint paint){
-	            c.drawColor(Color.BLACK);
-	            paint.setColor(Color.CYAN);
-	            c.drawText("Initial Full Painter",100,400, paint);
-	        }
-	    };
-	    mDrawList.add(init_draw);
+	    //Define what to draw
+	    //FullPainter init_draw = new FullPainter(holder){
+	    //        @Override
+	    //        public void safeDraw(Canvas c, Paint paint){
+	    //            c.drawColor(Color.BLACK);
+	    //            paint.setColor(Color.CYAN);
+	    //            c.drawText("Initial Full Painter",100,400, paint);
+	    //        }
+	    //    };
+	        
+	     //Try with radar   (first full screen, then try dirty)
+    
+	    //add it to the list    
+	    
+	    mDrawList.add(mInitDraw);
+	    mDrawList.add(mRadarDraw);
 	    drawPaintersInList(mDrawList);
+	    
+	    //clear the list
 	    mDrawList.clear();
-        //initialDraw();
         
 		//Workaround for when the thread is trashed by android (by pressing home, etc)
 		//if (canvasthread.getState()==Thread.State.TERMINATED) { 
