@@ -61,8 +61,10 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//Manages plotting
     	//TODO: Uncouple plotSuperviosr from audioSupervisor (maybe via Dispatcher?)
     	plotSupervisor = PlotSupervisor.create();
+    	plotSupervisor.setPanel(mPanel);
     	//Create AudioSupervisor to initiate threads
     	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
+    	
     	
     	
     }
@@ -84,7 +86,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
     	audioSupervisor.startRecording();
-        plotSupervisor.startQCheck();
+        //plotSupervisor.startQCheck();
     }
       
     public void setPanel(Panel panel){

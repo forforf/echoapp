@@ -3,15 +3,21 @@ package org.younghawk.echoapp;
 import java.util.ArrayDeque;
 import java.util.Timer;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 
 public class PlotSupervisor implements Callback {
+    
     private static final String TAG = "EchoApp PlotSupervisor";
     //This class should be a singleton
     private static PlotSupervisor instance = null;
@@ -23,6 +29,15 @@ public class PlotSupervisor implements Callback {
     public static Plotter mPlotter = Plotter.create();
     public static Timer dwellTimer = new Timer();
     public boolean pauseQCheck = true;
+    
+    //This gets set to a reference to the SurfaceView
+    
+    //to allow a local variable to go into an anonymous class
+    //grrrr java
+    private short[] mBuffer;
+    
+    //TODO FIX THIS HACK
+    private Panel mPanel;
 
     private Runnable checkingQ = new Runnable() {
         @Override
@@ -53,15 +68,16 @@ public class PlotSupervisor implements Callback {
             Looper plotLooper = plotThr.getLooper();
             Handler plotHandler = null;
             if (plotLooper!=null) {
-                plotHandler = new Handler(plotLooper){
-                    public void handleMessage(Message msg) {
-                        Log.d(TAG, "Finally received a msg: " + msg.what);
-                        int[] audio_buffer = (int[]) msg.obj;
-                        Log.d(TAG, "audio_buffer size: " + audio_buffer.length);
-                        mPlotter.addToQ(audio_buffer);
-                        //Log.d(TAG, "Q Size: " + mPlotter.mScaledSamples.size());
-                    }
-                };
+                plotHandler = new Handler(plotLooper);
+               // plotHandler = new Handler(plotLooper){
+               //     public void handleMessage(Message msg) {
+               //         Log.d(TAG, "Finally received a msg: " + msg.what);
+               //         int[] audio_buffer = (int[]) msg.obj;
+               //         Log.d(TAG, "audio_buffer size: " + audio_buffer.length);
+               //         mPlotter.addToQ(audio_buffer);
+               //         //Log.d(TAG, "Q Size: " + mPlotter.mScaledSamples.size());
+               //     }
+               // };
             } else {
                 Log.e(TAG, "Plot Looper was null, was thread started?");
             }
@@ -81,7 +97,11 @@ public class PlotSupervisor implements Callback {
         this.mPlotter = plotter;
     }
     
-
+    
+    //TODO: THIS IS A HACK
+    public void setPanel(Panel panel){
+        this.mPanel = panel;
+    }
     
     //IMPORTANT: In the current implementation this is called only once
     //since the buffer size = audio data size. Changing to be more flexible
@@ -89,20 +109,55 @@ public class PlotSupervisor implements Callback {
     //flushing and stitching buffers together would need to be handled.
     public void onBufferData(Object objBuffer){
         short[] buffer = (short[]) objBuffer;
-        int[] int_buffer = new int[buffer.length];
-        for(int i=0;i<buffer.length;i++){
-            int_buffer[i] = (int) buffer[i];
-        }
+        mBuffer = buffer;
         Log.d(TAG, "PlotSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
+        mPlotterHandler.post(new Runnable(){
+            @Override
+            public void run() {
+                //My attempt at wrinting to surfaceview from this thread
+                //Move to runnable?
+                //SV -------- Start
+                CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mBuffer);
+                Rect dirty_rect = new Rect(50,100,350,400);
+                SurfaceHolder holder = mPanel.getHolder();
+                Canvas c = holder.lockCanvas(dirty_rect);
+                try{
+                    //This is the point in the thread that we call the onDraw method in our Panel class
+                    if (c!=null) {
+                        synchronized (holder) {
+                            //draw here
+                            Paint paint = new Paint();
+                            paint.setColor(Color.GRAY);
+                            c.drawRect(dirty_rect, paint);
+                            paint.setColor(Color.CYAN);
+                            c.drawPoints(audioPlot.mCanvasPts, paint);
+                        }
+                    }
+                } finally {
+                    // do this in a finally so that if an exception is thrown
+                    // during the above, we don't leave the Surface in an
+                    // inconsistent state
+                    if (c != null) {
+                        holder.unlockCanvasAndPost(c);
+                    }
+                }
+                    //SV ------- End  
+            }
+        });
+        //int[] int_buffer = new int[buffer.length];
+        //for(int i=0;i<buffer.length;i++){
+        //    int_buffer[i] = (int) buffer[i];
+        //}
+        //Log.d(TAG, "PlotSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
         //mPlotter.pushAudioData(int_buffer);
-        Log.d(TAG, "Attempting to send message to PlotRunner");
-        PlotRunner plotRunner = PlotRunner.create(mPlotterHandler);
-        mPlotterHandler.post(plotRunner);
-        Message bufferMsg = Message.obtain(mPlotterHandler, MsgIds.BUFFER_DATA, int_buffer);
-        Log.d(TAG, "Sending Message");
-        mPlotterHandler.dispatchMessage(bufferMsg);
+        //Log.d(TAG, "Attempting to send message to PlotRunner");
+        //PlotRunner plotRunner = PlotRunner.create(mPlotterHandler);
+        //mPlotterHandler.post(plotRunner);
+        //Message bufferMsg = Message.obtain(mPlotterHandler, MsgIds.BUFFER_DATA, int_buffer);
+        //Log.d(TAG, "Sending Message");
+        //mPlotterHandler.dispatchMessage(bufferMsg);
         //plotRunner.handler.sendEmptyMessage(99);
-        Log.d(TAG, "Message sent");
+        //Log.d(TAG, "Message sent");
         
     }
     

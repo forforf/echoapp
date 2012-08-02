@@ -1,8 +1,5 @@
 package org.younghawk.echoapp;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import android.media.AudioRecord;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -10,6 +7,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.SurfaceView;
 
 /**
  * Supervises and handles callbacks for 
@@ -145,6 +143,11 @@ public class AudioSupervisor implements Callback {
 				int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
 				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 				
+				//Debug code
+				Log.d(TAG, "Im Alive 1");
+				CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mAudioRecordWrapper.mBuffer);
+				DebugData.setDebugArray(audioPlot);
+				
 				Log.d(TAG, "Im Alive 1");
 				//Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
 				Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
@@ -212,7 +215,7 @@ public class AudioSupervisor implements Callback {
 		mPingerHandler.post(mPinger);
 		
 	}
-	
+
     //IMPORTANT: In the current implementation this is called only once
     //since the buffer size = audio data size. Changing to be more flexible
     //will require this method to execute via a thread handler post, and
@@ -220,6 +223,8 @@ public class AudioSupervisor implements Callback {
     public void onBufferData(Object objBuffer){
         short[] buffer = (short[]) objBuffer;
         Log.d(TAG, "AudioSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
+        //Debug graph
+        DebugData.setDebugArray( CollectionGrapher.create(100,100,250,40, buffer) );
     }
 	
 	//IMPORTANT: In the current implementation this is called only once

@@ -123,6 +123,7 @@ public class CollectionGrapher {
         //Handle Collections
         ArrayList<Float> canvas_pts_list = null;
         Float max = null;
+        Float min = null;
         Log.d(TAG, "Class Name of arr thing: " + arr_thing.getClass().isArray());
         Log.d(TAG, "Arr thing instance of Object[]: " + (arr_thing instanceof Object[]) );
         
@@ -149,6 +150,7 @@ public class CollectionGrapher {
             canvas_data = (new Calc(arr_F)).mCalcCanvasData;
             canvas_pts_list = canvas_data.mCalcpts;
             max = canvas_data.mCalcMax;
+            min = canvas_data.mCalcMin;
         }
         //Handle short[]
         else if (arr_thing instanceof short[] )
@@ -165,6 +167,24 @@ public class CollectionGrapher {
             canvas_data = (new Calc(arr_F)).mCalcCanvasData;
             canvas_pts_list = canvas_data.mCalcpts;
             max = canvas_data.mCalcMax;
+            min = canvas_data.mCalcMin;
+        }
+        //Handle int[]
+        else if (arr_thing instanceof int[] )
+        { 
+            Log.d(TAG, "Handling short Array!!");
+            //cast to a common type (Float works for this class)
+            int[] arr_int = (int[]) arr_thing;
+            int arr_size = arr_int.length; 
+            Float[] arr_F = new Float[arr_size];
+            for (int i=0;i<arr_size;i++) {
+                arr_F[i] = Float.valueOf(arr_int[i]);
+            }
+            Log.d(TAG, "Ok so far");
+            canvas_data = (new Calc(arr_F)).mCalcCanvasData;
+            canvas_pts_list = canvas_data.mCalcpts;
+            max = canvas_data.mCalcMax;
+            min = canvas_data.mCalcMin;
         }
         //we were passed something we can't iterate over
         else
@@ -176,8 +196,7 @@ public class CollectionGrapher {
         
         //Max and Min should be calculated now
         //TODO Throw error if they are null
-        //float range = mMaxVal - mMinVal;
-   
+        float range = max - min;
         int canvas_pts_size = canvas_pts_list.size();
         canvas_pts = new float[canvas_pts_size];
         int i=0;
@@ -188,7 +207,7 @@ public class CollectionGrapher {
             }
             //scale y
             if(i%2==1){
-                canvas_pts[i] = (max - pt) * h + yo;
+                canvas_pts[i] = (max - pt) * (h/range) + yo;
             }
             
             //canvas_pts[i] = pt;

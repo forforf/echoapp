@@ -1,6 +1,7 @@
 package org.younghawk.echoapp;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
 //import org.younghawk.echoapp.R;
@@ -27,7 +28,11 @@ public class CanvasThread extends Thread {
             c = null;
             try {
             	Thread.sleep(20);
-                c = _surfaceHolder.lockCanvas(null);
+            	Rect dirty_rect = null;
+            	if (_panel!=null) {
+            	    dirty_rect = _panel.dirty_rect;
+            	}
+                c = _surfaceHolder.lockCanvas(dirty_rect);
                 
                 //This is the point in the thread that we call the onDraw method in our Panel class
                 if (c!=null) {

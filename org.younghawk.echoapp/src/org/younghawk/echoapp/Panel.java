@@ -1,7 +1,5 @@
 package org.younghawk.echoapp;
 
-import java.util.Arrays;
-
 import org.younghawk.echoapp.graph.Grapher;
 import org.younghawk.echoapp.signals.PcmImpulse;
 
@@ -9,6 +7,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -19,9 +18,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
 	private CanvasThread canvasthread = null;
 	private int tester = 0;
-	private boolean canvasChangeFlag = true;
+	//public boolean canvasChangeFlag = true;
 	private Paint paint = new Paint();
 	private CollectionGrapher debugArray;
+	public Rect dirty_rect;
 	
 	//Container for graph
 	//public int[] mRawGraphData = null;
@@ -45,6 +45,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		//sets Panel as the handler for surface events
 		getHolder().addCallback(this);
 		canvasthread = new CanvasThread(getHolder(), this);
+		
 		setFocusable(true);
 
 	}
@@ -62,10 +63,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		return scaleData;
 	}
 	 
-	public void setDebugArray(CollectionGrapher dbArr){
-	    this.debugArray = dbArr;
-	}
-
 	@Override
 	public void onDraw(Canvas canvas) {
 	    /*
@@ -80,10 +77,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
         	//canvas.drawCircle(50, 50, 30, paint);
         } 
         */
-	    if(debugArray!=null){
-	        paint.setColor(Color.CYAN);
-	        canvas.drawPoints(debugArray.mCanvasPts, paint);
-	    }    
+	    //if(DebugData.currentDebugData!=null){
+	    //    paint.setColor(Color.CYAN);
+	    //    canvas.drawPoints(DebugData.currentDebugData, paint);
+	    //}    
 	    //if(Plotter.plotReady) {
 	    //    paint.setColor(Color.GREEN);
 	    //    float[] audio_points = Plotter.toCanvasPointsArray(Plotter.PlotQ, 60, 400);
@@ -95,8 +92,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    //    canvas.drawLines(plotter.getPlotData(), paint);
 	    //}
 		//canvas.drawBitmap(kangoo, 130, 10, null);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.GRAY);
         canvas.drawRect(15,45,380,55, paint);
+        if (dirty_rect==null){
+            dirty_rect = new Rect(15,45,380,55);
+        }
         
 		paint.setColor(Color.RED);
 		canvas.drawCircle(20+tester,  50,  5, paint);
