@@ -16,12 +16,11 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
-	private CanvasThread canvasthread = null;
-	private int tester = 0;
-	//public boolean canvasChangeFlag = true;
-	private Paint paint = new Paint();
-	private CollectionGrapher debugArray;
-	public Rect dirty_rect;
+	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
+	private int tester = 0;  //deprecating moving to bitmap client
+	private Paint paint = new Paint(); //deprecating moving to bitmap client
+	private CollectionGrapher debugArray;  //deprecating moving to bitmap client
+	public Rect dirty_rect;  //deprecating moving to bitmap client
 	
 	//Container for graph
 	//public int[] mRawGraphData = null;
@@ -32,11 +31,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
 	    getHolder().addCallback(this);
-	    canvasthread = new CanvasThread(getHolder(), this);
+	    canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
 	    setFocusable(true);
 	    //Send reference back to Main Activity
-	    EchoApp echoApp = (EchoApp) context;
-	    echoApp.setPanel(this);
+	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelController (bitmap container)
+	    echoApp.setPanel(this); //deprecatgin use PanelManager
 	}
 
 	public Panel(Context context) {
@@ -49,7 +48,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		setFocusable(true);
 
 	}
-	 
+	
+	/*
 	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {
 		float[] scaleData = new float[raw_data.length * 2];
 		int raw_data_max = PcmImpulse.Calc.getMaxValue(raw_data);
@@ -62,7 +62,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		}
 		return scaleData;
 	}
-	 
+	*/
+	
 	@Override
 	public void onDraw(Canvas canvas) {
 	    /*
@@ -95,7 +96,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
         paint.setColor(Color.GRAY);
         canvas.drawRect(15,45,380,55, paint);
         if (dirty_rect==null){
-            dirty_rect = new Rect(15,45,380,55);
+            dirty_rect  = new Rect(15,45,380,55);
         }
         
 		paint.setColor(Color.RED);
