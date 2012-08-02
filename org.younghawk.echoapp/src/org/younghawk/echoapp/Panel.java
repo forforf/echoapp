@@ -1,7 +1,9 @@
 package org.younghawk.echoapp;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import org.younghawk.echoapp.graph.Grapher;
-import org.younghawk.echoapp.signals.PcmImpulse;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -16,6 +18,8 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
+    private Executor executor = Executors.newFixedThreadPool(2);
+    
 	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
 	private int tester = 0;  //deprecating moving to bitmap client
 	private Paint paint = new Paint(); //deprecating moving to bitmap client
@@ -31,7 +35,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
 	    //getHolder().addCallback(this);  //moving to PanelManager
-	    canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
+	    //canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
 	    setFocusable(true);
 	    //Send reference back to Main Activity
 	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelManager (bitmap container)
@@ -43,12 +47,39 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		super(context);
 		//sets Panel as the handler for surface events
 		//getHolder().addCallback(this);  //moving to PanelManager
-		canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelManager
+		//canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelManager
 		
 		setFocusable(true);
 	}
 	
-	
+    private void initialDraw() {
+        executor.execute(new Runnable(){
+            @Override
+            public void run() {
+                Log.d(TAG, "Running initial draw in thread");
+                SurfaceHolder holder = getHolder();
+                Canvas c = holder.lockCanvas(null);
+                try {
+                    if (c!=null) {
+                        synchronized (holder) {
+                            c.drawColor(Color.BLACK);
+                            paint.setColor(Color.CYAN);
+                            c.drawText("Initial Draw",100,400, paint);
+                        }
+                    } //TODO: capture data on why canvas would be null
+
+                } finally {
+                    // do this in a finally so that if an exception is thrown
+                    // during the above, we don't leave the Surface in an
+                    // inconsistent state
+                    if (c != null) {
+                        holder.unlockCanvasAndPost(c);
+                    }
+                }
+            }
+
+        });
+    }
 	/*
 	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {
 		float[] scaleData = new float[raw_data.length * 2];
@@ -116,12 +147,14 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+        initialDraw();
+        
 		//Workaround for when the thread is trashed by android (by pressing home, etc)
-		if (canvasthread.getState()==Thread.State.TERMINATED) { 
-            canvasthread = new CanvasThread(getHolder(), this);
-       }
-	    canvasthread.setRunning(true);
-	    canvasthread.start();
+		//if (canvasthread.getState()==Thread.State.TERMINATED) { 
+        //    canvasthread = new CanvasThread(getHolder(), this);
+       //}
+	    //canvasthread.setRunning(true);
+	    //canvasthread.start();
 
 	}
 	@Override

@@ -45,10 +45,10 @@ public class EchoApp extends Activity implements AudioUpdates {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
         //Reference to the surface view
         mPanel = (Panel) findViewById(R.id.panel);
         PanelManager mPanelManager = PanelManager.create(mPanel);
+
         
         //
         
