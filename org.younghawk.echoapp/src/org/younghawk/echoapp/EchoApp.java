@@ -27,7 +27,8 @@ public class EchoApp extends Activity implements AudioUpdates {
     
 	//Get a handle on the Panel View (not sure this is best approach)
 	// see setPanel();
-	public Panel mPanel = null;
+	public Panel mPanel;  //change to private, since we should go through PanelManager
+	public PanelManager mPanelManager;
     
 	//Waveform data
 	private String mSignal_instructions;
@@ -44,6 +45,12 @@ public class EchoApp extends Activity implements AudioUpdates {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        //Reference to the surface view
+        mPanel = (Panel) findViewById(R.id.panel);
+        PanelManager mPanelManager = PanelManager.create(mPanel);
+        
+        //
         
         //float[] testDebug = new float[]{ 3.0f, 2.4f, 1.0f, -3.3f, 0.4f };
         //short[] testDebug = new short[]{3,2,1,5,-5};

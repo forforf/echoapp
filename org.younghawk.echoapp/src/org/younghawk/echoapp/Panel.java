@@ -30,11 +30,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
-	    getHolder().addCallback(this);
+	    //getHolder().addCallback(this);  //moving to PanelManager
 	    canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
 	    setFocusable(true);
 	    //Send reference back to Main Activity
-	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelController (bitmap container)
+	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelManager (bitmap container)
 	    echoApp.setPanel(this); //deprecatgin use PanelManager
 	}
 
@@ -42,12 +42,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		 
 		super(context);
 		//sets Panel as the handler for surface events
-		getHolder().addCallback(this);
-		canvasthread = new CanvasThread(getHolder(), this);
+		//getHolder().addCallback(this);  //moving to PanelManager
+		canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelManager
 		
 		setFocusable(true);
-
 	}
+	
 	
 	/*
 	private float[] scaleData(int[] raw_data, int width, int height, int xoffset, int yoffset) {

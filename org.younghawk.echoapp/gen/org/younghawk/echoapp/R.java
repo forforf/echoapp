@@ -26,9 +26,9 @@ public final class R {
     }
     public static final class id {
         public static final int PingButton=0x7f0a0002;
-        public static final int SurfaceView01=0x7f0a0000;
         public static final int checkBox1=0x7f0a0001;
         public static final int menu_settings=0x7f0a0003;
+        public static final int panel=0x7f0a0000;
     }
     public static final class integer {
         public static final int samples_per_wav=0x7f070000;
