@@ -111,39 +111,71 @@ public class PlotSupervisor implements Callback {
         short[] buffer = (short[]) objBuffer;
         mBuffer = buffer;
         Log.d(TAG, "PlotSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
-        mPlotterHandler.post(new Runnable(){
+        Log.d(TAG, "Accessing AudioDataRegion Bitmap");
+        
+        
+        //Thread to Update Bitmaps with audio graphin region with audio buffer data.
+        if (Panel.mAudioDataRegion!=null){
+            //map to region
+
+            mPlotterHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    Log.d(TAG, "Get audio region bitmap");
+                    Rect adr_rect = Panel.mAudioDataRegion.getDirtyRect();
+                    CollectionGrapher audioPlot = CollectionGrapher.create(adr_rect.left,adr_rect.top,adr_rect.width(),adr_rect.height(), mBuffer);
+                    Paint paint = new Paint();
+                    paint.setColor(Color.CYAN);
+                    //Here we get the bitmap, update it and commit it.
+                    synchronized(Panel.mAudioDataRegion) {
+                        Canvas c = new Canvas(Panel.mAudioDataRegion.getUnsafeBitmap());
+                        c.drawPoints(audioPlot.mCanvasPts, paint);
+                        Panel.mAudioDataRegion.updateDrawRegion();
+                    }
+                } //end run()
+            }); // end post
+        }
+                
+        //Thread loop to graph any updated regions - Keep together with executor
+        //TODO: Figure out if this belongs here or not.
+        Runnable checkAudioUpdates = new Runnable(){
             @Override
             public void run() {
-                //My attempt at wrinting to surfaceview from this thread
-                //Move to runnable?
-                //SV -------- Start
-                CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mBuffer);
-                Rect dirty_rect = new Rect(50,100,350,400);
-                SurfaceHolder holder = mPanel.getHolder();
-                Canvas c = holder.lockCanvas(dirty_rect);
-                try{
-                    //This is the point in the thread that we call the onDraw method in our Panel class
-                    if (c!=null) {
-                        synchronized (holder) {
-                            //draw here
-                            Paint paint = new Paint();
-                            paint.setColor(Color.GRAY);
-                            c.drawRect(dirty_rect, paint);
-                            paint.setColor(Color.CYAN);
-                            c.drawPoints(audioPlot.mCanvasPts, paint);
+                boolean runThread = (!Thread.currentThread().isInterrupted() && !Panel.mStopRunningThreads);
+                while(runThread){
+                    if(!Panel.mAudioDataRegion.isConsumed){
+                        SurfaceHolder holder = mPanel.getHolder();
+                        Rect dirty_rect = Panel.mAudioDataRegion.getDirtyRect();
+                        Canvas c = holder.lockCanvas(dirty_rect);
+                        try{
+                            //This is the point in the thread that we call the onDraw method in our Panel class
+                            synchronized (holder) {
+                                //draw here
+                                c.drawBitmap(Panel.mAudioDataRegion.consumeBitmap(), dirty_rect.left, dirty_rect.top, null);
+                            }
+                        } finally {
+                            // do this in a finally so that if an exception is thrown
+                            // during the above, we don't leave the Surface in an
+                            // inconsistent state
+                            if (c != null) {
+                                holder.unlockCanvasAndPost(c);
+                            }
+                        }    
+                    }
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        if(Thread.currentThread().isInterrupted()){
+                            Thread.currentThread().interrupt();
                         }
                     }
-                } finally {
-                    // do this in a finally so that if an exception is thrown
-                    // during the above, we don't leave the Surface in an
-                    // inconsistent state
-                    if (c != null) {
-                        holder.unlockCanvasAndPost(c);
-                    }
-                }
-                    //SV ------- End  
+                }  
             }
-        });
+        };    
+        Panel.mExecutor.execute(checkAudioUpdates);
+        //Keep the above with the runnable
+        
         //int[] int_buffer = new int[buffer.length];
         //for(int i=0;i<buffer.length;i++){
         //    int_buffer[i] = (int) buffer[i];

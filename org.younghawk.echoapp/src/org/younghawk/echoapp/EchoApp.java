@@ -74,11 +74,15 @@ public class EchoApp extends Activity implements AudioUpdates {
     	
     	
     	
+    	
+    	
     }
     
     public void onPause() {
-        audioSupervisor.shutDown();
-        audioSupervisor = null;
+        if (audioSupervisor!=null){
+            audioSupervisor.shutDown();
+            audioSupervisor = null;
+        }
         super.onPause();
     }
     
@@ -93,6 +97,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
     	audioSupervisor.startRecording();
+    	//audioSupervisor.startRecording();
         //plotSupervisor.startQCheck();
     }
       

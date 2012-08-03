@@ -12,7 +12,7 @@ import android.util.Log;
 
 
 public class CollectionGrapher {
-    public static final String TAG = "EchoApp Grapher";
+    public static final String TAG = "EchoApp CollectionGrapher";
     public float   mMaxVal;
     public float   mMinVal;
     public float[] mCanvasPts;
