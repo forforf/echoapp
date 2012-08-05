@@ -43,11 +43,12 @@ public final class R {
     public static final class string {
         public static final int activity_title=0x7f080001;
         public static final int app_name=0x7f080000;
-        public static final int hello_world=0x7f080004;
-        public static final int menu_settings=0x7f080005;
-        public static final int ping_button=0x7f080002;
-        public static final int signal_instructions=0x7f080003;
-        public static final int title_activity_echo_app_preferences=0x7f080006;
+        public static final int hello_world=0x7f080005;
+        public static final int menu_settings=0x7f080006;
+        public static final int ping_button_init=0x7f080002;
+        public static final int ping_button_ready=0x7f080003;
+        public static final int signal_instructions=0x7f080004;
+        public static final int title_activity_echo_app_preferences=0x7f080007;
     }
     public static final class xml {
         public static final int preferences=0x7f040000;

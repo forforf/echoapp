@@ -172,8 +172,9 @@ public class PlotSupervisor implements Callback {
                     }
                 }  
             }
-        };    
-        Panel.mExecutor.execute(checkAudioUpdates);
+        };
+        Panel.mSvHandler.post(checkAudioUpdates);
+        //Panel.mExecutor.execute(checkAudioUpdates);
         //Keep the above with the runnable
         
         //int[] int_buffer = new int[buffer.length];

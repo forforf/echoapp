@@ -16,13 +16,13 @@ import android.graphics.Rect;
  * @author Dave2
  *
  */
-public class DrawRegion {
+public class BitmapProxy {
     private Bitmap mWritableBitmap;
     private Bitmap mReadBitmap;
     private Rect mDirtyRectangle;
     public boolean isConsumed;
     
-    public DrawRegion(Bitmap bmp, Rect dirty) {
+    public BitmapProxy(Bitmap bmp, Rect dirty) {
         this.mWritableBitmap = bmp;
         this.mReadBitmap = Bitmap.createBitmap(bmp);
         this.mDirtyRectangle = dirty;

@@ -3,7 +3,8 @@
 
     <string name="app_name">EchoApp</string>
     <string name="activity_title">Echo Locator</string>
-    <string name="ping_button">Ping</string>
+    <string name="ping_button_init">Start</string>
+    <string name="ping_button_ready">Ping</string>
     <string name="signal_instructions">        [ 
           {\"waveform\": \"null\",    \"iterations\": 2 },
           {\"waveform\": \"impulse\", \"iterations\": 1 },

@@ -1,8 +1,8 @@
 package org.younghawk.echoapp;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -18,14 +19,23 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
-    public static ExecutorService mExecutor = Executors.newFixedThreadPool(4);
-    public static boolean mStopRunningThreads = false;
-    private ImmutableRect mSurfaceRect = null;
+    public PanelDrawer mPanelDrawer;
+    
+    //public static ExecutorService mExecutor = Executors.newFixedThreadPool(4); //deprecated
+    public static boolean mStopRunningThreads = false; //deprecated
+    
+    //TODO: Each BitmapProxy gets a handler.
+    
+    public static Handler mSvHandler = new HandlerThreadExecutor().execute(null).handler;  //deprecated
+    
+    
+    
+    public ImmutableRect mSurfaceRect = null;
     
     private ArrayList<Runnable> mDrawList = new ArrayList<Runnable>();
     
     //Region for drawing audio data
-    public static DrawRegion mAudioDataRegion;
+    public static BitmapProxy mAudioDataRegion;
     
 	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
 	private Paint paint = new Paint(); //deprecating moving to bitmap client
@@ -59,6 +69,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    };
 	};
 	
+	/*
 	private Runnable mRadarDraw = new Runnable(){
 	    @Override
 	    public void run() {
@@ -121,6 +132,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	        
 	    };
 	};
+	*/
 	
 	private Runnable mAudioDataRegionDraw = new Runnable(){
 	    @Override
@@ -156,39 +168,59 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
-	    //getHolder().addCallback(this);  //moving to PanelManager
+	    //getHolder().addCallback(this);  //moving to PanelDrawer
 	    //canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
 	    setFocusable(true);
 	    //Send reference back to Main Activity
-	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelManager (bitmap container)
-	    echoApp.setPanel(this); //deprecatgin use PanelManager
+	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelDrawer (bitmap container)
+	    echoApp.setPanel(this); //deprecatgin use PanelDrawer
 	}
 
 	public Panel(Context context) {
 		 
 		super(context);
 		//sets Panel as the handler for surface events
-		//getHolder().addCallback(this);  //moving to PanelManager
-		//canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelManager
+		//getHolder().addCallback(this);  //moving to PanelDrawer
+		//canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelDrawer
 		
 		setFocusable(true);
 	}
 	
 	private void drawPaintersInList(ArrayList<Runnable> drawList){
 	    for (Runnable r : drawList){
-	        mExecutor.execute(r);
+	        //mExecutor.execute(r);
+	        mSvHandler.post(r);
 	    }
 	}
 	
+	//Setup view dependent stuff
+	public void viewsReady(){
+	    Log.d(TAG, "Views Ready, create PanelDrawer");
+	    //Activity has created views
+	    mPanelDrawer = PanelDrawer.create(this);
+	}
+
+	//Setup surface dependent stuff
+	public void onSurfaceReady(SurfaceHolder holder){
+	    Log.d(TAG, "Surface is now ready!");
+	    if (holder!=null && mSurfaceRect!=null){
+	        mPanelDrawer.onSurfaceReady();
+	    } else {
+	        throw new Error("Calling surface ready when surface is NOT ready");
+	    }
+	    mPanelDrawer.testTestBitmapDraw();
+	    
+	}
+
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	    mStopRunningThreads = false;
 	    mSurfaceRect = new ImmutableRect(width, height);
-	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
-		
-		
-	}
+	    Log.d(TAG, "CHANGED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
+	    //onSurfaceReady(holder); ?
+ 	}
+	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 	    mStopRunningThreads = false;
@@ -200,10 +232,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	        holder.unlockCanvasAndPost(c);
 	    }
 	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
+	    onSurfaceReady(holder);
 	    
-	    
+	   //deprecated 
 	  //Setting the drawable regions
 	  //Audio Region Setup
+	    /*
 	  int side_padding = 8;
 	  int top_padding =100;
 	  int bot_padding = 20;
@@ -213,7 +247,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
       Canvas ar_c = new Canvas(ar_bmp);
       ar_c.drawColor(Color.DKGRAY);
       Rect ar_rect = new Rect(side_padding, top_padding, side_padding + ar_width, top_padding + ar_height);
-      mAudioDataRegion = new DrawRegion(ar_bmp, ar_rect);
+      mAudioDataRegion = new BitmapProxy(ar_bmp, ar_rect);
     
 	    //add it to the list    
 	    mDrawList.add(mInitDraw);
@@ -232,7 +266,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
        //}
 	    //canvasthread.setRunning(true);
 	    //canvasthread.start();
-
+*/
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {

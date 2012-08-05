@@ -211,8 +211,11 @@ public class AudioSupervisor implements Callback {
 		Log.d(TAG,"Main thread notified that Audio Recorder is Ready");
 		
 		
-		Log.d(TAG,"Audio Supervisor sending ping to Pinger Thread");
-		mPingerHandler.post(mPinger);
+		
+		
+		//DOES THE PING
+		Log.d(TAG,"Audio Supervisor sending ping to Pinger Thread --CURRENTLY DISABLED");
+		//mPingerHandler.post(mPinger);
 		
 	}
 

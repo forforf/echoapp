@@ -27,8 +27,8 @@ public class EchoApp extends Activity implements AudioUpdates {
     
 	//Get a handle on the Panel View (not sure this is best approach)
 	// see setPanel();
-	public Panel mPanel;  //change to private, since we should go through PanelManager
-	public PanelManager mPanelManager;
+	public Panel mPanel;  //change to private, since we should go through PanelDrawer
+	public PanelDrawer mPanelManager;
     
 	//Waveform data
 	private String mSignal_instructions;
@@ -45,9 +45,14 @@ public class EchoApp extends Activity implements AudioUpdates {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        Log.d(TAG, "Views created, setup Panel");
+        mPanel.viewsReady();
+        
+        //Below deprecated, doesn't belong here (moved to panel)
         //Reference to the surface view
-        mPanel = (Panel) findViewById(R.id.panel);
-        PanelManager mPanelManager = PanelManager.create(mPanel);
+        //mPanel = (Panel) findViewById(R.id.panel);
+        //PanelDrawer mPanelManager = PanelDrawer.create(mPanel);
 
         
         //
@@ -97,7 +102,6 @@ public class EchoApp extends Activity implements AudioUpdates {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
     	audioSupervisor.startRecording();
-    	//audioSupervisor.startRecording();
         //plotSupervisor.startQCheck();
     }
       
