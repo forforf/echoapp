@@ -18,16 +18,15 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 
-//TODO: Convert from Callbacks (RecordAudioEvents) to Messages
+
 /**
  * Main Activity for the Echo App
  */
 public class EchoApp extends Activity implements AudioUpdates {
 	private static final String TAG = "EchoApp";
     
-	//Get a handle on the Panel View (not sure this is best approach)
-	// see setPanel();
-	public Panel mPanel;  //change to private, since we should go through PanelDrawer
+	//Used to notify panel when views are created
+	private Panel mPanel;  
 	public PanelDrawer mPanelManager;
     
 	//Waveform data
@@ -49,14 +48,9 @@ public class EchoApp extends Activity implements AudioUpdates {
         Log.d(TAG, "Views created, setup Panel");
         mPanel.viewsReady();
         
-        //Below deprecated, doesn't belong here (moved to panel)
-        //Reference to the surface view
-        //mPanel = (Panel) findViewById(R.id.panel);
-        //PanelDrawer mPanelManager = PanelDrawer.create(mPanel);
 
         
-        //
-        
+        //Deprecated - DONT DELETE, SHOWS USAGE        
         //float[] testDebug = new float[]{ 3.0f, 2.4f, 1.0f, -3.3f, 0.4f };
         //short[] testDebug = new short[]{3,2,1,5,-5};
         //Log.d(TAG, Arrays.toString(testDebug));
@@ -70,16 +64,14 @@ public class EchoApp extends Activity implements AudioUpdates {
     	mRes = getResources();
     	mWave_samples = mRes.getInteger(R.integer.samples_per_wav);
     	
+    	//Deprecated
     	//Manages plotting
     	//TODO: Uncouple plotSuperviosr from audioSupervisor (maybe via Dispatcher?)
-    	plotSupervisor = PlotSupervisor.create();
-    	plotSupervisor.setPanel(mPanel);
+    	//plotSupervisor = PlotSupervisor.create();
+    	//plotSupervisor.setPanel(mPanel);
     	//Create AudioSupervisor to initiate threads
-    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
-    	
-    	
-    	
-    	
+    	//audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
+    	    	
     	
     }
     
@@ -137,25 +129,5 @@ public class EchoApp extends Activity implements AudioUpdates {
 
     }
     
-    //Testing
-    private void TimerMethod()
-    {
-        //This method is called directly by the timer
-        //and runs in the same thread as the timer.
 
-        //We call the method that will work with the UI
-        //through the runOnUiThread method.
-        this.runOnUiThread(Timer_Tick);
-    }
-
-
-    private Runnable Timer_Tick = new Runnable() {
-        public void run() {
-            Log.d(TAG, "Q Size: " + plotSupervisor.mPlotter.mScaledSamples.size());
-        //This method runs in the same thread as the UI.               
-        
-        //Do something to the UI thread here
-    
-        }
-    };
 }

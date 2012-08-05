@@ -3,6 +3,8 @@ package org.younghawk.echoapp;
 import java.util.ArrayDeque;
 import java.util.Timer;
 
+import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -173,7 +175,11 @@ public class PlotSupervisor implements Callback {
                 }  
             }
         };
-        Panel.mSvHandler.post(checkAudioUpdates);
+        
+        //TODO: Temporary workaround while refactoring
+        HandlerThreadExecutor temp = new HandlerThreadExecutor();
+        temp.execute(checkAudioUpdates);
+        //Panel.mSvHandler.post(checkAudioUpdates);
         //Panel.mExecutor.execute(checkAudioUpdates);
         //Keep the above with the runnable
         

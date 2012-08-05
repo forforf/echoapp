@@ -22,11 +22,13 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public PanelDrawer mPanelDrawer;
     
     //public static ExecutorService mExecutor = Executors.newFixedThreadPool(4); //deprecated
+    
+    //TODO: Refactor Audio threads away from this
     public static boolean mStopRunningThreads = false; //deprecated
     
     //TODO: Each BitmapProxy gets a handler.
     
-    public static Handler mSvHandler = new HandlerThreadExecutor().execute(null).handler;  //deprecated
+    // public static Handler mSvHandler = new HandlerThreadExecutor().execute(null).handler;  //deprecated
     
     
     
@@ -220,7 +222,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-	    mStopRunningThreads = false;
+	    mStopRunningThreads = false; //deprecated
 	    mSurfaceRect = new ImmutableRect(width, height);
 	    Log.d(TAG, "CHANGED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
 	    //onSurfaceReady(holder); ?
@@ -228,7 +230,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-	    mStopRunningThreads = false;
+	    mStopRunningThreads = false; //deprecated
 	    Canvas c = holder.lockCanvas(null);
 	    try {
 	        Rect dangerRect = holder.getSurfaceFrame();
@@ -277,7 +279,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	public void surfaceDestroyed(SurfaceHolder holder) {
 	    mSurfaceRect = null;
 	    Log.d(TAG, "Surfaced destroyed, shutting down threads");
-	    mStopRunningThreads = true;
+	    //mStopRunningThreads = true; //deprecated
 	    //TODO: INvestigate using #submit and cancelling the future.
 	    
 		//boolean retry = true;
