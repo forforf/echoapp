@@ -32,16 +32,19 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     
     public ImmutableRect mSurfaceRect = null;
     
-    private ArrayList<Runnable> mDrawList = new ArrayList<Runnable>();
+    //Deprecated
+    //private ArrayList<Runnable> mDrawList = new ArrayList<Runnable>();
     
     //Region for drawing audio data
     public static BitmapProxy mAudioDataRegion;
     
-	private CanvasThread canvasthread = null;  //deprecating with new thread mgt
-	private Paint paint = new Paint(); //deprecating moving to bitmap client
-	private CollectionGrapher debugArray;  //deprecating moving to bitmap client
-	public Rect dirty_rect;  //deprecating moving to bitmap clientA
+    //Deprecated
+	//private CanvasThread canvasthread = null;  //deprecating with new thread mgt
+	//private Paint paint = new Paint(); //deprecating moving to bitmap client
+	//private CollectionGrapher debugArray;  //deprecating moving to bitmap client
+	//public Rect dirty_rect;  //deprecating moving to bitmap clientA
 	
+	/*
 	private Runnable mInitDraw = new Runnable(){
 	    @Override
 	    public void run() {
@@ -68,7 +71,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	        }
 	    };
 	};
-	
+	*/
 	/*
 	private Runnable mRadarDraw = new Runnable(){
 	    @Override
@@ -134,6 +137,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	};
 	*/
 	
+	/*
 	private Runnable mAudioDataRegionDraw = new Runnable(){
 	    @Override
 	    public void run() {
@@ -162,7 +166,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	        }
 	    };
 	};
-	
+	*/
 	
 
 	
@@ -186,12 +190,13 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		setFocusable(true);
 	}
 	
-	private void drawPaintersInList(ArrayList<Runnable> drawList){
-	    for (Runnable r : drawList){
-	        //mExecutor.execute(r);
-	        mSvHandler.post(r);
-	    }
-	}
+	//Deprecated
+	//private void drawPaintersInList(ArrayList<Runnable> drawList){
+	//    for (Runnable r : drawList){
+	//        //mExecutor.execute(r);
+	//        mSvHandler.post(r);
+	//    }
+	//}
 	
 	//Setup view dependent stuff
 	public void viewsReady(){

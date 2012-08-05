@@ -2,6 +2,11 @@ package org.younghawk.echoapp;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.younghawk.echoapp.drawregion.DrawRegionFactory;
+import org.younghawk.echoapp.drawregion.DrawRegionGraph;
+import org.younghawk.echoapp.drawregion.DrawRegionNames;
+import org.younghawk.echoapp.drawregion.DrawRegionRadar;
+import org.younghawk.echoapp.drawregion.DrawRegionType;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 

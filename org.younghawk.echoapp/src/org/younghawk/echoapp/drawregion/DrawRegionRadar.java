@@ -1,7 +1,10 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.drawregion;
 
 import android.graphics.Rect;
 
+/**
+ * This class is instantiated through the DrawRegionFactory.
+ */
 public class DrawRegionRadar implements DrawRegionType {
 
     public Rect rect; //the rectangle that bounds the object

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 //import org.younghawk.echoapp.R;
 
+
+/*
 public class CanvasThread extends Thread {
     private SurfaceHolder _surfaceHolder;
     private Panel _panel;
@@ -59,4 +61,4 @@ public class CanvasThread extends Thread {
         }
     }
 }
-
+*/
