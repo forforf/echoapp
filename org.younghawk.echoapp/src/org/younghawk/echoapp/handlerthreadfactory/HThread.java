@@ -14,6 +14,8 @@ import android.util.Log;
  */
 public class HThread extends Thread {
     private static final String TAG = "Scratch HThread";
+    //provides common flag
+    public boolean running = true;
     public Handler handler;
     private Runnable runner;
 

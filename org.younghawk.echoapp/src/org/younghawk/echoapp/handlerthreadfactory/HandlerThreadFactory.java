@@ -9,11 +9,14 @@ public class HandlerThreadFactory implements ThreadFactory {
     private static final AtomicInteger mThrNum = new AtomicInteger(1);
     private final String mNamePrefix;
     
-    public HandlerThreadFactory() {
-        mNamePrefix = "hthread-pool-"+mPoolNum.getAndIncrement()+"-thread-";
+    public HandlerThreadFactory(String pool_name) {
+        mNamePrefix = pool_name+"-"+mPoolNum.getAndIncrement();
     }
 
-    public HThread newThread(Runnable r) {
-        return new HThread(r, mNamePrefix+mThrNum.getAndIncrement());
+    public HThread newThread(Runnable r){
+        return newThread(r, "anon");
+    }
+    public HThread newThread(Runnable r, String thread_name) {
+        return new HThread(r, mNamePrefix+"-"+thread_name+"-"+mThrNum.getAndIncrement());
     }
 }

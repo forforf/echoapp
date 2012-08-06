@@ -1,42 +1,35 @@
 package org.younghawk.echoapp;
 
-import java.util.ArrayList;
-
-import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
-
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-
+/**
+ * Panel holds the surface view for the graphics
+ * The goal is for this class to focus on the surface
+ * and its callbacks, and that the class PanelDrawer is
+ * used for drawing to the view 
+ */
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
-    public PanelDrawer mPanelDrawer;
     
-    //public static ExecutorService mExecutor = Executors.newFixedThreadPool(4); //deprecated
+    //Reference to the main drawing class for this panel
+    public PanelDrawer mPanelDrawer;
+   
     
     //TODO: Refactor Audio threads away from this
     public static boolean mStopRunningThreads = false; //deprecated
     
-    //TODO: Each BitmapProxy gets a handler.
-    
-    // public static Handler mSvHandler = new HandlerThreadExecutor().execute(null).handler;  //deprecated
-    
-    
-    
+    //Used to hold the dimensions of the surface view.
+    //Immutable since we shouldn't be messing with the view 
+    //dimensions.
     public ImmutableRect mSurfaceRect = null;
     
-    //Deprecated
-    //private ArrayList<Runnable> mDrawList = new ArrayList<Runnable>();
-    
+    //May be deprecated
     //Region for drawing audio data
     public static BitmapProxy mAudioDataRegion;
     
@@ -174,36 +167,30 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
-	    //getHolder().addCallback(this);  //moving to PanelDrawer
-	    //canvasthread = new CanvasThread(getHolder(), this);  //deprecating using bitmap client to post runnable
 	    setFocusable(true);
-	    //Send reference back to Main Activity
-	    EchoApp echoApp = (EchoApp) context;  //deprecating use PanelDrawer (bitmap container)
-	    echoApp.setPanel(this); //deprecatgin use PanelDrawer
+	    
+	    //Send reference back to Main Activity so it can tell us
+	    //when all the views are ready.
+	    EchoApp echoApp = (EchoApp) context;
+	    echoApp.setPanel(this);
 	}
 
 	public Panel(Context context) {
-		 
 		super(context);
-		//sets Panel as the handler for surface events
-		//getHolder().addCallback(this);  //moving to PanelDrawer
-		//canvasthread = new CanvasThread(getHolder(), this); //deprecating use PanelDrawer
-		
 		setFocusable(true);
+		
+		//Send reference back to Main Activity so it can tell us
+        //when all the views are ready.
+        EchoApp echoApp = (EchoApp) context;
+        echoApp.setPanel(this);
 	}
 	
-	//Deprecated
-	//private void drawPaintersInList(ArrayList<Runnable> drawList){
-	//    for (Runnable r : drawList){
-	//        //mExecutor.execute(r);
-	//        mSvHandler.post(r);
-	//    }
-	//}
-	
-	//Setup view dependent stuff
+
+	//Our activity has notified us that the views are ready
+	//So let's setup view dependent stuff
 	public void viewsReady(){
 	    Log.d(TAG, "Views Ready, create PanelDrawer");
-	    //Activity has created views
+	    //Now that the views are ready we can create a panelDrawer
 	    mPanelDrawer = PanelDrawer.create(this);
 	}
 
@@ -215,6 +202,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    } else {
 	        throw new Error("Calling surface ready when surface is NOT ready");
 	    }
+	    
+	    //Testing Only
 	    mPanelDrawer.testTestBitmapDraw();
 	    
 	}
@@ -225,7 +214,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    mStopRunningThreads = false; //deprecated
 	    mSurfaceRect = new ImmutableRect(width, height);
 	    Log.d(TAG, "CHANGED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
-	    //onSurfaceReady(holder); ?
+	    onSurfaceReady(holder); //?
  	}
 	
 	@Override
@@ -277,8 +266,13 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
+	    
+	    Log.d(TAG, "Surfaced destroyed, notifying panel drawer");
+	    mPanelDrawer.onSurfaceDestroyed();
+	  //invalidate any surface related data
 	    mSurfaceRect = null;
-	    Log.d(TAG, "Surfaced destroyed, shutting down threads");
+	    
+	    
 	    //mStopRunningThreads = true; //deprecated
 	    //TODO: INvestigate using #submit and cancelling the future.
 	    
@@ -294,6 +288,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 		//	}
 		//}
 	}
+	
 	
 
 

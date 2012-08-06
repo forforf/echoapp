@@ -27,7 +27,6 @@ public class EchoApp extends Activity implements AudioUpdates {
     
 	//Used to notify panel when views are created
 	private Panel mPanel;  
-	public PanelDrawer mPanelManager;
     
 	//Waveform data
 	private String mSignal_instructions;

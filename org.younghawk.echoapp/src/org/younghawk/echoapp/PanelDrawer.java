@@ -15,36 +15,44 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
 //TODO: Rename to PanelDraw?
 public class PanelDrawer {
     private static final String TAG = "EchoApp PanelDrawer";
-  //This class should be a singleton
+    //This class should be a singleton
     private static PanelDrawer instance = null;
     
+    //Reference back to the Panel View
     private Panel mPanel;
     
+    //The Thread Executor we use. It can create looped handlers as well as execute runnables
+    private static HandlerThreadExecutor mExecutor = new HandlerThreadExecutor("paneldrawer");
+    
+    //Surface references
     public SurfaceHolder mSurfaceHolder;
     public ImmutableRect mSurfaceRect;
     
+    //will be used to define the regions we can use to draw on the surface
+    //Depends on the surface being ready before we can add any regions
     public ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
-    public ConcurrentHashMap<DrawRegionNames, Handler> mDrawRegionHandlers = new ConcurrentHashMap<DrawRegionNames, Handler>();
     
-    private static HandlerThreadExecutor mExecutor = new HandlerThreadExecutor();
+    //Each region gets its own dedicated handler for queuing draw requests
+    public ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
     
+    //Because we do our drawing operations in runnables, there's a java issue of access to local variables
+    //while defining these runnables. We get around this by using instance variables. Not ideal, but I'm not sure of
+    //a better way
     //TODO: Is there better way to handle scaling bitmaps??
     private Bitmap mOrigBitmap;
     private Bitmap mScaledBitmap;
     
-    //private Executor executor = Executors.newFixedThreadPool(2);
-    //private Paint paint = new Paint();
 
     //Panel Manager should only be created after Panel
     //is done initializing
     public static PanelDrawer create(Panel panel) {
+        //ensure singleton
         if(instance!=null){
             return instance;
         } else {
@@ -52,37 +60,70 @@ public class PanelDrawer {
             //Setup Surface Holder
             SurfaceHolder panelSurfaceHolder = panel.getHolder();
             
-            //TODO: Where best to get region data?
-            //mDrawRegionDefinitions.put()
-
             //Setup the callbacks on panel
+            //We do it here because rather than the panel constructor
+            //so that we can be sure panel is fully initialized.
             panel.getHolder().addCallback(panel);
-            
-            
 
-            instance = new PanelDrawer(panel, panelSurfaceHolder);
-            //return new PanelDrawer(panelSurfaceHolder);
+            
+            
+            
+            
+            
+            
+            //set as the singleton
+            instance = new PanelDrawer(panel);
             return instance;
         }
     }
-    private PanelDrawer(Panel panel, SurfaceHolder holder) {
+    
+    //Constructor
+    private PanelDrawer(Panel panel) {
         Log.d(TAG, "Constructing PanelDrawer");
         this.mPanel = panel;
-        this.mSurfaceHolder = holder;
+ 
     }
     
     public void onSurfaceReady() {
         Log.d(TAG, "Surface Ready tasks");
+        this.mSurfaceHolder = mPanel.getHolder();
+        //Get the surface dimensions
         this.mSurfaceRect = mPanel.mSurfaceRect;
+        
+        //Now that we know the surface dimensions we can create the drawing regions
         this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(mSurfaceRect));
         this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(mSurfaceRect));
-        HThread t1 = mExecutor.execute(null);
-        HThread t2 = mExecutor.execute(null);
-        if(t1.handler!=null){
-            this.mDrawRegionHandlers.put(DrawRegionNames.RADAR, t1.handler);
+        
+        //If the radar drawing thread doesn't exist create it
+        if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
+            if(!this.mDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
+                this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler-reborn"));  //create thread  
+            } //if it's alive then we're ok
+        } else { //doesn't contain key (so can't be alive)      
+            this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler")); 
+        }
+        
+      //If the graph drawing thread doesn't exist create it
+        if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.GRAPH)){ //contains key
+            if(!this.mDrawRegionHThreads.get(DrawRegionNames.GRAPH).isAlive()){ //but not alive
+                this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler-reborn"));  //create thread  
+            } //if it's alive then we're ok
+        } else { //doesn't contain key (so can't be alive)      
+            this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler")); 
+        }
+        
+
+        /*
+        //If thread exists but is not running  
+        //HThread t1 = mExecutor.execute(null);
+        //HThread t2 = mExecutor.execute(null);
+        if(!this.mDrawRegionHandlers.containsKey(DrawRegionNames.RADAR) ||
+                this.mDrawRegionHandlers.get(mDrawRegionNames.RADAR).isTerminated){
+            this.mDrawRegionHandlers.put(DrawRegionNames.RADAR, mExecutor.execute(null));
         } else {
-            Log.e(TAG, "Unable to create radar handler");
-            throw new Error(TAG + "Unable to create radar handler");
+            String err_msg = "Unable to create radar thread handler";
+            Log.e(TAG, err_msg);
+            throw new Error(TAG + " - " + err_msg);
         }
         if(t2.handler!=null){
             this.mDrawRegionHandlers.put(DrawRegionNames.GRAPH, t2.handler);
@@ -90,8 +131,10 @@ public class PanelDrawer {
             Log.e(TAG, "Unable to create graph handler");
             throw new Error(TAG + "Unable to create graph handler");
         }
+        */
+
         
-        mDrawRegionHandlers.get(DrawRegionNames.RADAR).post(
+        mDrawRegionHThreads.get(DrawRegionNames.RADAR).handler.post(
                 new Runnable(){
                     @Override
                     public void run() {
@@ -104,8 +147,8 @@ public class PanelDrawer {
                         Rect dirty_rect = radarData.rect;
                         float r = radarData.blip_radius;
                         Paint paint = new Paint();
-
-                        while(!Thread.currentThread().isInterrupted()){
+                        HThread thisThread = (HThread) Thread.currentThread();
+                        while(thisThread.running && !thisThread.isInterrupted()){
 
                             SurfaceHolder holder = mSurfaceHolder;
 
@@ -146,8 +189,9 @@ public class PanelDrawer {
                                 Thread.sleep(40);
                             } catch (InterruptedException e) {
                                 Log.d(TAG, "Thread was interupted, it should be caught on the next tick");
-                                if (!Thread.currentThread().isInterrupted()) {
-                                    Thread.currentThread().interrupt();
+                                if (!thisThread.isInterrupted()) {
+                                    thisThread.running = false;
+                                    thisThread.interrupt();
                                 }
                             }
                         }
@@ -157,6 +201,29 @@ public class PanelDrawer {
 
         
     }
+    
+    public void onSurfaceDestroyed() {
+        Log.d(TAG, "Notified Surface Destroyed - shutdown handlers and clear data");
+        mExecutor.stopThreads();
+        //for (DrawRegionNames region : DrawRegionNames.values()){
+        //    HThread thr = mDrawRegionHThreads.get(region);
+        //    thr.handler.getLooper().quit();
+        //    if(!thr.isInterrupted()){
+        //        thr.interrupt();
+        //    }
+        //    Log.d(TAG, "Threads should quit");
+        //    
+        //}
+        
+        
+        mDrawRegionHThreads.clear();
+        mDrawRegionAreas.clear();
+        
+        mSurfaceHolder = null;
+        mSurfaceRect = null;
+        instance = null;
+    }
+   
     
     public void testTestBitmapDraw(){
         mExecutor.execute(new Runnable(){
@@ -172,19 +239,26 @@ public class PanelDrawer {
             Canvas c = new Canvas(bitmap);
             @Override
             public void run(){
+                HThread thisThread = (HThread) Thread.currentThread();
                 for(int i=0;i<1000;i++){
+                    if(!thisThread.running || thisThread.isInterrupted()){
+                        break;
+                    }
                     for(int color: myColors){
                         c.drawColor(color);
                         onBitmapUpdate(bitmap);
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             Log.e(TAG, "Test thread interupted: " + e);
+                            if(!thisThread.isInterrupted()){
+                                thisThread.interrupt();
+                            }
                         }
                     }
                 }
             }
-        });
+        },"bitmap-tester");
         
         
     }
@@ -198,43 +272,53 @@ public class PanelDrawer {
     }
     
     public void onBitmapUpdate(Bitmap bitmap) {
-        mOrigBitmap = bitmap;
         DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-        Rect dirty_rect = graphData.rect;
-        mScaledBitmap = scaleBitmap(bitmap, dirty_rect);
-        drawScaledBitmap();
+        if(graphData!=null){
+            Rect dirty_rect = graphData.rect;
+            mOrigBitmap = bitmap;
+            mScaledBitmap = scaleBitmap(bitmap, dirty_rect);
+            drawScaledBitmap();
+        } else {
+            Log.e(TAG, "Graph Data seems to be null: " + graphData);
+        }
     }
     
-    private void drawScaledBitmap(){
-        mDrawRegionHandlers.get(DrawRegionNames.GRAPH).post( new Runnable(){
-            @Override
-            public void run() {
-                SurfaceHolder holder = mSurfaceHolder;
-                DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-                Rect dirty_rect = graphData.rect;
-                Log.d(TAG, "Drawing Current Audio Region");
-                
-                Canvas c = holder.lockCanvas(dirty_rect);
-                //TODO: See if there's a way to factor this out from the thread
-                try {
-                    if (c!=null) {
-                        synchronized (holder) {
-                            //paint.setColor(Color.GRAY);
-                            //c.drawRect(dirty_rect, paint);
-                            c.drawBitmap(mScaledBitmap, dirty_rect.left, dirty_rect.top, null);
-                        }
-                    } //TODO: capture data on why canvas would be null
+    private synchronized void drawScaledBitmap(){
+        Log.d(TAG, "Attempting to send runner to graphThread to scale bitmap");
+        HThread graphThread = mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
+        if (graphThread.isAlive() && graphThread.handler!=null){
+            Log.d(TAG, "Attempting to draw scaled bitmap");
+            //mDrawRegionHThreads.get(DrawRegionNames.GRAPH).handler.post( new Runnable(){
+            graphThread.handler.post( new Runnable(){
+                @Override
+                public void run() {
+                    SurfaceHolder holder = mSurfaceHolder;
+                    DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+                    Rect dirty_rect = graphData.rect;
+                    Log.d(TAG, "Drawing Current Audio Region");
 
-                } finally {
-                    // do this in a finally so that if an exception is thrown
-                    // during the above, we don't leave the Surface in an
-                    // inconsistent state
-                    if (c != null) {
-                        holder.unlockCanvasAndPost(c);
+                    Canvas c = holder.lockCanvas(dirty_rect);
+                    //TODO: See if there's a way to factor this out from the thread
+                    try {
+                        if (c!=null) {
+                            synchronized (holder) {
+                                //paint.setColor(Color.GRAY);
+                                //c.drawRect(dirty_rect, paint);
+                                c.drawBitmap(mScaledBitmap, dirty_rect.left, dirty_rect.top, null);
+                            }
+                        } //TODO: capture data on why canvas would be null
+
+                    } finally {
+                        // do this in a finally so that if an exception is thrown
+                        // during the above, we don't leave the Surface in an
+                        // inconsistent state
+                        if (c != null) {
+                            holder.unlockCanvasAndPost(c);
+                        }
                     }
-                }
-            };
-        });
+                };
+            });
+        }
     }
 
     private void defaultBitmap(){
