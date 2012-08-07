@@ -1,6 +1,7 @@
 package org.younghawk.echoapp.drawregion;
 
 import org.younghawk.echoapp.PanelDrawer;
+import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -17,21 +18,25 @@ public class DrawRegionGraph implements DrawRegionType {
     public static final String TAG="EchoApp DrawRegionGraph";
     public Rect rect; //the rectangle that bounds the object
     public Bitmap mScaledBitmap;
-    private PanelDrawer mCallback;
+    private PanelDrawer mPanelDrawer;
+    private DrawRegionGraph mSelf;
     
     
-    public DrawRegionGraph(Rect rect){
+    public DrawRegionGraph(PanelDrawer panel_drawer, Rect rect){
         this.rect = rect;
+        this.mPanelDrawer = panel_drawer;
+        this.mSelf = this;
     }
 
     public Rect getRect(){
         return rect;
     }
     
+    //Deprecated
     //TODO:If you can't get rid of this hack at least code to the interface (not the implementation)
-    public void setCallback(PanelDrawer panel_drawer){
-        mCallback = panel_drawer;
-    }
+    //public void setCallback(PanelDrawer panel_drawer){
+    //    //mCallback = panel_drawer;
+    //}
 
     @Override
     public void run(SurfaceHolder holder) {
@@ -74,23 +79,39 @@ public class DrawRegionGraph implements DrawRegionType {
         if (mScaledBitmap==null){
             Log.d(TAG, "Creating new bitmap");
             mScaledBitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
-         }
-        
+        }
+
         Log.d(TAG, "Drawing points to canvas(bitmap)");
         synchronized (mScaledBitmap) {  
             Canvas c = new Canvas(mScaledBitmap);
             //c.drawPoints(cg.mCanvasPts, paint);
             c.drawPoints(canvas_pts, paint);
         }
-        
+
         //TODO: Make up your mind, are we passing bitmaps around or 
         //using a common reference?
-        Log.d(TAG, "Making callback to update surface");
-        if(mCallback!=null){
-            Log.d(TAG, "Callback to Panel Drawer");
-            mCallback.onBitmapUpdate(mScaledBitmap);
-        } else {
-            Log.w(TAG, "Callback was Null!!");
+        //Log.d(TAG, "Making callback to update surface");
+        //if(mPanelDrawer!=null){
+        //    Log.d(TAG, "Callback to Panel Drawer");
+        //    mPanelDrawer.onBitmapUpdate(mScaledBitmap);
+        //} else {
+        //    Log.w(TAG, "Callback was Null!!");
+        //}
+
+        //Draw updated bitmap
+        Log.d(TAG, "Attempting to send runner to graphThread to scale bitmap");
+
+        //TODO: Move DrawRegion HashMaps to a DrawRegion home
+        HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
+        if (graphThread.isAlive() && graphThread.handler!=null){
+            Log.d(TAG, "Attempting to draw scaled bitmap");
+            graphThread.handler.post( new Runnable(){
+                @Override
+                public void run() {
+                    mSelf.run(mPanelDrawer.mSurfaceHolder);
+
+                };
+            });
         }
     }
  

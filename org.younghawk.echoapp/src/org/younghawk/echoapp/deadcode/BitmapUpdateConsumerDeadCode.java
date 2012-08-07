@@ -37,7 +37,7 @@ public class BitmapUpdateConsumerDeadCode implements Runnable{
         }
     }
     public void consume(Bitmap bitmap){
-        drawer.onBitmapUpdate(bitmap);
+        //drawer.onBitmapUpdate(bitmap);
     }
 
 }

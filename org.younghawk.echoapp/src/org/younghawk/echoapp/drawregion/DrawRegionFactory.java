@@ -1,6 +1,7 @@
 package org.younghawk.echoapp.drawregion;
 
 import org.younghawk.echoapp.ImmutableRect;
+import org.younghawk.echoapp.PanelDrawer;
 
 import android.graphics.Rect;
 
@@ -18,9 +19,9 @@ public class DrawRegionFactory {
      * @param surface_rect
      * @return
      */
-    public static DrawRegionType radarRegion(ImmutableRect surface_rect){
-        float track_width = (float) surface_rect.width(); 
-        float r = (float) surface_rect.height()/100; //circle radius
+    public static DrawRegionType radarRegion(PanelDrawer panel_drawer){
+        float track_width = (float) panel_drawer.mSurfaceRect.width(); 
+        float r = (float) panel_drawer.mSurfaceRect.height()/100; //circle radius
         float track_height = 2 * r;
         float top_pad = r; //padding from the top
         Rect radar_rect = new Rect(
@@ -28,7 +29,7 @@ public class DrawRegionFactory {
                 Math.round(track_width),
                 Math.round(top_pad + track_height)
                 );
-        return new DrawRegionRadar(radar_rect, r);
+        return new DrawRegionRadar(panel_drawer, radar_rect, r);
     }
     
     /** 
@@ -39,12 +40,12 @@ public class DrawRegionFactory {
      * @param surface_rect
      * @return
      */
-    public static DrawRegionType graphRegion(ImmutableRect surface_rect){
-        float width = (float) surface_rect.width();
-        float height = (float) surface_rect.height();
-        float side_padding = surface_rect.width()/50f;
-        float top_padding = surface_rect.height()/4f;
-        float bot_padding = surface_rect.height()/20f;
+    public static DrawRegionType graphRegion(PanelDrawer panel_drawer){
+        float width = (float) panel_drawer.mSurfaceRect.width();
+        float height = (float) panel_drawer.mSurfaceRect.height();
+        float side_padding = panel_drawer.mSurfaceRect.width()/50f;
+        float top_padding = panel_drawer.mSurfaceRect.height()/4f;
+        float bot_padding = panel_drawer.mSurfaceRect.height()/20f;
         float graph_width = width - (side_padding*2f);
         float graph_height = height - top_padding - bot_padding;
         Rect graph_rect = new Rect(
@@ -53,6 +54,6 @@ public class DrawRegionFactory {
                 Math.round(side_padding + graph_width),
                 Math.round(top_padding + graph_height)
                 );
-        return new DrawRegionGraph(graph_rect);
+        return new DrawRegionGraph(panel_drawer, graph_rect);
     }
 }

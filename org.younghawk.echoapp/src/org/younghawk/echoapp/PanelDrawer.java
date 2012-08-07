@@ -85,14 +85,14 @@ public class PanelDrawer {
         this.mSurfaceRect = mPanel.mSurfaceRect;
         
         //Now that we know the surface dimensions we can create the drawing regions
-        this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(mSurfaceRect));
-        this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(mSurfaceRect));
+        this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
+        this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
         
         //TODO: See if you can fix this hack
         //We're setting PanelDrawer as the callback so the DrawRegionGraph can call
         //when it receives an update with the audio data
         DrawRegionGraph graphRegion = (DrawRegionGraph) this.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-        graphRegion.setCallback(this);
+        //graphRegion.setCallback(this);
         
         //If the radar drawing thread doesn't exist create it
         if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
@@ -159,7 +159,7 @@ public class PanelDrawer {
                     }
                     for(int color: myColors){
                         c.drawColor(color);
-                        onBitmapUpdate(bitmap);
+                        //onBitmapUpdate(bitmap);
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
@@ -177,6 +177,7 @@ public class PanelDrawer {
     }
 
     
+    /*
     public void onBitmapUpdate(Bitmap bitmap) {
         DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
         
@@ -205,5 +206,5 @@ public class PanelDrawer {
             });
         }
     }
-    
+    */
 }

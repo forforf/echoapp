@@ -1,5 +1,6 @@
 package org.younghawk.echoapp.drawregion;
 
+import org.younghawk.echoapp.PanelDrawer;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
 import android.graphics.Canvas;
@@ -24,10 +25,12 @@ public class DrawRegionRadar implements DrawRegionType {
     public Rect rect; //the rectangle that bounds the object
     public float blip_radius;
     public final ThreadLocal<LocalData> local_iter_data = new ThreadLocal();
+    private PanelDrawer mPanelDrawer;
 
-    public DrawRegionRadar(Rect rect, float blip_radius){
+    public DrawRegionRadar(PanelDrawer panel_drawer, Rect rect, float blip_radius){
         this.rect = rect;
-        this.blip_radius = blip_radius; 
+        this.blip_radius = blip_radius;
+        this.mPanelDrawer = panel_drawer;
     }
 
     public Rect getRect(){
