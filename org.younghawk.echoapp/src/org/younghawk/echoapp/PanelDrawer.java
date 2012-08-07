@@ -139,11 +139,16 @@ public class PanelDrawer {
                     @Override
                     public void run() {
                         Log.d(TAG, "Running radar draw in looping thread");
-                        int location_iter = 0;
-                        int steps = 2;
-                        boolean go_right = true;
-
+                        
                         DrawRegionRadar radarData = (DrawRegionRadar) mDrawRegionAreas.get(DrawRegionNames.RADAR);
+                        //int location_iter = 0;
+                        //int steps = 2;
+                        //boolean go_right = true;
+                        DrawRegionRadar.LocalData default_iter_data = radarData.new LocalData();
+                        
+                        //Put the data into a threadlocal
+                        radarData.local_iter_data.set(default_iter_data);
+                        
                         Rect dirty_rect = radarData.rect;
                         float r = radarData.blip_radius;
                         Paint paint = new Paint();
@@ -158,22 +163,28 @@ public class PanelDrawer {
                             try {
                                 if (c!=null) {
                                     synchronized (holder) {
+                                        radarData.drawOnSurface(c);
+                                        /*
+                                        //threadlocal data accessible with thread
+                                        DrawRegionRadar.LocalData local_data = radarData.local_iter_data.get();
+                                        
                                         paint.setColor(Color.GRAY);
                                         c.drawRect(dirty_rect, paint);
 
                                         paint.setColor(Color.RED);
-                                        c.drawCircle(location_iter, dirty_rect.top + r ,  r, paint);
-                                        if(go_right){
-                                            location_iter+=steps;
+                                        c.drawCircle(local_data.location_iter, dirty_rect.top + r ,  r, paint);
+                                        if(local_data.go_right){
+                                            local_data.location_iter+=local_data.steps;
                                         } else {
-                                            location_iter-=steps;
+                                            local_data.location_iter-=local_data.steps;
                                         }
-                                        if (location_iter>dirty_rect.width()){
-                                            go_right = false;
+                                        if (local_data.location_iter>dirty_rect.width()){
+                                            local_data.go_right = false;
                                         }
-                                        if (location_iter<0){
-                                            go_right = true;
+                                        if (local_data.location_iter<0){
+                                            local_data.go_right = true;
                                         }
+                                        */
                                     }
                                 } //TODO: capture data on why canvas would be null
 
