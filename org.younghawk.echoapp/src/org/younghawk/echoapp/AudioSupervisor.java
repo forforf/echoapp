@@ -34,7 +34,9 @@ public class AudioSupervisor implements Callback {
 	private AudioRecord mAudioRecord;
 	private PingRunner mPinger;
 	private short[] mFilter;
-	private AudioFilter mAudioFilter;
+	//TODO Abstracted AudioFilter to allow for multiple filters. See AudioFilterProxy
+	//private AudioFilter mAudioFilter;
+	private AudioFilterProxy mAudioFilter;
 	
 	//TODO: Undesired coupling between Supervisors
 	private PlotSupervisor mPlotSupervisor;
@@ -58,10 +60,13 @@ public class AudioSupervisor implements Callback {
 	        AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
 	        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
 
-	        //TODO: This ins't a thread it's a runnable, rename
 	        //TODO: This should get spun up in its own handler thread like the others
 	        PingRunner pinger = PingRunner.create(instructions, num_of_samples);
-	        AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
+	        
+	        //TODO: UPDATE THE FILTER CLASSES TO SUPPORT PCMFILTERING
+	        //AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
+	        AudioFilterProxy audioFilter = AudioFilterProxy.getInstance();
+	        
 	        
 	        Looper arLooper = mAudioRecordThr.getLooper();
 	        Handler audioHandler = null;
@@ -111,7 +116,7 @@ public class AudioSupervisor implements Callback {
 			Handler pingHandler,
 			AudioRecordWrapper audioRecordWrapper,
 			PingRunner pinger,
-			AudioFilter audioFilter,
+			AudioFilterProxy audioFilter, //AudioFilter audioFilter,
 			PlotSupervisor plotSupervisor,
 			AudioUpdates callback) {
 		
@@ -140,31 +145,38 @@ public class AudioSupervisor implements Callback {
 				Log.d(TAG, "Trying to start AudioRecord: " + mAudioRecord + " on thread: " + Thread.currentThread().getName());
 				mAudioRecord.startRecording();
 				mMainHandler.sendEmptyMessage(MsgIds.RECORD_READY);
-				int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
-				Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 				
-				//Debug code
-				Log.d(TAG, "Im Alive 1");
-				CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mAudioRecordWrapper.mBuffer);
-				DebugData.setDebugArray(audioPlot);
-				
-				Log.d(TAG, "Im Alive 1");
-				//Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
-				Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
-				Log.d(TAG, "Im Alive 2");
-				mMainHandler.sendMessage(bufferMsg);
-				Log.d(TAG, "Im Alive 3");
-				//Apply Filter
-				//TODO: Requires refactoring, expensive operation here - perhaps its own thread?
-				//TODO: Also class is inside deprecated package
-				//AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
-				Log.d(TAG, "Audio Filter: " + mAudioFilter.toString());
-				Log.d(TAG, "Im Alive 4");
-		    	int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
-		    	Log.d(TAG, "Im Alive 5");
-		    	Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
-		    	Log.d(TAG, "Im Alive 6");
-		    	mMainHandler.sendMessage(filterMsg);
+				int iter = 0;
+				while(iter<3){
+				    int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
+				    Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
+
+				    //Debug code
+				    Log.d(TAG, "Im Alive 1");
+				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mAudioRecordWrapper.mBuffer);
+				    //DebugData.setDebugArray(audioPlot);
+
+				    Log.d(TAG, "Im Alive 1");
+				    //Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
+				    Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
+				    Log.d(TAG, "Im Alive 2");
+				    mMainHandler.sendMessage(bufferMsg);
+				    Log.d(TAG, "Im Alive 3");
+				    //Apply AudioFilterStub
+				    //TODO: Requires refactoring, expensive operation here - perhaps its own thread?
+				    //TODO: Also class is inside deprecated package
+				    //AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
+				    Log.d(TAG, "Audio AudioFilterStub: " + mAudioFilter.toString());
+				    Log.d(TAG, "Im Alive 4");
+				    int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
+				    CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
+				    DebugData.setDebugArray(audioPlot);
+				    Log.d(TAG, "Im Alive 5");
+				    Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
+				    Log.d(TAG, "Im Alive 6");
+				    mMainHandler.sendMessage(filterMsg);
+				    iter++;
+				}
 			}
 		});
 	}
@@ -176,7 +188,9 @@ public class AudioSupervisor implements Callback {
 			onRecordReady();
 			break;
 		case MsgIds.BUFFER_DATA:
-		    mPlotSupervisor.onBufferData(msg.obj);
+		    //Buffer Data is deprecated, since it's identical
+		    //to Filter data with a null filter.
+		    //mPlotSupervisor.onBufferData(msg.obj);
 			break;
 		case MsgIds.FILTER_DATA:
 			onFilterData(msg.obj);
@@ -250,14 +264,14 @@ public class AudioSupervisor implements Callback {
 		//mCallback.updateFilterData(filter_data);
 		
 		//temp test code
-		SignalAnalyzer sig_data = SignalAnalyzer.create(filter_data, SAMPPERSEC);
+		//SignalAnalyzer sig_data = SignalAnalyzer.create(filter_data, SAMPPERSEC);
 		
 		//test
-		int[] pow_echo = sig_data.mEchoSignal;
-		for (int i=0;i<pow_echo.length;i++) {
-		    pow_echo[i] = (int) Math.pow(pow_echo[i], 2);
-		}
-		mCallback.updateFilterData(pow_echo);
+		//int[] pow_echo = sig_data.mEchoSignal;
+		//for (int i=0;i<pow_echo.length;i++) {
+		//    pow_echo[i] = (int) Math.pow(pow_echo[i], 2);
+		//}
+		//mCallback.updateFilterData(pow_echo);
 		
 		//mCallback.updateFilterData(sig_data.mEchoSignal);
 		

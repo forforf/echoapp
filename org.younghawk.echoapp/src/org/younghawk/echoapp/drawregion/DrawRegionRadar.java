@@ -1,5 +1,6 @@
 package org.younghawk.echoapp.drawregion;
 
+import android.graphics.Canvas;
 import android.graphics.Rect;
 
 /**
@@ -17,6 +18,10 @@ public class DrawRegionRadar implements DrawRegionType {
 
     public Rect getRect(){
         return rect;
+    }
+    
+    public void drawOnSurface(Canvas c){
+        
     }
 
 }

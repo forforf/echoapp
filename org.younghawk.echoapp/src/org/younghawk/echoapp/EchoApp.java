@@ -69,7 +69,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//plotSupervisor = PlotSupervisor.create();
     	//plotSupervisor.setPanel(mPanel);
     	//Create AudioSupervisor to initiate threads
-    	//audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
+    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
     	    	
     	
     }
@@ -80,6 +80,10 @@ public class EchoApp extends Activity implements AudioUpdates {
             audioSupervisor = null;
         }
         super.onPause();
+    }
+    
+    public void startButton(View view){
+        Log.d(TAG, "Start Button Pressed");
     }
     
     /**
