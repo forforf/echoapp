@@ -36,10 +36,10 @@ public class PanelDrawer {
     
     //will be used to define the regions we can use to draw on the surface
     //Depends on the surface being ready before we can add any regions
-    public ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
+    public static ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
     
     //Each region gets its own dedicated handler for queuing draw requests
-    public ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
+    public static ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
     
     //Because we do our drawing operations in runnables, there's a java issue of access to local variables
     //while defining these runnables. We get around this by using instance variables. Not ideal, but I'm not sure of
@@ -87,6 +87,12 @@ public class PanelDrawer {
         //Now that we know the surface dimensions we can create the drawing regions
         this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(mSurfaceRect));
         this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(mSurfaceRect));
+        
+        //TODO: See if you can fix this hack
+        //We're setting PanelDrawer as the callback so the DrawRegionGraph can call
+        //when it receives an update with the audio data
+        DrawRegionGraph graphRegion = (DrawRegionGraph) this.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+        graphRegion.setCallback(this);
         
         //If the radar drawing thread doesn't exist create it
         if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
@@ -173,7 +179,10 @@ public class PanelDrawer {
     
     public void onBitmapUpdate(Bitmap bitmap) {
         DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+        
+        
         if(graphData!=null){
+         
             graphData.onBitmapUpdate(bitmap);
             drawScaledBitmap();
         } else {

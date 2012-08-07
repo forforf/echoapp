@@ -1,7 +1,11 @@
 package org.younghawk.echoapp.drawregion;
 
+import org.younghawk.echoapp.PanelDrawer;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -13,13 +17,20 @@ public class DrawRegionGraph implements DrawRegionType {
     public static final String TAG="EchoApp DrawRegionGraph";
     public Rect rect; //the rectangle that bounds the object
     public Bitmap mScaledBitmap;
-
+    private PanelDrawer mCallback;
+    
+    
     public DrawRegionGraph(Rect rect){
         this.rect = rect;
     }
 
     public Rect getRect(){
         return rect;
+    }
+    
+    //TODO:If you can't get rid of this hack at least code to the interface (not the implementation)
+    public void setCallback(PanelDrawer panel_drawer){
+        mCallback = panel_drawer;
     }
 
     @Override
@@ -53,6 +64,36 @@ public class DrawRegionGraph implements DrawRegionType {
     public void onBitmapUpdate(Bitmap bitmap) {
         mScaledBitmap = scaleBitmap(bitmap, rect);
     }
+    
+    //TODO: Feels like this belongs somewhere else
+    //TODO: We're drawing in the main thread :((((
+    public void onVectorUpdate(float[] canvas_pts) {
+        //CollectionGrapher cg = CollectionGrapher.create(0,0, rect.width(), rect.height(), vector);
+        Paint paint = new Paint();
+        paint.setColor(Color.CYAN);
+        if (mScaledBitmap==null){
+            Log.d(TAG, "Creating new bitmap");
+            mScaledBitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
+         }
+        
+        Log.d(TAG, "Drawing points to canvas(bitmap)");
+        synchronized (mScaledBitmap) {  
+            Canvas c = new Canvas(mScaledBitmap);
+            //c.drawPoints(cg.mCanvasPts, paint);
+            c.drawPoints(canvas_pts, paint);
+        }
+        
+        //TODO: Make up your mind, are we passing bitmaps around or 
+        //using a common reference?
+        Log.d(TAG, "Making callback to update surface");
+        if(mCallback!=null){
+            Log.d(TAG, "Callback to Panel Drawer");
+            mCallback.onBitmapUpdate(mScaledBitmap);
+        } else {
+            Log.w(TAG, "Callback was Null!!");
+        }
+    }
+ 
     
     private void drawOnSurface(Canvas c){
         c.drawBitmap(mScaledBitmap, rect.left, rect.top, null);

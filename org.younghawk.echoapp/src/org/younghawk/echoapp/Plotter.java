@@ -3,6 +3,9 @@ package org.younghawk.echoapp;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+import org.younghawk.echoapp.drawregion.DrawRegionGraph;
+import org.younghawk.echoapp.drawregion.DrawRegionNames;
+
 import android.util.Log;
 
 public class Plotter {
@@ -102,13 +105,30 @@ public class Plotter {
        
         if (Plotter.mScaledSamples.size()>0) {
             //last_element = new ArrayDeque();
-            Log.d(TAG, "First sample size to grab " +  Plotter.mScaledSamples.getFirst() );
+            //Log.d(TAG, "First sample size to grab " +  Plotter.mScaledSamples.getFirst() );
             for(int i=0;i<PTS_PER_PX;i++){
                 PlotQ[PLOT_WIDTH-1].add( Plotter.mScaledSamples.removeFirst() );
             }
-            Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
+            //Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
         }
         plotReady = true;
+        
+        
+        Log.d(TAG, "Trying to connect to drawer");
+        DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+
+        if(graphData!=null){
+            Log.d(TAG, "Converting data to canvas points");
+            float[] canvas_pts = toCanvasPointsArray(PlotQ,0,0);
+            Log.d(TAG, "Updating graph region drawer with canvas pts");
+            graphData.onVectorUpdate(canvas_pts);
+        } else {
+            Log.w(TAG, "GRAPH Drawer was nulll");
+        }
+        
+        //} else {
+        //    Log.e(TAG, "Graph Data seems to be null: " + graphData);
+        //}
          /*
             for(int i=0;i<PTS_PER_PX;i++){
                 Log.d(TAG, "Presize: " + mScaledSamples.size());

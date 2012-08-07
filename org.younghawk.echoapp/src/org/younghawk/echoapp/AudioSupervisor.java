@@ -147,7 +147,7 @@ public class AudioSupervisor implements Callback {
 				mMainHandler.sendEmptyMessage(MsgIds.RECORD_READY);
 				
 				int iter = 0;
-				while(iter<3){
+				while(iter<2000){
 				    int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
 				    Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 
@@ -168,9 +168,13 @@ public class AudioSupervisor implements Callback {
 				    //AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
 				    Log.d(TAG, "Audio AudioFilterStub: " + mAudioFilter.toString());
 				    Log.d(TAG, "Im Alive 4");
+				    
+				    //Data is filtered here!!!
 				    int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
-				    CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
-				    DebugData.setDebugArray(audioPlot);
+				    
+				    
+				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
+				    //DebugData.setDebugArray(audioPlot);
 				    Log.d(TAG, "Im Alive 5");
 				    Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
 				    Log.d(TAG, "Im Alive 6");
@@ -260,6 +264,22 @@ public class AudioSupervisor implements Callback {
 	public void onFilterData(Object objFilterData) {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
+		
+		//Trying to send to Plotter!!
+		//TODO: Fix the hack where we're creating the plot supervisor here
+		Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
+		if(mPlotSupervisor==null){
+		    mPlotSupervisor = PlotSupervisor.create();
+		    mPlotSupervisor.mPlotter.addToQ(filter_data);
+		
+		    //Checking if Paused (default when started)
+		    //If its paused we start it .. this is not robust, since we can't
+		    //actually ever stop it now
+		    Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
+		    if(mPlotSupervisor.pauseQCheck){
+		        mPlotSupervisor.startQCheck();
+		    }
+		}
 		
 		//mCallback.updateFilterData(filter_data);
 		

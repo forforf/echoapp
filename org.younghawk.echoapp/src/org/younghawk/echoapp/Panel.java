@@ -204,7 +204,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	    }
 	    
 	    //Testing Only
-	    mPanelDrawer.testTestBitmapDraw();
+	    //mPanelDrawer.testTestBitmapDraw();
 	    
 	}
 
