@@ -1,4 +1,4 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -6,8 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-public class AudioRecordRunnable implements Runnable {
-	private static final String TAG = "EchoApp AudioRecordRunnable";
+public class AudioRecordRunnableDeadCode implements Runnable {
+	private static final String TAG = "EchoApp AudioRecordRunnableDeadCode";
 	public AudioRecord mAudioRecord;
 	public int mBuffersizeshorts;
 	public short[] mBuffer;
@@ -16,7 +16,7 @@ public class AudioRecordRunnable implements Runnable {
 	public Handler handler;
 	
 	
-	public static AudioRecordRunnable create() {
+	public static AudioRecordRunnableDeadCode create() {
 		int buffersizeshorts = (int) Math.round((double) SAMPPERSEC * MAX_SAMPLE_TIME); //for 16bit PCM
         int buffersizebytes = buffersizeshorts * 2;
         short[] buffer = new short[buffersizeshorts];
@@ -34,19 +34,19 @@ public class AudioRecordRunnable implements Runnable {
         }
         
         //Don't construct thread if audioRecord is null
-        AudioRecordRunnable audioRecordRunnable = null;
+        AudioRecordRunnableDeadCode audioRecordRunnableDeadCode = null;
         if (audioRecord!= null) {
         	Log.v(TAG, "AudioRecord should be ready?");
-        	audioRecordRunnable = new AudioRecordRunnable(audioRecord, buffer, buffersizeshorts);
+        	audioRecordRunnableDeadCode = new AudioRecordRunnableDeadCode(audioRecord, buffer, buffersizeshorts);
         } else {
         	Log.e(TAG, "Failed to initialize AudioRecord (was null)");
         }
         
-		return audioRecordRunnable;
+		return audioRecordRunnableDeadCode;
 		
 	}
 	
-	private AudioRecordRunnable(AudioRecord audioRecord, short[] buffer, int buffersizeshorts) {
+	private AudioRecordRunnableDeadCode(AudioRecord audioRecord, short[] buffer, int buffersizeshorts) {
 		this.mAudioRecord = audioRecord;
 		this.mBuffer = buffer;
 		this.mBuffersizeshorts = buffersizeshorts;

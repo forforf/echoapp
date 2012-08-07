@@ -1,8 +1,8 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import android.view.SurfaceHolder;
 
-public interface PanelUpdates {
+public interface PanelUpdatesDeadCode {
    public void panelCreated(SurfaceHolder holder, int w, int h);
    public  void panelChanged(SurfaceHolder holder, int format, int w, int h);
    public void panelNotAvailable(SurfaceHolder holder);

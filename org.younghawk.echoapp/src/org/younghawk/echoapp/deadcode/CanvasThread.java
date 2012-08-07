@@ -1,4 +1,4 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;

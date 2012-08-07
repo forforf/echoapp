@@ -1,8 +1,8 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import android.graphics.Canvas;
 
-public interface Painter extends Runnable {
+public interface PainterDeadCode extends Runnable {
     public static enum TYPES {
         FULL, DIRTY
     };

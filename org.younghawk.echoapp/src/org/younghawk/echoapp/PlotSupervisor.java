@@ -110,6 +110,7 @@ public class PlotSupervisor implements Callback {
     //will require this method to execute via a thread handler post, and
     //flushing and stitching buffers together would need to be handled.
     public void onBufferData(Object objBuffer){
+        /*
         short[] buffer = (short[]) objBuffer;
         mBuffer = buffer;
         Log.d(TAG, "PlotSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
@@ -174,6 +175,7 @@ public class PlotSupervisor implements Callback {
                     }
                 }  
             }
+            
         };
         
         //TODO: Temporary workaround while refactoring
@@ -189,15 +191,15 @@ public class PlotSupervisor implements Callback {
         //}
         //Log.d(TAG, "PlotSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
         //mPlotter.pushAudioData(int_buffer);
-        //Log.d(TAG, "Attempting to send message to PlotRunner");
-        //PlotRunner plotRunner = PlotRunner.create(mPlotterHandler);
+        //Log.d(TAG, "Attempting to send message to PlotRunnerDeadCode");
+        //PlotRunnerDeadCode plotRunner = PlotRunnerDeadCode.create(mPlotterHandler);
         //mPlotterHandler.post(plotRunner);
         //Message bufferMsg = Message.obtain(mPlotterHandler, MsgIds.BUFFER_DATA, int_buffer);
         //Log.d(TAG, "Sending Message");
         //mPlotterHandler.dispatchMessage(bufferMsg);
         //plotRunner.handler.sendEmptyMessage(99);
         //Log.d(TAG, "Message sent");
-        
+       */ 
     }
     
     public float[] getPlotLineData(){
@@ -232,5 +234,6 @@ public class PlotSupervisor implements Callback {
         }
         return false;
     }
+    
 }
     

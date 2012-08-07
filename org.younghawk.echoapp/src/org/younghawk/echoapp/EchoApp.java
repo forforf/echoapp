@@ -22,7 +22,7 @@ import android.view.View;
 /**
  * Main Activity for the Echo App
  */
-public class EchoApp extends Activity implements AudioUpdates {
+public class EchoApp extends Activity {
 	private static final String TAG = "EchoApp";
     
 	//Used to notify panel when views are created
@@ -69,7 +69,7 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//plotSupervisor = PlotSupervisor.create();
     	//plotSupervisor.setPanel(mPanel);
     	//Create AudioSupervisor to initiate threads
-    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor, this);
+    	audioSupervisor = AudioSupervisor.create(mSignal_instructions, mWave_samples, plotSupervisor); //, this);
     	    	
     	
     }
@@ -121,16 +121,4 @@ public class EchoApp extends Activity implements AudioUpdates {
     	//startActivity(new Intent(this, EchoAppPreferences.class));
     	return false;
     }
-   
-    public void updateFilterData(int[] filter_data){
-        Log.d(TAG, "updateFilterData callback - does nothing");
-        //if (mPanel != null) {
-        //    mPanel.mRawGraphData = filter_data;
-        //} else {
-        //    Log.e("EchoApp", "Cannot send data to Panel, Panel doesn't exist");
-        //}
-
-    }
-    
-
 }

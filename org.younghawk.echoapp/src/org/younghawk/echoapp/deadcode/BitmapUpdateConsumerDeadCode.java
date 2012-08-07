@@ -1,24 +1,25 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import java.util.concurrent.BlockingQueue;
 
+import org.younghawk.echoapp.PanelDrawer;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
 import android.graphics.Bitmap;
 
-public class BitmapUpdateConsumer implements Runnable{
+public class BitmapUpdateConsumerDeadCode implements Runnable{
     private static final HandlerThreadExecutor executor = new HandlerThreadExecutor("QConsumer");
     private final BlockingQueue<Bitmap> queue;
     private PanelDrawer drawer;
     //private final HThread consumerHandlerThread;
     
     
-    public static BitmapUpdateConsumer create(BlockingQueue<Bitmap> q, PanelDrawer d) {            
-        return new BitmapUpdateConsumer(q, d);
+    public static BitmapUpdateConsumerDeadCode create(BlockingQueue<Bitmap> q, PanelDrawer d) {            
+        return new BitmapUpdateConsumerDeadCode(q, d);
     }
     
-    private BitmapUpdateConsumer(BlockingQueue<Bitmap> q, PanelDrawer d){
+    private BitmapUpdateConsumerDeadCode(BlockingQueue<Bitmap> q, PanelDrawer d){
         this.queue = q;
         this.drawer = d;
         executor.execute(this, "QChecker");

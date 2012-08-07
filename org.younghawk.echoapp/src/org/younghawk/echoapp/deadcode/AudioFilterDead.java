@@ -1,6 +1,9 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
-public class AudioFilter {
+import android.util.Log;
+
+public class AudioFilterDead {
+    private static final String TAG = "EchoApp AudioFilterDead";
 	private short[] mFilter;
 	private int mWindowSize;
 	private int mAudioBufferSize;
@@ -8,7 +11,8 @@ public class AudioFilter {
 	private int[] mAudioEnergy;
 	private int mIntervalEnergy;
 	
-	public static class Calc{
+	//flipped to private
+	private static class Calc{
 		
 		/**
 		 * Returns a snip of audio data based on window size
@@ -35,11 +39,13 @@ public class AudioFilter {
 	}
 
 	  //Knowing audio buffer size allows us to pre-allocate resources, improving efficiency
-	  public static AudioFilter create(short[] filter, int audio_buffer_size) {
-		  return new AudioFilter(filter, audio_buffer_size);
+	  //flipped to private
+	  public static AudioFilterDead create(short[] filter, int audio_buffer_size) {
+		  return new AudioFilterDead(filter, audio_buffer_size);
 	  }
 
-	  private AudioFilter(short[] filter, int audio_buffer_size) {
+	  private AudioFilterDead(short[] filter, int audio_buffer_size) {
+	      Log.d(TAG, "Dead Code Test -- Constructed!!");
 		  this.mFilter = filter;
 		  this.mWindowSize = filter.length;
 		  this.mAudioBufferSize = audio_buffer_size;
@@ -48,7 +54,8 @@ public class AudioFilter {
 		  this.mIntervalEnergy = 0;
 	  }
 	  
-	  public int[] filter(short[] audio_buffer) {
+	  //flipped to private
+	  private int[] filter(short[] audio_buffer) {
 		  //audio_buffer.length should equal audio_buffer_size
 		  for(int i=0;i<(mAudioBufferSize-mWindowSize+1);i++) {
 			  //short[] audio_snip = Calc.audioBufferSnip(audio_buffer, mWindowSize, i);

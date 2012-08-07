@@ -31,7 +31,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     
     //May be deprecated
     //Region for drawing audio data
-    public static BitmapProxy mAudioDataRegion;
+    //public static BitmapProxyDeadCode mAudioDataRegion;
     
     //Deprecated
 	//private CanvasThread canvasthread = null;  //deprecating with new thread mgt
@@ -52,7 +52,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	                synchronized (holder) {
 	                    c.drawColor(Color.BLACK);
 	                    paint.setColor(Color.CYAN);
-	                    c.drawText("Initial Full Painter",100,400, paint);
+	                    c.drawText("Initial Full PainterDeadCode",100,400, paint);
 	                }
 	            } //TODO: capture data on why canvas would be null
 
@@ -243,7 +243,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
       Canvas ar_c = new Canvas(ar_bmp);
       ar_c.drawColor(Color.DKGRAY);
       Rect ar_rect = new Rect(side_padding, top_padding, side_padding + ar_width, top_padding + ar_height);
-      mAudioDataRegion = new BitmapProxy(ar_bmp, ar_rect);
+      mAudioDataRegion = new BitmapProxyDeadCode(ar_bmp, ar_rect);
     
 	    //add it to the list    
 	    mDrawList.add(mInitDraw);

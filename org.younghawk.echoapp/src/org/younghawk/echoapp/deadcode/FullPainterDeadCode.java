@@ -1,4 +1,6 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
+
+import org.younghawk.echoapp.deadcode.PainterDeadCode.TYPES;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -6,13 +8,13 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-public abstract class FullPainter implements Painter {
-    public static final String TAG = "EchoApp FullPainter";
-    public static Painter.TYPES type = TYPES.FULL;
+public abstract class FullPainterDeadCode implements PainterDeadCode {
+    public static final String TAG = "EchoApp FullPainterDeadCode";
+    public static PainterDeadCode.TYPES type = TYPES.FULL;
     
     private SurfaceHolder mHolder;
     
-    public FullPainter(SurfaceHolder holder){
+    public FullPainterDeadCode(SurfaceHolder holder){
         this.mHolder = holder;
     }
 

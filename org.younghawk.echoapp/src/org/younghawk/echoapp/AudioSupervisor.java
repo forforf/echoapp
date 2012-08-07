@@ -34,16 +34,16 @@ public class AudioSupervisor implements Callback {
 	private AudioRecord mAudioRecord;
 	private PingRunner mPinger;
 	private short[] mFilter;
-	//TODO Abstracted AudioFilter to allow for multiple filters. See AudioFilterProxy
-	//private AudioFilter mAudioFilter;
+	//TODO Abstracted AudioFilterDead to allow for multiple filters. See AudioFilterProxy
+	//private AudioFilterDead mAudioFilter;
 	private AudioFilterProxy mAudioFilter;
 	
 	//TODO: Undesired coupling between Supervisors
 	private PlotSupervisor mPlotSupervisor;
-	private AudioUpdates mCallback;
+	//private AudioUpdatesDeadCode mCallback;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
-	public static AudioSupervisor create(String instructions, int num_of_samples, PlotSupervisor plotSupervisor, AudioUpdates callback) {
+	public static AudioSupervisor create(String instructions, int num_of_samples, PlotSupervisor plotSupervisor) {
 	    if(instance!=null){
 	        return instance;
 	    } else {
@@ -64,7 +64,7 @@ public class AudioSupervisor implements Callback {
 	        PingRunner pinger = PingRunner.create(instructions, num_of_samples);
 	        
 	        //TODO: UPDATE THE FILTER CLASSES TO SUPPORT PCMFILTERING
-	        //AudioFilter audioFilter = AudioFilter.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
+	        //AudioFilterDead audioFilter = AudioFilterDead.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
 	        AudioFilterProxy audioFilter = AudioFilterProxy.getInstance();
 	        
 	        
@@ -102,8 +102,7 @@ public class AudioSupervisor implements Callback {
 	                audioRecordWrapper,
 	                pinger,
 	                audioFilter,
-	                plotSupervisor,
-	                callback);
+	                plotSupervisor);
 	        
 	        return instance;
 	    }
@@ -116,9 +115,8 @@ public class AudioSupervisor implements Callback {
 			Handler pingHandler,
 			AudioRecordWrapper audioRecordWrapper,
 			PingRunner pinger,
-			AudioFilterProxy audioFilter, //AudioFilter audioFilter,
-			PlotSupervisor plotSupervisor,
-			AudioUpdates callback) {
+			AudioFilterProxy audioFilter, //AudioFilterDead audioFilter,
+			PlotSupervisor plotSupervisor) {
 		
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
@@ -133,7 +131,7 @@ public class AudioSupervisor implements Callback {
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
 		this.mPlotSupervisor = plotSupervisor;
-		this.mCallback = callback;
+		//this.mCallback = callback;
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -165,7 +163,7 @@ public class AudioSupervisor implements Callback {
 				    //Apply AudioFilterStub
 				    //TODO: Requires refactoring, expensive operation here - perhaps its own thread?
 				    //TODO: Also class is inside deprecated package
-				    //AudioFilter rxEnergyFilter = AudioFilter.create(mAudioRecordWrapper.mBuffer, mFilter);
+				    //AudioFilterDead rxEnergyFilter = AudioFilterDead.create(mAudioRecordWrapper.mBuffer, mFilter);
 				    Log.d(TAG, "Audio AudioFilterStub: " + mAudioFilter.toString());
 				    Log.d(TAG, "Im Alive 4");
 				    

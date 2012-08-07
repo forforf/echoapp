@@ -1,4 +1,4 @@
-package org.younghawk.echoapp;
+package org.younghawk.echoapp.deadcode;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -16,13 +16,13 @@ import android.graphics.Rect;
  * @author Dave2
  *
  */
-public class BitmapProxy {
+public class BitmapProxyDeadCode {
     private Bitmap mWritableBitmap;
     private Bitmap mReadBitmap;
     private Rect mDirtyRectangle;
     public boolean isConsumed;
     
-    public BitmapProxy(Bitmap bmp, Rect dirty) {
+    public BitmapProxyDeadCode(Bitmap bmp, Rect dirty) {
         this.mWritableBitmap = bmp;
         this.mReadBitmap = Bitmap.createBitmap(bmp);
         this.mDirtyRectangle = dirty;
