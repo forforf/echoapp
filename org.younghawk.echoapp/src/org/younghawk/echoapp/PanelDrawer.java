@@ -112,32 +112,14 @@ public class PanelDrawer {
             this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler")); 
         }
         
-
-        /*
-        //If thread exists but is not running  
-        //HThread t1 = mExecutor.execute(null);
-        //HThread t2 = mExecutor.execute(null);
-        if(!this.mDrawRegionHandlers.containsKey(DrawRegionNames.RADAR) ||
-                this.mDrawRegionHandlers.get(mDrawRegionNames.RADAR).isTerminated){
-            this.mDrawRegionHandlers.put(DrawRegionNames.RADAR, mExecutor.execute(null));
-        } else {
-            String err_msg = "Unable to create radar thread handler";
-            Log.e(TAG, err_msg);
-            throw new Error(TAG + " - " + err_msg);
-        }
-        if(t2.handler!=null){
-            this.mDrawRegionHandlers.put(DrawRegionNames.GRAPH, t2.handler);
-        } else {
-            Log.e(TAG, "Unable to create graph handler");
-            throw new Error(TAG + "Unable to create graph handler");
-        }
-        */
-
         
         mDrawRegionHThreads.get(DrawRegionNames.RADAR).handler.post(
                 new Runnable(){
                     @Override
                     public void run() {
+                        DrawRegionRadar radarData = (DrawRegionRadar) mDrawRegionAreas.get(DrawRegionNames.RADAR);
+                        radarData.run(mSurfaceHolder);
+                        /*
                         Log.d(TAG, "Running radar draw in looping thread");
                         
                         DrawRegionRadar radarData = (DrawRegionRadar) mDrawRegionAreas.get(DrawRegionNames.RADAR);
@@ -164,27 +146,7 @@ public class PanelDrawer {
                                 if (c!=null) {
                                     synchronized (holder) {
                                         radarData.drawOnSurface(c);
-                                        /*
-                                        //threadlocal data accessible with thread
-                                        DrawRegionRadar.LocalData local_data = radarData.local_iter_data.get();
-                                        
-                                        paint.setColor(Color.GRAY);
-                                        c.drawRect(dirty_rect, paint);
-
-                                        paint.setColor(Color.RED);
-                                        c.drawCircle(local_data.location_iter, dirty_rect.top + r ,  r, paint);
-                                        if(local_data.go_right){
-                                            local_data.location_iter+=local_data.steps;
-                                        } else {
-                                            local_data.location_iter-=local_data.steps;
-                                        }
-                                        if (local_data.location_iter>dirty_rect.width()){
-                                            local_data.go_right = false;
-                                        }
-                                        if (local_data.location_iter<0){
-                                            local_data.go_right = true;
-                                        }
-                                        */
+  
                                     }
                                 } //TODO: capture data on why canvas would be null
 
@@ -206,7 +168,7 @@ public class PanelDrawer {
                                 }
                             }
                         }
-
+*/
                     };
                 });
 
@@ -274,20 +236,21 @@ public class PanelDrawer {
         
     }
 
-    private Bitmap scaleBitmap(Bitmap orig_bitmap, Rect scale_rect){
-        Bitmap scaled_bitmap = orig_bitmap;
-        if (scaled_bitmap.getWidth()!=scale_rect.width() && scaled_bitmap.getHeight()!= scale_rect.height()){
-            scaled_bitmap = Bitmap.createScaledBitmap(orig_bitmap, scale_rect.width(), scale_rect.height(), false);
-        }
-        return scaled_bitmap;
-    }
+    //private Bitmap scaleBitmap(Bitmap orig_bitmap, Rect scale_rect){
+    //    Bitmap scaled_bitmap = orig_bitmap;
+    //    if (scaled_bitmap.getWidth()!=scale_rect.width() && scaled_bitmap.getHeight()!= scale_rect.height()){
+    //        scaled_bitmap = Bitmap.createScaledBitmap(orig_bitmap, scale_rect.width(), scale_rect.height(), false);
+    //    }
+    //    return scaled_bitmap;
+    //}
     
     public void onBitmapUpdate(Bitmap bitmap) {
         DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
         if(graphData!=null){
-            Rect dirty_rect = graphData.rect;
-            mOrigBitmap = bitmap;
-            mScaledBitmap = scaleBitmap(bitmap, dirty_rect);
+            graphData.onBitmapUpdate(bitmap);
+       //     Rect dirty_rect = graphData.rect;
+       //     mOrigBitmap = bitmap;
+        //    mScaledBitmap = scaleBitmap(bitmap, dirty_rect);
             drawScaledBitmap();
         } else {
             Log.e(TAG, "Graph Data seems to be null: " + graphData);
@@ -303,8 +266,10 @@ public class PanelDrawer {
             graphThread.handler.post( new Runnable(){
                 @Override
                 public void run() {
-                    SurfaceHolder holder = mSurfaceHolder;
+                    //SurfaceHolder holder = mSurfaceHolder;
                     DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+                    graphData.run(mSurfaceHolder);
+                    /*
                     Rect dirty_rect = graphData.rect;
                     Log.d(TAG, "Drawing Current Audio Region");
 
@@ -327,6 +292,7 @@ public class PanelDrawer {
                             holder.unlockCanvasAndPost(c);
                         }
                     }
+                    */
                 };
             });
         }
