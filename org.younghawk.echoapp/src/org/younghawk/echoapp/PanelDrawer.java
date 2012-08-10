@@ -88,12 +88,6 @@ public class PanelDrawer {
         this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
         this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
         
-        //TODO: See if you can fix this hack
-        //We're setting PanelDrawer as the callback so the DrawRegionGraph can call
-        //when it receives an update with the audio data
-        DrawRegionGraph graphRegion = (DrawRegionGraph) this.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-        //graphRegion.setCallback(this);
-        
         //If the radar drawing thread doesn't exist create it
         if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
             if(!this.mDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
@@ -121,8 +115,6 @@ public class PanelDrawer {
                         radarData.run(mSurfaceHolder);
                     };
                 });
-
-        
     }
     
     public void onSurfaceDestroyed() {
@@ -172,39 +164,7 @@ public class PanelDrawer {
                 }
             }
         },"bitmap-tester");
-        
-        
+                
     }
 
-    
-    /*
-    public void onBitmapUpdate(Bitmap bitmap) {
-        DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-        
-        
-        if(graphData!=null){
-         
-            graphData.onBitmapUpdate(bitmap);
-            drawScaledBitmap();
-        } else {
-            Log.e(TAG, "Graph Data seems to be null: " + graphData);
-        }
-    }
-    
-    private synchronized void drawScaledBitmap(){
-        Log.d(TAG, "Attempting to send runner to graphThread to scale bitmap");
-        HThread graphThread = mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
-        if (graphThread.isAlive() && graphThread.handler!=null){
-            Log.d(TAG, "Attempting to draw scaled bitmap");
-            graphThread.handler.post( new Runnable(){
-                @Override
-                public void run() {
-                    DrawRegionGraph graphData = (DrawRegionGraph) mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-                    graphData.run(mSurfaceHolder);
-
-                };
-            });
-        }
-    }
-    */
 }

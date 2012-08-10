@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
+import org.younghawk.echoapp.drawregion.ScrollingBitmap;
 
 import android.util.Log;
 
@@ -15,8 +16,8 @@ public class Plotter {
     private static Plotter instance = null;
     
     //TODO: Move Constants to parameters
-    public static final float PLOT_DWELL_TIME = (float) 4.0; //seconds (duration a pt will be on plot)
-    public static final int PLOT_WIDTH = 400; //px
+    public static final float PLOT_DWELL_TIME = (float) 2.0; //seconds (duration a pt will be on plot)
+    public static final int PLOT_WIDTH = 200; //px
     public static final int PLOT_HEIGHT = 300; //px
     public static final float PX_DWELL_TIME = PLOT_DWELL_TIME / (float) PLOT_WIDTH;
     public static final int MAX_VAL = 32768;
@@ -106,14 +107,33 @@ public class Plotter {
         if (Plotter.mScaledSamples.size()>0) {
             //last_element = new ArrayDeque();
             //Log.d(TAG, "First sample size to grab " +  Plotter.mScaledSamples.getFirst() );
+            
+            //Float[] test_vector_ptsF = new Float[PTS_PER_PX];
+            float[] test_vector_pts = new float[PTS_PER_PX];
             for(int i=0;i<PTS_PER_PX;i++){
+                test_vector_pts[i] = Plotter.mScaledSamples.peekFirst();
+                
                 PlotQ[PLOT_WIDTH-1].add( Plotter.mScaledSamples.removeFirst() );
+                
+            }
+            
+            
+            //Testing sending to drawer
+            Log.d(TAG, "Trying to connect to drawer");
+            DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+            if(graphData!=null){
+                ScrollingBitmap scr_bmp = ScrollingBitmap.create();
+                scr_bmp.setDrawRegion(graphData);
+                scr_bmp.onVectorUpate(test_vector_pts, (float) MAX_VAL, (float) -MAX_VAL);
+                //graphData.onVectorUpdate(test_vector_pts);
             }
             //Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
         }
         plotReady = true;
         
+        //Here we have a single window size of audio data plotted in reverse
         
+        /*
         Log.d(TAG, "Trying to connect to drawer");
         DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
 
@@ -121,11 +141,27 @@ public class Plotter {
             Log.d(TAG, "Converting data to canvas points");
             float[] canvas_pts = toCanvasPointsArray(PlotQ,0,0);
             Log.d(TAG, "Updating graph region drawer with canvas pts");
-            graphData.onVectorUpdate(canvas_pts);
+            //TODO: Refactor to only use last set of points, don't need whole array
+            //TODO: The scaling belongs somewhere else (like graph region-ish)
+            //TODO: Also, it should also go in the if statement above, not the one here
+            if (Plotter.mScaledSamples.size()>0) {
+                //TODO: Refactor to just send the scaled samples rather than pulling from PlotQ (since we just added them a few statements up)
+                Float[] scaled_samplesF = new Float[PlotQ[PLOT_WIDTH-1].size()];
+                scaled_samplesF = PlotQ[PLOT_WIDTH-1].toArray(scaled_samplesF);
+                int size = scaled_samplesF.length;
+                float[] scaled_samples = new float[size];
+                for(int i=0;i<size;i++){
+                    scaled_samples[i] = (float) scaled_samplesF[i];
+                }
+                graphData.onVectorUpdate(scaled_samples);
+            }
+            
+            //graphData.onVectorUpdate(canvas_pts);
+            //graphData.test();
         } else {
             Log.w(TAG, "GRAPH Drawer was nulll");
         }
-        
+        */
         //} else {
         //    Log.e(TAG, "Graph Data seems to be null: " + graphData);
         //}

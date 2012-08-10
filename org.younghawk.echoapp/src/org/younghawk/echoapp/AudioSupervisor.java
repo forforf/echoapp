@@ -29,7 +29,7 @@ public class AudioSupervisor implements Callback {
 	//Audio Data
 	private AudioRecordWrapper mAudioRecordWrapper;
 	private static final int SAMPPERSEC = 44100; 
-	private static final double MAX_SAMPLE_TIME = 0.5; //in seconds
+	private static final double MAX_SAMPLE_TIME = 2; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
 	private AudioRecord mAudioRecord;
 	private PingRunner mPinger;
@@ -268,16 +268,18 @@ public class AudioSupervisor implements Callback {
 		Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
 		if(mPlotSupervisor==null){
 		    mPlotSupervisor = PlotSupervisor.create();
-		    mPlotSupervisor.mPlotter.addToQ(filter_data);
-		
-		    //Checking if Paused (default when started)
-		    //If its paused we start it .. this is not robust, since we can't
-		    //actually ever stop it now
-		    Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
-		    if(mPlotSupervisor.pauseQCheck){
-		        mPlotSupervisor.startQCheck();
-		    }
 		}
+		mPlotSupervisor.mPlotter.addToQ(filter_data);
+
+		//Checking if Paused (default when started)
+		//If its paused we start it .. this is not robust, since we can't
+		//actually ever stop it now
+		//Ummmm ... this should only be done when?
+		Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
+		if(mPlotSupervisor.pauseQCheck){
+		    mPlotSupervisor.startQCheck();
+		}
+
 		
 		//mCallback.updateFilterData(filter_data);
 		
