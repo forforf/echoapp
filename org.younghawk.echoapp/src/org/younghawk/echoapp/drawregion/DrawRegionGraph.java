@@ -22,14 +22,14 @@ public class DrawRegionGraph implements DrawRegionType {
     public Rect rect; //the rectangle that bounds the object
     public Bitmap mScaledBitmap;
     //Refactor candidates
-    
     private Bitmap mPreviousBitmap;
     private Canvas mPreviousCanvas;
     private Bitmap mNewSliverBitmap;
     private Canvas mNewSliverCanvas;
     private Rect mSliverRect;
     
-    
+    private int testing;
+
     private PanelDrawer mPanelDrawer;
     private DrawRegionGraph mSelf;
     //private ArrayList<Float> testpts = new ArrayList<Float>();
@@ -51,10 +51,19 @@ public class DrawRegionGraph implements DrawRegionType {
         return rect;
     }
 
-    public void onBitmapUpdate(Bitmap bitmap) {
+    public void onBitmapUpdate(Bitmap bitmap){
         Log.d(TAG, "scaling bitmap");
         
+      //TESTING
+        //testing++;
+        //Canvas c = new Canvas(bitmap);
+        //Paint paint = new Paint();
+        //paint.setColor(Color.GREEN);
+        //c.drawText("G"+testing, 20+(float)xxtesting, 20+(float)xxtesting, paint);
+        
         mScaledBitmap = scaleBitmap(bitmap, rect);
+        
+        
               
         
         //TODO: Move DrawRegion HashMaps to a DrawRegion home
@@ -74,6 +83,7 @@ public class DrawRegionGraph implements DrawRegionType {
     //TODO: Feels like this belongs somewhere else
     //TODO: We're drawing in the main thread :((((
     public void onVectorUpdate(float[] vert_pts) {
+
         //convert vector to canvas
         float[] canvas_pts = new float[2*vert_pts.length];
         int i=0;
@@ -107,7 +117,7 @@ public class DrawRegionGraph implements DrawRegionType {
         //Log.d(TAG, "Drawing points to canvas(bitmap): " + Arrays.toString(canvas_pts));
         synchronized (mScaledBitmap) {  
             Canvas c = new Canvas(mScaledBitmap);
-            
+
             //Draw this vertical sliver of vectored points
             mNewSliverCanvas.drawPoints(canvas_pts, paint);
             //copy the sliver onto the previous bitmap in the (should be empty) sliver spot
@@ -118,7 +128,7 @@ public class DrawRegionGraph implements DrawRegionType {
             c.drawBitmap(mPreviousBitmap, 0, 0, paint);
             
             //Clear the existing sliver points
-            mNewSliverCanvas.drawColor(Color.DKGRAY);
+            //mNewSliverCanvas.drawColor(Color.DKGRAY);
             
             //shift the full bitmap buffer down for the next sliver
             mPreviousCanvas.drawBitmap(mPreviousBitmap, matrix, paint);

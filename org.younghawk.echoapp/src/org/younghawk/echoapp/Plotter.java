@@ -39,6 +39,7 @@ public class Plotter {
     public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>();
     public static final ArrayDeque<Float>[] PlotQ = new ArrayDeque[PLOT_WIDTH];
     public static boolean plotReady = false;
+    private static ScrollingBitmap scr_bmp;
     
     //Refactor so this isn't staic
     public static float[] toCanvasPointsArray(ArrayDeque<Float>[] plot_q, int x_offset, int y_offset ) {
@@ -84,6 +85,7 @@ public class Plotter {
             PlotQ[i-1] = PlotQ[i];
         }
 
+
         //ArrayDeque<Float> last_element = PlotQ[PLOT_WIDTH-1];
         
         //Add new y values at end of PlotQ 
@@ -120,11 +122,14 @@ public class Plotter {
             
             //Testing sending to drawer
             Log.d(TAG, "Trying to connect to drawer");
+            if(scr_bmp==null){
+                scr_bmp = ScrollingBitmap.create();
+            }
+            
             DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-            if(graphData!=null){
-                ScrollingBitmap scr_bmp = ScrollingBitmap.create();
+            if(graphData!=null){    
                 scr_bmp.setDrawRegion(graphData);
-                scr_bmp.onVectorUpate(test_vector_pts, (float) MAX_VAL, (float) -MAX_VAL);
+                scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
                 //graphData.onVectorUpdate(test_vector_pts);
             }
             //Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
