@@ -114,7 +114,13 @@ public class ScrollingBitmap {
         mGraphDrawRegionCallback = (DrawRegionGraph) draw_reg;
         
         //Set the instance height and width to the scaled values
-        mRegionHeight = mGraphDrawRegionCallback.rect.height();
-        mRegionWidth =  mGraphDrawRegionCallback.rect.width();
+        //int new_h = mGraphDrawRegionCallback.rect.height();
+        //int new_w =  mGraphDrawRegionCallback.rect.width();
+        //int new_h = DEFAULT_HEIGHT;
+        //int new_w = DEFAULT_WIDTH;
+        //Bitmap scroll_bmp = Bitmap.createScaledBitmap(mScrollingBitmap, new_w, new_h, false);
+        //Bitmap buffer_bmp = Bitmap.createScaledBitmap(mBufferBitmap, new_w, new_h, false);
+        //Bitmap sliv_bmp   = Bitmap.createScaledBitmap(mSliverBitmap, 1, new_h, false);
+        //setBitmaps(sliv_bmp, scroll_bmp, buffer_bmp, new_h, new_w);
     }
 }

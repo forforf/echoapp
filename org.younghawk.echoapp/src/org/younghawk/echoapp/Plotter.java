@@ -16,7 +16,7 @@ public class Plotter {
     private static Plotter instance = null;
     
     //TODO: Move Constants to parameters
-    public static final float PLOT_DWELL_TIME = (float) 2.0; //seconds (duration a pt will be on plot)
+    public static final float PLOT_DWELL_TIME = (float) 10.0; //seconds (duration a pt will be on plot)
     public static final int PLOT_WIDTH = 200; //px
     public static final int PLOT_HEIGHT = 300; //px
     public static final float PX_DWELL_TIME = PLOT_DWELL_TIME / (float) PLOT_WIDTH;

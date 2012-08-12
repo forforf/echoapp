@@ -42,7 +42,9 @@ public class DrawRegionGraph implements DrawRegionType {
     public void onBitmapUpdate(Bitmap bitmap){
         Log.d(TAG, "scaling bitmap");
         
+        //Testing not scaling bitmap
         mScaledBitmap = scaleBitmap(bitmap, rect);
+
         
         //TODO: Move DrawRegion HashMaps to a DrawRegion home
         HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
@@ -93,6 +95,7 @@ public class DrawRegionGraph implements DrawRegionType {
     private Bitmap scaleBitmap(Bitmap orig_bitmap, Rect scale_rect){
         Bitmap scaled_bitmap = orig_bitmap;
         if (scaled_bitmap.getWidth()!=scale_rect.width() && scaled_bitmap.getHeight()!= scale_rect.height()){
+            Log.d(TAG, "Rescaling bitmap - means we didnt pass a bitmap of the region size");
             scaled_bitmap = Bitmap.createScaledBitmap(orig_bitmap, scale_rect.width(), scale_rect.height(), false);
         }
         return scaled_bitmap;
