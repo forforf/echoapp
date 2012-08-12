@@ -21,27 +21,15 @@ public class DrawRegionGraph implements DrawRegionType {
     public static final String TAG="EchoApp DrawRegionGraph";
     public Rect rect; //the rectangle that bounds the object
     public Bitmap mScaledBitmap;
-    //Refactor candidates
-    private Bitmap mPreviousBitmap;
-    private Canvas mPreviousCanvas;
-    private Bitmap mNewSliverBitmap;
-    private Canvas mNewSliverCanvas;
-    private Rect mSliverRect;
-    
-    private int testing;
 
     private PanelDrawer mPanelDrawer;
     private DrawRegionGraph mSelf;
-    //private ArrayList<Float> testpts = new ArrayList<Float>();
-    //private float[] testpts = new float[]{0,0};
+    
 
     
     //Constructor
     public DrawRegionGraph(PanelDrawer panel_drawer, Rect rect){
         this.rect = rect;
-        if(rect!=null){
-            mSliverRect = new Rect(rect.width()-1,0,rect.width(),rect.height());
-        }
         this.mPanelDrawer = panel_drawer;
         this.mSelf = this;
     }
