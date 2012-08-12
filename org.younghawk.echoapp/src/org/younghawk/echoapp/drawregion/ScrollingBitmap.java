@@ -12,7 +12,7 @@ public class ScrollingBitmap {
     public static final String TAG="EchoApp ScrollingBitmap";
     public Bitmap mScrollingBitmap;
     
-    //TODO: Develop strategy for bitmap height and width
+    //TODO: Defaults will be updated with scaled size from Draw Region
     private static final int DEFAULT_WIDTH = 400;
     private static final int DEFAULT_HEIGHT = 400;
     //TODO: Allow override of default width and height
@@ -24,6 +24,8 @@ public class ScrollingBitmap {
     private Canvas mScrollingCanvas;
     private Bitmap mBufferBitmap;
     private Canvas mBufferCanvas;
+    private int mRegionWidth;
+    private int mRegionHeight;
 
     //Implemented as instance variables rather than local for performance reasons
     private Paint mPaint = new Paint();
@@ -40,12 +42,14 @@ public class ScrollingBitmap {
     
     //Constructor
     private ScrollingBitmap(Bitmap sliv_bmp, Bitmap scroll_bmp, Bitmap buffer_bmp){
+        mRegionWidth = DEFAULT_WIDTH;
+        mRegionHeight = DEFAULT_HEIGHT;
         this.mSliverBitmap = sliv_bmp;
         this.mSliverSrcRect = new Rect(0, 0, 1, sliv_bmp.getHeight());
         this.mSliverDstRect = new Rect(
-                DEFAULT_WIDTH-sliv_bmp.getWidth(),
+                mRegionWidth-sliv_bmp.getWidth(),
                 0,
-                DEFAULT_WIDTH,
+                mRegionWidth,
                 sliv_bmp.getHeight());
         this.mSliverCanvas = new Canvas(sliv_bmp);
         this.mBufferBitmap = buffer_bmp;
@@ -54,9 +58,6 @@ public class ScrollingBitmap {
         this.mScrollingCanvas = new Canvas(scroll_bmp);
         this.mMatrix.setTranslate(-1, 0);   //translate left by one
     }
-    
-
-    
     
     
     //TODO: Implement Observer (use a callback interface)
@@ -71,11 +72,11 @@ public class ScrollingBitmap {
             float[] canvas_pts = new float[2*vector_pts.length];
             int i=0;
             while(i<canvas_pts.length){
-                canvas_pts[i] = 0; //DEFAULT_WIDTH-1;
+                canvas_pts[i] = 0; //mRegionWidth-1;
 
                 //If both positive and negative values
-                float scale_factor = DEFAULT_HEIGHT/(max - min);
-                canvas_pts[i+1] = (vector_pts[i/2]*scale_factor) +DEFAULT_HEIGHT/2;
+                float scale_factor = mRegionHeight/(max - min);
+                canvas_pts[i+1] = (vector_pts[i/2]*scale_factor) +mRegionHeight/2;
                 i+=2;
             }
 
