@@ -40,32 +40,31 @@ public class ScrollingBitmap {
     //Factory
     public static ScrollingBitmap create(){
         Bitmap scroll_bmp = Bitmap.createBitmap(DEFAULT_WIDTH, DEFAULT_HEIGHT, Bitmap.Config.ARGB_8888);
-        Bitmap buffer_bmp = Bitmap.createBitmap(DEFAULT_WIDTH, DEFAULT_HEIGHT, Bitmap.Config.ARGB_8888);
-        Bitmap sliv_bmp   = Bitmap.createBitmap(1,DEFAULT_HEIGHT, Bitmap.Config.ARGB_8888);
-        return new ScrollingBitmap(sliv_bmp, scroll_bmp, buffer_bmp);
+        //Bitmap sliv_bmp   = Bitmap.createBitmap(1,DEFAULT_HEIGHT, Bitmap.Config.ARGB_8888);
+        return new ScrollingBitmap(scroll_bmp);
     }
     
     
     //Constructor
-    private ScrollingBitmap(Bitmap sliv_bmp, Bitmap scroll_bmp, Bitmap buffer_bmp){
+    private ScrollingBitmap(Bitmap scroll_bmp){
         this.mRegionWidth = DEFAULT_WIDTH;
         this.mRegionHeight = DEFAULT_HEIGHT;
-        setBitmaps(sliv_bmp, scroll_bmp, buffer_bmp, mRegionWidth, mRegionHeight);
+        setBitmaps(scroll_bmp, mRegionWidth, mRegionHeight);
         
         this.mMatrix.setTranslate(-1, 0);   //translate left by one
     }
     
-    private void setBitmaps(Bitmap sliv_bmp, Bitmap scroll_bmp, Bitmap buffer_bmp, int height, int width){
+    private void setBitmaps(Bitmap scroll_bmp, int height, int width){
         this.mRegionWidth = width;
         this.mRegionHeight = height;
-        this.mSliverBitmap = sliv_bmp;
-        this.mSliverSrcRect = new Rect(0, 0, 1, sliv_bmp.getHeight());
+        this.mSliverBitmap = Bitmap.createBitmap(1,height, Bitmap.Config.ARGB_8888);;
+        this.mSliverSrcRect = new Rect(0, 0, 1, height);
         this.mSliverDstRect = new Rect(
-                mRegionWidth-sliv_bmp.getWidth(),
+                mRegionWidth-mSliverBitmap.getWidth(),
                 0,
                 mRegionWidth,
-                sliv_bmp.getHeight());
-        this.mSliverCanvas = new Canvas(sliv_bmp);
+                mSliverBitmap.getHeight());
+        this.mSliverCanvas = new Canvas(mSliverBitmap);
         this.mScrollingBitmap = scroll_bmp;
         this.mScrollingCanvas = new Canvas(scroll_bmp);
     }
@@ -136,11 +135,8 @@ public class ScrollingBitmap {
         //Set the instance height and width to the scaled values
         //int new_h = mGraphDrawRegionCallback.rect.height();
         //int new_w =  mGraphDrawRegionCallback.rect.width();
-        //int new_h = DEFAULT_HEIGHT;
-        //int new_w = DEFAULT_WIDTH;
         //Bitmap scroll_bmp = Bitmap.createScaledBitmap(mScrollingBitmap, new_w, new_h, false);
-        //Bitmap buffer_bmp = Bitmap.createScaledBitmap(mBufferBitmap, new_w, new_h, false);
         //Bitmap sliv_bmp   = Bitmap.createScaledBitmap(mSliverBitmap, 1, new_h, false);
-        //setBitmaps(sliv_bmp, scroll_bmp, buffer_bmp, new_h, new_w);
+        //setBitmaps(sliv_bmp, scroll_bmp, new_h, new_w);
     }
 }
