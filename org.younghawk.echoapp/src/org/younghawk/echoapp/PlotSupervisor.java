@@ -202,9 +202,9 @@ public class PlotSupervisor implements Callback {
        */ 
     }
     
-    public float[] getPlotLineData(){
-        return mPlotter.getPlotData();
-    }
+    //public float[] getPlotLineData(){
+    //    return mPlotter.getPlotData();
+    //}
     
     public void startQCheck() {
         Log.d(TAG, "Starting Q Check");
