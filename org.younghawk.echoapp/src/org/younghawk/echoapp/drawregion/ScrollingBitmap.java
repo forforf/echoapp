@@ -71,7 +71,7 @@ public class ScrollingBitmap {
     
     
     //TODO: Implement Observer (use a callback interface)
-    private DrawRegionGraph mGraphDrawRegionCallback;
+    public DrawRegionGraph mGraphDrawRegionCallback;
        
     public void onVectorUpate(float[] vector_pts, float max, float min){
         
@@ -133,10 +133,11 @@ public class ScrollingBitmap {
         mGraphDrawRegionCallback = (DrawRegionGraph) draw_reg;
         
         //Set the instance height and width to the scaled values
-        //int new_h = mGraphDrawRegionCallback.rect.height();
-        //int new_w =  mGraphDrawRegionCallback.rect.width();
-        //Bitmap scroll_bmp = Bitmap.createScaledBitmap(mScrollingBitmap, new_w, new_h, false);
+        int new_h = mGraphDrawRegionCallback.rect.height();
+        int new_w =  mGraphDrawRegionCallback.rect.width();
+        //Bitmap scroll_bmp = mGraphDrawRegionCallback.mScaledBitmap;
+        Bitmap scroll_bmp = Bitmap.createScaledBitmap(mScrollingBitmap, new_w, new_h, false);
         //Bitmap sliv_bmp   = Bitmap.createScaledBitmap(mSliverBitmap, 1, new_h, false);
-        //setBitmaps(sliv_bmp, scroll_bmp, new_h, new_w);
+        setBitmaps(scroll_bmp, new_h, new_w);
     }
 }

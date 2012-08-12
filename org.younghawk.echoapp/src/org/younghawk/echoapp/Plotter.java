@@ -87,7 +87,9 @@ public class Plotter {
             
             DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
             if(graphData!=null){    
-                scr_bmp.setDrawRegion(graphData);
+                if(scr_bmp.mGraphDrawRegionCallback==null){
+                    scr_bmp.setDrawRegion(graphData);    
+                }
                 scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
             }
             //Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
