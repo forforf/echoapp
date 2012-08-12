@@ -42,8 +42,16 @@ public class ScrollingBitmap {
     
     //Constructor
     private ScrollingBitmap(Bitmap sliv_bmp, Bitmap scroll_bmp, Bitmap buffer_bmp){
-        mRegionWidth = DEFAULT_WIDTH;
-        mRegionHeight = DEFAULT_HEIGHT;
+        this.mRegionWidth = DEFAULT_WIDTH;
+        this.mRegionHeight = DEFAULT_HEIGHT;
+        setBitmaps(sliv_bmp, scroll_bmp, buffer_bmp, mRegionWidth, mRegionHeight);
+        
+        this.mMatrix.setTranslate(-1, 0);   //translate left by one
+    }
+    
+    private void setBitmaps(Bitmap sliv_bmp, Bitmap scroll_bmp, Bitmap buffer_bmp, int height, int width){
+        this.mRegionWidth = width;
+        this.mRegionHeight = height;
         this.mSliverBitmap = sliv_bmp;
         this.mSliverSrcRect = new Rect(0, 0, 1, sliv_bmp.getHeight());
         this.mSliverDstRect = new Rect(
@@ -56,7 +64,6 @@ public class ScrollingBitmap {
         this.mBufferCanvas = new Canvas(buffer_bmp);
         this.mScrollingBitmap = scroll_bmp;
         this.mScrollingCanvas = new Canvas(scroll_bmp);
-        this.mMatrix.setTranslate(-1, 0);   //translate left by one
     }
     
     
@@ -105,5 +112,9 @@ public class ScrollingBitmap {
     
     public void setDrawRegion(DrawRegionType draw_reg){
         mGraphDrawRegionCallback = (DrawRegionGraph) draw_reg;
+        
+        //Set the instance height and width to the scaled values
+        mRegionHeight = mGraphDrawRegionCallback.rect.height();
+        mRegionWidth =  mGraphDrawRegionCallback.rect.width();
     }
 }
