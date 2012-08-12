@@ -30,6 +30,12 @@ public class ScrollingBitmap {
     //Implemented as instance variables rather than local for performance reasons
     private Paint mPaint = new Paint();
     private Matrix mMatrix = new Matrix();
+    
+    //Debug 
+    private long counter=0;
+    private long now=0;
+    private long start_time=0;
+    private long elapsed_time=0;
 
     //Factory
     public static ScrollingBitmap create(){
@@ -69,6 +75,21 @@ public class ScrollingBitmap {
     private DrawRegionGraph mGraphDrawRegionCallback;
        
     public void onVectorUpate(float[] vector_pts, float max, float min){
+        
+        //TEMPORARY DEBUG CODE
+        double vups = 0.0;
+        now = System.currentTimeMillis();
+        if(start_time==0){
+            start_time=now;
+        }
+        elapsed_time = now - start_time;
+        counter++;
+        if(elapsed_time>0){
+            vups = (1000 * counter/(double) (elapsed_time));
+        }
+        Log.d(TAG, "Vector Updates per second: " + vups);
+            
+        
 
         //Only do work if there's a callback to receive it
         if(mGraphDrawRegionCallback!=null){

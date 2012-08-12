@@ -44,8 +44,7 @@ public class DrawRegionGraph implements DrawRegionType {
         
         //Testing not scaling bitmap
         mScaledBitmap = scaleBitmap(bitmap, rect);
-
-        
+  
         //TODO: Move DrawRegion HashMaps to a DrawRegion home
         HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
         if (graphThread.isAlive() && graphThread.handler!=null){
