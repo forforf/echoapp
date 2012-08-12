@@ -33,6 +33,25 @@ public class Plotter {
     public static final ArrayDeque<Float>[] PlotQ = new ArrayDeque[PLOT_WIDTH];
     public static boolean plotReady = false;
     private static ScrollingBitmap scr_bmp;
+    private static ArrayDeque<Float> mRecycledArrayDeque;
+    
+    //Recycle the ArrayDeque that falls off the queue to be used for
+    //the next item added to the queue
+    //Adds to the recycle
+    private static void setRecycleDeque(ArrayDeque<Float> fell_off){
+        fell_off.clear();
+        mRecycledArrayDeque = fell_off;
+    }
+    private static ArrayDeque<Float> getRecycleDeque(){
+        if(mRecycledArrayDeque==null){
+            Log.e(TAG, "No Array Deque was found to be recycled!!!");
+            mRecycledArrayDeque = new ArrayDeque<Float>();
+        }
+        if(!mRecycledArrayDeque.isEmpty()){
+            mRecycledArrayDeque.clear();
+        }
+        return mRecycledArrayDeque;
+    }
     
     //Refactor so this isn't static
     public static synchronized void fillPlotQ(){
@@ -41,14 +60,15 @@ public class Plotter {
             PlotQ[i-1] = PlotQ[i];
         }
     
-        //Add new y values at end of PlotQ 
-        if (PlotQ[PLOT_WIDTH-1]==null) {
-            //Log.d(TAG, "Last element was null");
-            PlotQ[PLOT_WIDTH-1] = new ArrayDeque();
-        } else {
-            //Log.d(TAG, "Last element was not null");
-            PlotQ[PLOT_WIDTH-1].clear();
-        }
+        //Add new y values at end of PlotQ
+        PlotQ[PLOT_WIDTH-1] = getRecycleDeque();
+        //if (PlotQ[PLOT_WIDTH-1]==null) {
+        //    //Log.d(TAG, "Last element was null");
+        //    PlotQ[PLOT_WIDTH-1] = new ArrayDeque();
+        //} else {
+        //    //Log.d(TAG, "Last element was not null");
+        //    PlotQ[PLOT_WIDTH-1].clear();
+        //}
              
         if (Plotter.mScaledSamples.size()>0) {
 
