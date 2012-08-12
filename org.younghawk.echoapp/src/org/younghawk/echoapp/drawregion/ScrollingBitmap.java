@@ -60,8 +60,6 @@ public class ScrollingBitmap {
                 mRegionWidth,
                 sliv_bmp.getHeight());
         this.mSliverCanvas = new Canvas(sliv_bmp);
-        this.mBufferBitmap = buffer_bmp;
-        this.mBufferCanvas = new Canvas(buffer_bmp);
         this.mScrollingBitmap = scroll_bmp;
         this.mScrollingCanvas = new Canvas(scroll_bmp);
     }
@@ -69,8 +67,7 @@ public class ScrollingBitmap {
     
     //TODO: Implement Observer (use a callback interface)
     private DrawRegionGraph mGraphDrawRegionCallback;
-    
-    
+       
     public void onVectorUpate(float[] vector_pts, float max, float min){
 
         //Only do work if there's a callback to receive it
@@ -90,12 +87,13 @@ public class ScrollingBitmap {
             mPaint.setColor(Color.CYAN);
             mSliverCanvas.drawPoints(canvas_pts, mPaint);
             
-            //copy the sliver onto the previous bitmap in the (should be empty) sliver spot
-            //draw the previous bitmap to the canvas
-            mBufferCanvas.drawBitmap(mSliverBitmap, mSliverSrcRect, mSliverDstRect, mPaint);
+
+
 
             //synchronized (mScrollingBitmap) {  
-                mScrollingCanvas.drawBitmap(mBufferBitmap, 0, 0, mPaint);
+                //copy the sliver onto the scrolling bitmap (which should now have an empty slot for sliver)
+                mScrollingCanvas.drawBitmap(mSliverBitmap, mSliverSrcRect, mSliverDstRect, mPaint);
+
 
                 this.mGraphDrawRegionCallback.onBitmapUpdate(mScrollingBitmap);
 
@@ -103,7 +101,8 @@ public class ScrollingBitmap {
                 mSliverCanvas.drawColor(Color.DKGRAY);
 
                 //shift the full bitmap buffer down for the next sliver
-                mBufferCanvas.drawBitmap(mBufferBitmap, mMatrix, mPaint);
+                mScrollingCanvas.drawBitmap(mScrollingBitmap, mMatrix, mPaint);
+                
 
         }
 
