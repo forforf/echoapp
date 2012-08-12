@@ -128,43 +128,4 @@ public class PanelDrawer {
         mSurfaceRect = null;
         instance = null;
     }
-   
-    
-    public void testTestBitmapDraw(){
-        mExecutor.execute(new Runnable(){
-            int[] myColors = new int[]{
-                    Color.BLUE,
-                    Color.CYAN,
-                    Color.GREEN,
-                    Color.YELLOW,
-                    Color.RED,
-                    Color.LTGRAY
-            };
-            Bitmap bitmap = Bitmap.createBitmap(100,100, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bitmap);
-            @Override
-            public void run(){
-                HThread thisThread = (HThread) Thread.currentThread();
-                for(int i=0;i<1000;i++){
-                    if(!thisThread.running || thisThread.isInterrupted()){
-                        break;
-                    }
-                    for(int color: myColors){
-                        c.drawColor(color);
-                        //onBitmapUpdate(bitmap);
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            Log.e(TAG, "Test thread interupted: " + e);
-                            if(!thisThread.isInterrupted()){
-                                thisThread.interrupt();
-                            }
-                        }
-                    }
-                }
-            }
-        },"bitmap-tester");
-                
-    }
-
 }
