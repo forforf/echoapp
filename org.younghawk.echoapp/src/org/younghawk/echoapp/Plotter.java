@@ -30,58 +30,17 @@ public class Plotter {
     //TODO: Figure out optimum instantiation size
     //TODO: Refactor so it isn't static?
     public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>();
-    public static final ArrayDeque<Float>[] PlotQ = new ArrayDeque[PLOT_WIDTH];
     public static boolean plotReady = false;
     private static ScrollingBitmap scr_bmp;
-    private static ArrayDeque<Float> mRecycledArrayDeque;
-    
-    //Recycle the ArrayDeque that falls off the queue to be used for
-    //the next item added to the queue
-    //Adds to the recycle
-    //private static void setRecycleDeque(ArrayDeque<Float> fell_off){
-    //    fell_off.clear();
-    //    mRecycledArrayDeque = fell_off;
-    //}
-    //private static ArrayDeque<Float> getRecycleDeque(){
-    //    if(mRecycledArrayDeque==null){
-    //        Log.e(TAG, "No Array Deque was found to be recycled!!!");
-    //        mRecycledArrayDeque = new ArrayDeque<Float>();
-    //    }
-    //    if(!mRecycledArrayDeque.isEmpty()){
-    //        mRecycledArrayDeque.clear();
-    //    }
-    //    return mRecycledArrayDeque;
-    //}
+
     
     //Refactor so this isn't static
     public static synchronized void fillPlotQ(){
-        //TESTING WITHOUT PlotQ
-        //shift PlotQ down 1
-        //for(int i=1;i<PLOT_WIDTH;i++) {
-            //ORIGINAL
-            //PlotQ[i-1] = PlotQ[i];
-            //TESTING
-            //noop
-        //}
-    
-        //Add new y values at end of PlotQ
-        //PlotQ[PLOT_WIDTH-1] = getRecycleDeque();
-        //if (PlotQ[PLOT_WIDTH-1]==null) {
-        //    //Log.d(TAG, "Last element was null");
-        //    PlotQ[PLOT_WIDTH-1] = new ArrayDeque();
-        //} else {
-        //    //Log.d(TAG, "Last element was not null");
-        //    PlotQ[PLOT_WIDTH-1].clear();
-        //}
              
         if (Plotter.mScaledSamples.size()>0) {
 
             float[] test_vector_pts = new float[PTS_PER_PX];
             for(int i=0;i<PTS_PER_PX;i++){
-                //test_vector_pts[i] = Plotter.mScaledSamples.peekFirst();
-                
-                //PlotQ[PLOT_WIDTH-1].add( Plotter.mScaledSamples.removeFirst() ); 
-                //PlotQ[PLOT_WIDTH-1].add( Plotter.mScaledSamples.peekFirst() );
                 test_vector_pts[i] = Plotter.mScaledSamples.removeFirst();
             }
                        
