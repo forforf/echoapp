@@ -12,6 +12,7 @@
     </uses-permission>
 
     <application
+        android:name="GlobalState"
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
@@ -30,6 +31,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="PreferenceActivity" />
         </activity>
+        
+        
+
     </application>
 
 </manifest>

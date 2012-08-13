@@ -5,6 +5,7 @@ import java.util.ArrayDeque;
 import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.ScrollingBitmap;
+import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
 import android.util.Log;
 
@@ -80,9 +81,11 @@ public class Plotter {
     //TODO: Implement logscale option
     
    public synchronized void addToQ(int[] data) {
+
        for(int i=0;i<data.length;i++) {
-           //scale data
            mScaledSamples.add( (data[i] * PLOT_HEIGHT) / (float) MAX_VAL );
         }
+
+       Log.d(TAG, "Q Sample Size: " + mScaledSamples.size());
     }
 }
