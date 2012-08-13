@@ -57,7 +57,6 @@ public class Plotter {
                 }
                 scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
             }
-            //Log.d(TAG, "Next sample to grab: "+  Plotter.mScaledSamples.getFirst() );
         }
         plotReady = true;
          
