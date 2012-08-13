@@ -29,6 +29,7 @@ public class Plotter {
     public static final int PLOT_HEIGHT = 300; //px
     public static final float PX_DWELL_TIME = PLOT_DWELL_TIME / (float) PLOT_WIDTH;
     public static final int MAX_VAL = 32768;
+    private static final float HT_SCALE_FACTOR = PLOT_HEIGHT/ (float) MAX_VAL;
     
     //TODO: Should come from preferences
     public static final int RAW_INPUT_RATE = 44100; //samples per second
@@ -103,9 +104,9 @@ public class Plotter {
     }
     
    public synchronized void addToQ(int[] data) {
-
-       for(int i=0;i<data.length;i++) {
-           mScaledSamples.add( (data[i] * PLOT_HEIGHT) / (float) MAX_VAL );
+       int sample_size = data.length;
+       for(int i=0;i<sample_size;i++) {
+           mScaledSamples.add( data[i] * HT_SCALE_FACTOR );
         }
 
        Log.d(TAG, "Q Sample Size: " + mScaledSamples.size());
