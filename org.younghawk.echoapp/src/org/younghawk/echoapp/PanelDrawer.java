@@ -3,18 +3,12 @@ package org.younghawk.echoapp;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.younghawk.echoapp.drawregion.DrawRegionFactory;
-import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.DrawRegionRadar;
-import org.younghawk.echoapp.drawregion.DrawRegionType;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -34,9 +28,12 @@ public class PanelDrawer {
     public SurfaceHolder mSurfaceHolder;
     public ImmutableRect mSurfaceRect;
     
+    
+    //Moving hash maps to global state
+    private GlobalState mGlobal;
     //will be used to define the regions we can use to draw on the surface
     //Depends on the surface being ready before we can add any regions
-    public static ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
+    //public static ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
     
     //Each region gets its own dedicated handler for queuing draw requests
     public static ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
@@ -84,9 +81,15 @@ public class PanelDrawer {
         //Get the surface dimensions
         this.mSurfaceRect = mPanel.mSurfaceRect;
         
+        //Using global state
+        if(mGlobal==null){
+            mGlobal = (GlobalState) mPanel.getContext().getApplicationContext();
+        }
+        mGlobal.setRegionArea(DrawRegionNames.RADAR, this);
+        mGlobal.setRegionArea(DrawRegionNames.GRAPH, this);
         //Now that we know the surface dimensions we can create the drawing regions
-        this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
-        this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
+        //this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
+        //this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
         
         //If the radar drawing thread doesn't exist create it
         if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
@@ -111,7 +114,9 @@ public class PanelDrawer {
                 new Runnable(){
                     @Override
                     public void run() {
-                        DrawRegionRadar radarData = (DrawRegionRadar) mDrawRegionAreas.get(DrawRegionNames.RADAR);
+                        //Using GlobalState
+                        DrawRegionRadar radarData = (DrawRegionRadar) mGlobal.getRegionArea(DrawRegionNames.RADAR);
+                        //DrawRegionRadar radarData = (DrawRegionRadar) mDrawRegionAreas.get(DrawRegionNames.RADAR);
                         radarData.run(mSurfaceHolder);
                     };
                 });
@@ -122,7 +127,9 @@ public class PanelDrawer {
         mExecutor.stopThreads();    
         
         mDrawRegionHThreads.clear();
-        mDrawRegionAreas.clear();
+        
+        //TODO: handle globally
+        //mDrawRegionAreas.clear();
         
         mSurfaceHolder = null;
         mSurfaceRect = null;
