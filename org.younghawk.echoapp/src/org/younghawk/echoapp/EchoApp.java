@@ -96,7 +96,9 @@ public class EchoApp extends Activity {
     public void pingButton(View view) {
     	Log.d(TAG, "Ping Button Pressed");
     	Log.d(TAG, "audioSupervisor: " + audioSupervisor);
-    	audioSupervisor.startRecording();
+    	if(audioSupervisor!=null){
+    	    audioSupervisor.startRecording();
+    	}
         //plotSupervisor.startQCheck();
     }
       
