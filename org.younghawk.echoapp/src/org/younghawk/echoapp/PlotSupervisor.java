@@ -45,7 +45,7 @@ public class PlotSupervisor implements Callback {
         @Override
         public void run() {
             Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
-            mPlotter.fillPlotQ();
+            mPlotter.grabSamplesToPlot();
             
             if (!pauseQCheck){
                 mPlotterHandler.postDelayed(checkingQ, (long) (Plotter.PX_DWELL_TIME * 1000) );

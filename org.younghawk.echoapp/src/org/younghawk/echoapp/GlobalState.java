@@ -102,7 +102,6 @@ public class GlobalState extends Application {
         }
         
         //set Region Thread
-        DrawRegionType draw_reg_thr=null;
         switch(reg_name) {
         case RADAR:
             //If the radar drawing thread doesn't exist create it

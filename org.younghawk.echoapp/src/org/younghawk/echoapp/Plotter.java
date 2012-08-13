@@ -1,22 +1,27 @@
 package org.younghawk.echoapp;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 
 import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.ScrollingBitmap;
-import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
+import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
 import android.util.Log;
 
 public class Plotter {
     private static final String TAG = "EchoApp Plotter";
+    private static final String GRAB_THR_NAME = "GrabSamples";
     
     //This class should be a singleton
     private static Plotter instance = null;
     
     //Global State
     private GlobalState mGlobal;
+    
+    //Thread for grabbing samples to plot
+    //private HThread mGrabThr;
     
     //TODO: Move Constants to parameters
     public static final float PLOT_DWELL_TIME = (float) 10.0; //seconds (duration a pt will be on plot)
@@ -36,6 +41,7 @@ public class Plotter {
     public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>();
     public static boolean plotReady = false;
     private static ScrollingBitmap scr_bmp;
+    private float[] mSamplesToPlot;
  
     //Factory
     public static Plotter create() {
@@ -54,18 +60,24 @@ public class Plotter {
         if(mGlobal==null){
             mGlobal = GlobalState.getGlobalInstance();
         }
+        this.mSamplesToPlot = new float[PTS_PER_PX];
+        //if(mGrabThr==null){
+        //    mGrabThr = mGlobal.getHandlerThread(GRAB_THR_NAME);
+        //}
     }
     
     //TODO: Implement logscale option
     
     //Refactor so this isn't static
-    public synchronized void fillPlotQ(){
-             
-        if (Plotter.mScaledSamples.size()>0) {
-
-            float[] test_vector_pts = new float[PTS_PER_PX];
+    public synchronized void grabSamplesToPlot(){
+        
+        //TODO: Fix for when the size is less than PTS_PER_PX
+        if (Plotter.mScaledSamples.size()>PTS_PER_PX) {
+            //float[] test_vector_pts = new float[PTS_PER_PX];
+            //IMPORTANT: The array must be completely overwritten since the previous values have not been cleared
+            
             for(int i=0;i<PTS_PER_PX;i++){
-                test_vector_pts[i] = Plotter.mScaledSamples.removeFirst();
+                mSamplesToPlot[i] = Plotter.mScaledSamples.removeFirst();
             }
                        
             //Testing sending to drawer
@@ -80,10 +92,13 @@ public class Plotter {
                 if(scr_bmp.mGraphDrawRegionCallback==null){
                     scr_bmp.setDrawRegion(graphData);    
                 }
-                scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
+                scr_bmp.onVectorUpate(mSamplesToPlot, (float) 100, (float) -100);
             }
         }
-        plotReady = true;
+        
+                     
+        
+        //plotReady = true;
          
     }
     
