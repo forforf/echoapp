@@ -1,15 +1,11 @@
 package org.younghawk.echoapp.drawregion;
 
-import java.util.Arrays;
-
+import org.younghawk.echoapp.GlobalState;
 import org.younghawk.echoapp.PanelDrawer;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -25,6 +21,7 @@ public class DrawRegionGraph implements DrawRegionType {
     private PanelDrawer mPanelDrawer;
     private DrawRegionGraph mSelf;
     
+    private GlobalState mGlobal;
 
     
     //Constructor
@@ -32,6 +29,7 @@ public class DrawRegionGraph implements DrawRegionType {
         this.rect = rect;
         this.mPanelDrawer = panel_drawer;
         this.mSelf = this;
+        this.mGlobal = GlobalState.getGlobalInstance();
     }
 
     //TODO: See if getRect() is ever used (may need to change interface def)
@@ -46,7 +44,8 @@ public class DrawRegionGraph implements DrawRegionType {
         mScaledBitmap = scaleBitmap(bitmap, rect);
   
         //TODO: Move DrawRegion HashMaps to a DrawRegion home
-        HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
+        //HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
+        HThread graphThread = mGlobal.getRegionThread(DrawRegionNames.GRAPH);
         if (graphThread.isAlive() && graphThread.handler!=null){
             Log.d(TAG, "Attempting to draw scaled bitmap");
             graphThread.handler.post( new Runnable(){

@@ -15,6 +15,9 @@ public class Plotter {
     //This class should be a singleton
     private static Plotter instance = null;
     
+    //Global State
+    private GlobalState mGlobal;
+    
     //TODO: Move Constants to parameters
     public static final float PLOT_DWELL_TIME = (float) 10.0; //seconds (duration a pt will be on plot)
     public static final int PLOT_WIDTH = 200; //px
@@ -33,35 +36,6 @@ public class Plotter {
     public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>();
     public static boolean plotReady = false;
     private static ScrollingBitmap scr_bmp;
-
-    
-    //Refactor so this isn't static
-    public static synchronized void fillPlotQ(){
-             
-        if (Plotter.mScaledSamples.size()>0) {
-
-            float[] test_vector_pts = new float[PTS_PER_PX];
-            for(int i=0;i<PTS_PER_PX;i++){
-                test_vector_pts[i] = Plotter.mScaledSamples.removeFirst();
-            }
-                       
-            //Testing sending to drawer
-            Log.d(TAG, "Trying to connect to drawer");
-            if(scr_bmp==null){
-                scr_bmp = ScrollingBitmap.create();
-            }
-            
-            DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
-            if(graphData!=null){    
-                if(scr_bmp.mGraphDrawRegionCallback==null){
-                    scr_bmp.setDrawRegion(graphData);    
-                }
-                scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
-            }
-        }
-        plotReady = true;
-         
-    }
  
     //Factory
     public static Plotter create() {
@@ -76,9 +50,42 @@ public class Plotter {
     
     //Constructor
     private Plotter() {
+        //Use Global
+        if(mGlobal==null){
+            mGlobal = GlobalState.getGlobalInstance();
+        }
     }
     
     //TODO: Implement logscale option
+    
+    //Refactor so this isn't static
+    public synchronized void fillPlotQ(){
+             
+        if (Plotter.mScaledSamples.size()>0) {
+
+            float[] test_vector_pts = new float[PTS_PER_PX];
+            for(int i=0;i<PTS_PER_PX;i++){
+                test_vector_pts[i] = Plotter.mScaledSamples.removeFirst();
+            }
+                       
+            //Testing sending to drawer
+            Log.d(TAG, "Trying to connect to drawer");
+            if(scr_bmp==null){
+                scr_bmp = ScrollingBitmap.create();
+            }
+            //Use Global
+            DrawRegionGraph graphData = (DrawRegionGraph) mGlobal.getRegionArea(DrawRegionNames.GRAPH);
+            //DrawRegionGraph graphData = (DrawRegionGraph) PanelDrawer.mDrawRegionAreas.get(DrawRegionNames.GRAPH);
+            if(graphData!=null){    
+                if(scr_bmp.mGraphDrawRegionCallback==null){
+                    scr_bmp.setDrawRegion(graphData);    
+                }
+                scr_bmp.onVectorUpate(test_vector_pts, (float) 100, (float) -100);
+            }
+        }
+        plotReady = true;
+         
+    }
     
    public synchronized void addToQ(int[] data) {
 

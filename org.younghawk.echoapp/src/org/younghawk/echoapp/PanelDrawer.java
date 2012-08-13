@@ -36,7 +36,7 @@ public class PanelDrawer {
     //public static ConcurrentHashMap<DrawRegionNames, DrawRegionType> mDrawRegionAreas = new ConcurrentHashMap<DrawRegionNames, DrawRegionType>();
     
     //Each region gets its own dedicated handler for queuing draw requests
-    public static ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
+    //public static ConcurrentHashMap<DrawRegionNames, HThread> mDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
     
     //Because we do our drawing operations in runnables, there's a java issue of access to local variables
     //while defining these runnables. We get around this by using instance variables. Not ideal, but I'm not sure of
@@ -91,26 +91,29 @@ public class PanelDrawer {
         //this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
         //this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
         
+        mGlobal.setRegionThread(DrawRegionNames.RADAR);
+        mGlobal.setRegionThread(DrawRegionNames.GRAPH);
         //If the radar drawing thread doesn't exist create it
-        if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
-            if(!this.mDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
-                this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler-reborn"));  //create thread  
-            } //if it's alive then we're ok
-        } else { //doesn't contain key (so can't be alive)      
-            this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler")); 
-        }
+        //if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
+        //    if(!this.mDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
+        //        this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler-reborn"));  //create thread  
+        //    } //if it's alive then we're ok
+        //} else { //doesn't contain key (so can't be alive)      
+        //    this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler")); 
+        //}
         
-      //If the graph drawing thread doesn't exist create it
-        if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.GRAPH)){ //contains key
-            if(!this.mDrawRegionHThreads.get(DrawRegionNames.GRAPH).isAlive()){ //but not alive
-                this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler-reborn"));  //create thread  
-            } //if it's alive then we're ok
-        } else { //doesn't contain key (so can't be alive)      
-            this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler")); 
-        }
+        //If the graph drawing thread doesn't exist create it
+        //if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.GRAPH)){ //contains key
+        //    if(!this.mDrawRegionHThreads.get(DrawRegionNames.GRAPH).isAlive()){ //but not alive
+        //        this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler-reborn"));  //create thread  
+        //    } //if it's alive then we're ok
+        //} else { //doesn't contain key (so can't be alive)      
+        //    this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler")); 
+        //}
         
         
-        mDrawRegionHThreads.get(DrawRegionNames.RADAR).handler.post(
+        //mDrawRegionHThreads.get(DrawRegionNames.RADAR).handler.post(
+        mGlobal.getRegionThread(DrawRegionNames.RADAR).handler.post(
                 new Runnable(){
                     @Override
                     public void run() {
@@ -124,11 +127,10 @@ public class PanelDrawer {
     
     public void onSurfaceDestroyed() {
         Log.d(TAG, "Notified Surface Destroyed - shutdown handlers and clear data");
-        mExecutor.stopThreads();    
-        
-        mDrawRegionHThreads.clear();
-        
-        //TODO: handle globally
+        mGlobal.stopAllThreads();
+      //TODO: handle globally
+        //mExecutor.stopThreads();    
+        //mDrawRegionHThreads.clear();
         //mDrawRegionAreas.clear();
         
         mSurfaceHolder = null;

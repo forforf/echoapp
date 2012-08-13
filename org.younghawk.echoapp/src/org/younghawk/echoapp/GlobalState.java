@@ -9,8 +9,11 @@ import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
 import android.app.Application;
+import android.util.Log;
 
 public class GlobalState extends Application {
+    private static final String TAG="EchoApp GlobalState";
+    
     //All instance variables are lazy loaded unless otherwise noted
     
     //Centralized Executor
@@ -23,7 +26,9 @@ public class GlobalState extends Application {
     //gDrawRegionHThreads holds the thread (and handler) responsible for that region
     private ConcurrentHashMap<DrawRegionNames, DrawRegionType> gDrawRegionAreas; 
     private ConcurrentHashMap<DrawRegionNames, HThread> gDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
-
+    
+    //Reference to this instance
+    private static GlobalState gGlobal;
     
     
     //Executor Methods
@@ -38,6 +43,20 @@ public class GlobalState extends Application {
         if(gExecutor!=null){
             gExecutor.stopThreads();    
         }
+    }
+    
+    //Return this (so we don't need chains of context passing)
+    public static GlobalState getGlobalInstance(){
+        if(gGlobal==null){
+            Log.e(TAG, "Unable to return Global instance");
+        }
+        return gGlobal;
+    }
+    
+    //Constructor
+    public GlobalState(){
+        super();
+        gGlobal = this;
     }
 
     //Draw Region Methods
@@ -57,14 +76,54 @@ public class GlobalState extends Application {
         }
         
         //set Region Area
-        DrawRegionType draw_reg_type=null;
+        DrawRegionType draw_reg_area=null;
         switch (reg_name) {
         case RADAR:
-            draw_reg_type = DrawRegionFactory.radarRegion(panel_drawer);
+            draw_reg_area = DrawRegionFactory.radarRegion(panel_drawer);
             break;
         case GRAPH:
-            draw_reg_type = DrawRegionFactory.graphRegion(panel_drawer);
+            draw_reg_area = DrawRegionFactory.graphRegion(panel_drawer);
+            break;
         }
-        gDrawRegionAreas.put(reg_name, draw_reg_type); 
+        gDrawRegionAreas.put(reg_name, draw_reg_area); 
+    }
+    
+    public HThread getRegionThread(DrawRegionNames reg_name){
+        HThread thr = null;
+        if(gDrawRegionHThreads!=null){
+            thr = gDrawRegionHThreads.get(reg_name);
+        }
+        return thr;
+    }
+    public void setRegionThread(DrawRegionNames reg_name){
+        //Lazy Load
+        if(gDrawRegionHThreads==null){
+            gDrawRegionHThreads = new ConcurrentHashMap<DrawRegionNames, HThread>();
+        }
+        
+        //set Region Thread
+        DrawRegionType draw_reg_thr=null;
+        switch(reg_name) {
+        case RADAR:
+            //If the radar drawing thread doesn't exist create it
+            if(gDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
+                if(!gDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
+                    gDrawRegionHThreads.put(DrawRegionNames.RADAR, getHandlerThread("radarHandler-reborn"));  //create thread  
+                } //if it's alive then we're ok
+            } else { //doesn't contain key (so can't be alive)      
+                gDrawRegionHThreads.put(DrawRegionNames.RADAR, getHandlerThread("radarHandler")); 
+            }
+            break;
+        case GRAPH:
+          //If the graph drawing thread doesn't exist create it
+            if(gDrawRegionHThreads.containsKey(DrawRegionNames.GRAPH)){ //contains key
+                if(!gDrawRegionHThreads.get(DrawRegionNames.GRAPH).isAlive()){ //but not alive
+                    gDrawRegionHThreads.put(DrawRegionNames.GRAPH, getHandlerThread("graphHandler-reborn"));  //create thread  
+                } //if it's alive then we're ok
+            } else { //doesn't contain key (so can't be alive)      
+                gDrawRegionHThreads.put(DrawRegionNames.GRAPH, getHandlerThread("graphHandler")); 
+            }
+            break;
+        }
     }
 }
