@@ -246,19 +246,6 @@ public class AudioSupervisor implements Callback {
         DebugData.setDebugArray( CollectionGrapher.create(100,100,250,40, buffer) );
     }
 	
-	//IMPORTANT: In the current implementation this is called only once
-	//since the buffer size = audio data size. Changing to be more flexible
-	//will require this method to execute via a thread handler post, and
-	//flushing and stitching buffers together would need to be handled.
-	//public void onBufferData(Object objBuffer){
-	//	short[] buffer = (short[]) objBuffer;
-	//	Log.d(TAG, "Main thread notified of buffer with " + buffer.length + " samples");
-	//}
-	
-	//IMPORTANT:In the current implementation this is called only once
-	//since the buffer size = audio data size. Changing to be more flexible
-	//will require this method to execute via a thread handler post, and
-	//flushing and stitching buffers together would need to be handled.
 	public void onFilterData(Object objFilterData) {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
