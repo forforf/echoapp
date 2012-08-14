@@ -75,21 +75,27 @@ public class ScrollingBitmap {
     
     //TODO: Implement Observer (use a callback interface)
     public DrawRegionGraph mGraphDrawRegionCallback;
-       
+    
+    //TODO: Move max and min to constructor (or even better a setter);
     public void onVectorUpate(float[] vector_pts, float max, float min){
         
         //TEMPORARY DEBUG CODE
-        double vups = 0.0;
+        //double vups = 0.0;
         now = System.currentTimeMillis();
         if(start_time==0){
             start_time=now;
         }
         elapsed_time = now - start_time;
         counter++;
-        if(elapsed_time>0){
-            vups = (1000 * counter/(double) (elapsed_time));
+        if(elapsed_time>5*1000){
+            double vups = (1000 * counter/(double) (elapsed_time));
+            Log.d(TAG, "Benchmark Vector Updates per second: " + vups + "Time: "+ elapsed_time/1000 + "s");
+            start_time = 0;
+            now = 0;
+            counter=0;
+            elapsed_time=0;
         }
-        Log.d(TAG, "Vector Updates per second: " + vups);
+        
             
         
 
