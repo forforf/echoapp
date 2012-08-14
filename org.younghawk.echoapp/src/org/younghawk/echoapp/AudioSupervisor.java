@@ -29,7 +29,7 @@ public class AudioSupervisor implements Callback {
 	//Audio Data
 	private AudioRecordWrapper mAudioRecordWrapper;
 	private static final int SAMPPERSEC = 44100; 
-	private static final double MAX_SAMPLE_TIME = 2; //in seconds
+	private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
 	private AudioRecord mAudioRecord;
 	private PingRunner mPinger;
@@ -149,10 +149,6 @@ public class AudioSupervisor implements Callback {
 				    int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
 				    Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 
-				    //Debug code
-				    Log.d(TAG, "Im Alive 1");
-				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, mAudioRecordWrapper.mBuffer);
-				    //DebugData.setDebugArray(audioPlot);
 
 				    Log.d(TAG, "Im Alive 1");
 				    //Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
@@ -241,18 +237,17 @@ public class AudioSupervisor implements Callback {
     //flushing and stitching buffers together would need to be handled.
     public void onBufferData(Object objBuffer){
         short[] buffer = (short[]) objBuffer;
-        Log.d(TAG, "AudioSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
+        //Log.d(TAG, "AudioSupervisor (main thread) notified of buffer with " + buffer.length + " samples");
         //Debug graph
-        DebugData.setDebugArray( CollectionGrapher.create(100,100,250,40, buffer) );
+        //DebugData.setDebugArray( CollectionGrapher.create(100,100,250,40, buffer) );
     }
 	
 	public void onFilterData(Object objFilterData) {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 		
-		//Trying to send to Plotter!!
-		//TODO: Fix the hack where we're creating the plot supervisor here
-		Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
+		//Lazy Load Plot Supervisor
+		//TODO: Get rid of the PlotSuperviosr middleman here and use GlobalState method
 		if(mPlotSupervisor==null){
 		    mPlotSupervisor = PlotSupervisor.create();
 		}
@@ -262,86 +257,10 @@ public class AudioSupervisor implements Callback {
 		//If its paused we start it .. this is not robust, since we can't
 		//actually ever stop it now
 		//Ummmm ... this should only be done when?
-		Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
+		//Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
 		if(mPlotSupervisor.pauseQCheck){
 		    mPlotSupervisor.startQCheck();
 		}
-
-		
-		//mCallback.updateFilterData(filter_data);
-		
-		//temp test code
-		//SignalAnalyzer sig_data = SignalAnalyzer.create(filter_data, SAMPPERSEC);
-		
-		//test
-		//int[] pow_echo = sig_data.mEchoSignal;
-		//for (int i=0;i<pow_echo.length;i++) {
-		//    pow_echo[i] = (int) Math.pow(pow_echo[i], 2);
-		//}
-		//mCallback.updateFilterData(pow_echo);
-		
-		//mCallback.updateFilterData(sig_data.mEchoSignal);
-		
-		
-    	//TODO: Remove test code
-		/*
-    	int zero_count = 0;
-    	int noise_count = 0;
-    	int small_count = 0;
-    	int big_count = 0;
-    	int very_big_count = 0;
-    	int ZERO = 0;
-    	int NOISE = 200; // mean 150-200 stddev 190-240  TODO: Check from app
-    	int SMALL = 440;
-    	int BIG = 680;
-    	int SIGNAL_THRESH = 8192;
-    	ArrayList<Integer> vb_idxs = new ArrayList<Integer>();
-    	ArrayList<Integer>  b_idxs = new ArrayList<Integer>();
-    	int[] signal_idxs = new int[2];
-    	signal_idxs[0] = -1;
-    	signal_idxs[1] = -1;
-    	
-    	int sum=0;
-    	for (int i=0;i<filter_data.length;i++){
-    		
-    		int abs_data = Math.abs(filter_data[i]);
-    		sum += abs_data;
-    		if (abs_data>=SIGNAL_THRESH){
-    			if(signal_idxs[0]<=0){
-    				signal_idxs[0] = i;
-    			} else {
-    				signal_idxs[1] = i;
-    			}
-    		}
-    		if (abs_data==ZERO){
-    			zero_count++;
-    		} else if (abs_data<=NOISE && abs_data>ZERO) {
-    			noise_count++;
-    		} else if (abs_data<=SMALL && abs_data>NOISE) {
-    			small_count++;
-    		} else if (abs_data<=BIG && abs_data>SMALL) {
-    			big_count++;
-    			b_idxs.add(i);
-    		} else if (abs_data>BIG) {
-    			very_big_count++;
-    			vb_idxs.add(i);
-    		}
-    		//	tv.append(" " +buffer[i]);
-    	}
-    	
-    	Log.d(TAG, "Average: " + (double)sum/filter_data.length);
-    	Log.d(TAG, "Standard Dev: " + Stat.calcStanDev(filter_data.length, filter_data));
-    	Log.d(TAG, "Signal Indices: " + Arrays.toString(signal_idxs));
-    	Log.d(TAG, "Signal Width: " + (signal_idxs[1] - signal_idxs[0]));
-    	Log.d(TAG, "Zeros: " + zero_count);
-    	Log.d(TAG, "Noise: " + noise_count);
-    	Log.d(TAG, "Small: " + small_count);
-    	Log.d(TAG, "Big: " + big_count);
-    	Log.d(TAG, "Very Big: " + very_big_count);
-    	//Log.d(TAG, "Big Indexes: " + b_idxs.toString());
-    	//Log.d(TAG, "Very Big Indexes: " + vb_idxs.toString());
-    	 * 
-    	 */
 	}
 }
 

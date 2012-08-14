@@ -26,6 +26,9 @@ public class ScrollingBitmap {
     private Canvas mBufferCanvas;
     private int mRegionWidth;
     private int mRegionHeight;
+    private float[] mCanvasPts;
+    private int mCanvasPtsSize;
+    private int mPreviousCanvasPtsSize;
 
     //Implemented as instance variables rather than local for performance reasons
     private Paint mPaint = new Paint();
@@ -93,23 +96,27 @@ public class ScrollingBitmap {
         //Only do work if there's a callback to receive it
         if(mGraphDrawRegionCallback!=null){
             //convert vector to canvas
-            float[] canvas_pts = new float[2*vector_pts.length];
+            mCanvasPtsSize = 2*vector_pts.length;
+            if(mCanvasPts==null){
+                mCanvasPts = new float[mCanvasPtsSize];
+            }
+            if(mCanvasPtsSize!=mPreviousCanvasPtsSize){
+                mCanvasPts = new float[mCanvasPtsSize];
+            }
+            //float[] canvas_pts = new float[2*vector_pts.length];
             int i=0;
-            while(i<canvas_pts.length){
-                canvas_pts[i] = 0; //mRegionWidth-1;
+            while(i<mCanvasPtsSize){
+                mCanvasPts[i] = 0; //mRegionWidth-1;
 
-                //If both positive and negative values
+                //TODO: optimize
                 float scale_factor = mRegionHeight/(max - min);
-                canvas_pts[i+1] = (vector_pts[i/2]*scale_factor) +mRegionHeight/2;
+                mCanvasPts[i+1] = (vector_pts[i/2]*scale_factor) +mRegionHeight/2;
                 i+=2;
             }
 
             mPaint.setColor(Color.CYAN);
-            mSliverCanvas.drawPoints(canvas_pts, mPaint);
+            mSliverCanvas.drawPoints(mCanvasPts, mPaint);
             
-
-
-
             //synchronized (mScrollingBitmap) {  
                 //copy the sliver onto the scrolling bitmap (which should now have an empty slot for sliver)
                 mScrollingCanvas.drawBitmap(mSliverBitmap, mSliverSrcRect, mSliverDstRect, mPaint);
@@ -123,7 +130,8 @@ public class ScrollingBitmap {
                 //shift the full bitmap buffer down for the next sliver
                 mScrollingCanvas.drawBitmap(mScrollingBitmap, mMatrix, mPaint);
                 
-
+          //BE SURE THIS IS CALLED AFTER ANY USE OF CANVAS PTS
+          mPreviousCanvasPtsSize = mCanvasPtsSize;
         }
 
     }
