@@ -22,8 +22,6 @@ public class ScrollingBitmap {
     private  Rect mSliverDstRect;
     private  Canvas mSliverCanvas;
     private Canvas mScrollingCanvas;
-    private Bitmap mBufferBitmap;
-    private Canvas mBufferCanvas;
     private int mRegionWidth;
     private int mRegionHeight;
     private float[] mCanvasPts;
@@ -95,9 +93,6 @@ public class ScrollingBitmap {
             counter=0;
             elapsed_time=0;
         }
-        
-            
-        
 
         //Only do work if there's a callback to receive it
         if(mGraphDrawRegionCallback!=null){
