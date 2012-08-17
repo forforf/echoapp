@@ -1,18 +1,14 @@
 package org.younghawk.echoapp;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+
 
 public class EchoAppPreferences extends PreferenceActivity {
 	private final String TAG = "EchoApp Preferences";
@@ -90,9 +86,13 @@ public class EchoAppPreferences extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+        
+        case 1: 
+            Log.d(TAG, "Hmmm works?");
+            return true;
+        case android.R.id.home:
+           NavUtils.navigateUpFromSameTask(this);
+           return true;
         }
         return super.onOptionsItemSelected(item);
     }

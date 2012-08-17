@@ -7,15 +7,12 @@
 
 package org.younghawk.echoapp;
 
-import java.util.Arrays;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MenuItem;
+import android.view.Menu;
 import android.view.View;
 
 
@@ -107,6 +104,7 @@ public class EchoApp extends Activity {
     }
 	
 	//TODO: I don't know why I have to do it like this :(
+    /*
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 	    if ( keyCode == KeyEvent.KEYCODE_MENU ) {
@@ -116,11 +114,18 @@ public class EchoApp extends Activity {
 	    }
 	    return super.onKeyDown(keyCode, event);
 	}
-	
+	*/
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	Log.i(TAG, "Options Item Selected");
-    	//startActivity(new Intent(this, EchoAppPreferences.class));
-    	return false;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //getMenuInflater().inflate(R.menu.activity_echo_app_preferences, menu);
+        startActivity(new Intent(this, EchoAppPreferences.class));
+        return true;
     }
+    
+    //@Override
+    //public boolean onOptionsItemSelected(MenuItem item) {
+    //	Log.i(TAG, "Options Item Selected");
+    //	//startActivity(new Intent(this, EchoAppPreferences.class));
+    //	return false;
+    //}
 }
