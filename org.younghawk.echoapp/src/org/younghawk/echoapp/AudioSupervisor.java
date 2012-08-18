@@ -43,7 +43,7 @@ public class AudioSupervisor implements Callback {
 	//private AudioUpdatesDeadCode mCallback;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
-	public static AudioSupervisor create(String instructions, int num_of_samples, PlotSupervisor plotSupervisor) {
+	public static AudioSupervisor create(String instructions, int num_of_samples) {
 	    if(instance!=null){
 	        return instance;
 	    } else {
@@ -101,8 +101,7 @@ public class AudioSupervisor implements Callback {
 	                pingerHandler,
 	                audioRecordWrapper,
 	                pinger,
-	                audioFilter,
-	                plotSupervisor);
+	                audioFilter);
 	        
 	        return instance;
 	    }
@@ -115,8 +114,7 @@ public class AudioSupervisor implements Callback {
 			Handler pingHandler,
 			AudioRecordWrapper audioRecordWrapper,
 			PingRunner pinger,
-			AudioFilterProxy audioFilter, //AudioFilterDead audioFilter,
-			PlotSupervisor plotSupervisor) {
+			AudioFilterProxy audioFilter) {
 		
 		this.mAudioRecordThr = audioRecThr;
 		this.mAudioBufferThr = audioBufThr;
@@ -130,7 +128,6 @@ public class AudioSupervisor implements Callback {
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
-		this.mPlotSupervisor = plotSupervisor;
 		//this.mCallback = callback;
 	}
 	

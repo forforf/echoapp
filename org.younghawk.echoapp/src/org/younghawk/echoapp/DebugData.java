@@ -9,5 +9,5 @@ public class DebugData {
         debugGrapher = cg;
         currentDebugData = cg.mCanvasPts;
     }
-    
+        
 }

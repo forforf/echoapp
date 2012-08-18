@@ -24,6 +24,7 @@ public class GlobalState extends Application {
     private EchoApp mEchoApp;
     private Panel mPanel;
     private PanelDrawer mPanelDrawer;
+    private AudioSupervisor mAudioSupervisor;
     
     //Shared Variables
     private ImmutableRect mFullSurfaceRect;
@@ -50,16 +51,33 @@ public class GlobalState extends Application {
         return gGlobal;
     }
     
+    //Application Create NOT Activity Create
     @Override
     public void onCreate(){
         super.onCreate();
         gGlobal = this;
     }
     
+    public void pauseApp() {
+        if (mAudioSupervisor!=null){
+            mAudioSupervisor.shutDown();
+            mAudioSupervisor = null;
+        }
+    }
+    
     //Clearing house for cross-component events
     public void onEchoAppReady(Activity act){
         mEchoApp = (EchoApp) act;
         Log.d(TAG, "Echo App Ready");
+    }
+    
+    public void startAudioRecording(){
+        if(mAudioSupervisor==null){
+            mAudioSupervisor = AudioSupervisor.create(
+                    getString(R.string.signal_instructions),
+                    getResources().getInteger(R.integer.samples_per_wav));
+        }
+        mAudioSupervisor.startRecording();
     }
     
     public void onPanelReady(SurfaceView panel){

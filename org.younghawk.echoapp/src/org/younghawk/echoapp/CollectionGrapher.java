@@ -11,6 +11,16 @@ import android.util.Log;
  */
 
 
+
+//Deprecated - DONT DELETE, SHOWS USAGE        
+//float[] testDebug = new float[]{ 3.0f, 2.4f, 1.0f, -3.3f, 0.4f };
+//short[] testDebug = new short[]{3,2,1,5,-5};
+//Log.d(TAG, Arrays.toString(testDebug));
+//CollectionGrapher debugArray = CollectionGrapher.create(0, 100, 300, 40, testDebug);
+//Log.d(TAG, Arrays.toString(debugArray.mCanvasPts));
+//mPanel.setDebugArray(debugArray);
+
+
 public class CollectionGrapher {
     public static final String TAG = "EchoApp CollectionGrapher";
     public float   mMaxVal;
