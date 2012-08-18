@@ -18,7 +18,6 @@ public class DrawRegionGraph implements DrawRegionType {
     public Rect rect; //the rectangle that bounds the object
     public Bitmap mScaledBitmap;
 
-    private PanelDrawer mPanelDrawer;
     private DrawRegionGraph mSelf;
     
     private GlobalState mGlobal;
@@ -28,7 +27,6 @@ public class DrawRegionGraph implements DrawRegionType {
     //Constructor
     public DrawRegionGraph(PanelDrawer panel_drawer, Rect rect){
         this.rect = rect;
-        this.mPanelDrawer = panel_drawer;
         this.mSelf = this;
         this.mGlobal = GlobalState.getGlobalInstance();
     }
