@@ -22,6 +22,8 @@ import android.view.View;
 public class EchoApp extends Activity {
 	private static final String TAG = "EchoApp";
     
+	//App Controller
+	private GlobalState gGlobal;
 	//Used to notify panel when views are created
 	private Panel mPanel;  
     
@@ -41,10 +43,15 @@ public class EchoApp extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        Log.d(TAG, "Views created, setup Panel");
-        mPanel.viewsReady();
+        
+        //Log.d(TAG, "Views created, setup Panel");
+        //mPanel.viewsReady();
         
 
+        Log.d(TAG, "Views created, setup App");
+        gGlobal = GlobalState.getGlobalInstance();
+        gGlobal.onEchoAppReady(this);
+        
         
         //Deprecated - DONT DELETE, SHOWS USAGE        
         //float[] testDebug = new float[]{ 3.0f, 2.4f, 1.0f, -3.3f, 0.4f };

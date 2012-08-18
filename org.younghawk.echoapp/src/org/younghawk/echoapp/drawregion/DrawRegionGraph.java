@@ -22,6 +22,7 @@ public class DrawRegionGraph implements DrawRegionType {
     private DrawRegionGraph mSelf;
     
     private GlobalState mGlobal;
+    private SurfaceHolder mCurrentHolder;
 
     
     //Constructor
@@ -40,18 +41,15 @@ public class DrawRegionGraph implements DrawRegionType {
     public void onBitmapUpdate(Bitmap bitmap){
         Log.d(TAG, "scaling bitmap");
         
-        //Testing not scaling bitmap
         mScaledBitmap = scaleBitmap(bitmap, rect);
   
-        //TODO: Move DrawRegion HashMaps to a DrawRegion home
-        //HThread graphThread = mPanelDrawer.mDrawRegionHThreads.get(DrawRegionNames.GRAPH);
         HThread graphThread = mGlobal.getRegionThread(DrawRegionNames.GRAPH);
         if (graphThread.isAlive() && graphThread.handler!=null){
             Log.d(TAG, "Attempting to draw scaled bitmap");
             graphThread.handler.post( new Runnable(){
                 @Override
                 public void run() {
-                    mSelf.run(mPanelDrawer.mSurfaceHolder);
+                    mSelf.run( mGlobal.getMainHolder() );
 
                 };
             });

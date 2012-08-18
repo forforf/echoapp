@@ -17,12 +17,16 @@ import android.view.SurfaceView;
 public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "EchoApp Panel";
     
+    private GlobalState gGlobal;
+    
     //Reference to the main drawing class for this panel
     public PanelDrawer mPanelDrawer;
    
+    //Reference to the current instance
     
     //TODO: Refactor Audio threads away from this
     public static boolean mStopRunningThreads = false; //deprecated
+      
     
     //Used to hold the dimensions of the surface view.
     //Immutable since we shouldn't be messing with the view 
@@ -32,23 +36,24 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 
     public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs); 
-	    setFocusable(true);
-	    
-	    //Send reference back to Main Activity so it can tell us
-	    //when all the views are ready.
-	    EchoApp echoApp = (EchoApp) context;
-	    echoApp.setPanel(this);
+	    setupPanel();
 	}
 
 	public Panel(Context context) {
 		super(context);
-		setFocusable(true);
-		
-		//Send reference back to Main Activity so it can tell us
-        //when all the views are ready.
-        EchoApp echoApp = (EchoApp) context;
-        echoApp.setPanel(this);
+		setupPanel();
 	}
+	
+	public void setupPanel(){
+	    setFocusable(true);
+	    Log.d(TAG, "Panel Created");
+	    getHolder().addCallback(this);
+	}
+	
+	
+	
+	
+	
 	
 
 	//Our activity has notified us that the views are ready
@@ -56,44 +61,58 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	public void viewsReady(){
 	    Log.d(TAG, "Views Ready, create PanelDrawer");
 	    //Now that the views are ready we can create a panelDrawer
-	    mPanelDrawer = PanelDrawer.create(this);
+	    //mPanelDrawer = PanelDrawer.create(this);
 	}
 
-	//Setup surface dependent stuff
-	public void onSurfaceReady(SurfaceHolder holder){
-	    Log.d(TAG, "Surface is now ready!");
-	    if (holder!=null && mSurfaceRect!=null){
-	        mPanelDrawer.onSurfaceReady();
-	    } else {
-	        throw new Error("Calling surface ready when surface is NOT ready");
-	    }
-	    
-	    //Testing Only
-	    //mPanelDrawer.testTestBitmapDraw();
-	    
-	}
+	//Setup surface dependent stuff - called when surface is created or changed
+	//TODO: Refactor away
+	//public void onSurfaceReady(SurfaceHolder holder){
+	//    Log.d(TAG, "Surface is now ready!");
+	//    if (holder!=null && mSurfaceRect!=null){
+	//        mPanelDrawer.onSurfaceReady();
+	//    } else {
+	//        throw new Error("Calling surface ready when surface is NOT ready");
+	//   }   
+	//}
 
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	    mStopRunningThreads = false; //deprecated
-	    mSurfaceRect = new ImmutableRect(width, height);
-	    Log.d(TAG, "CHANGED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
-	    onSurfaceReady(holder); //?
+	    //mSurfaceRect = new ImmutableRect(width, height);
+	    gGlobal.setSurfaceRect( new ImmutableRect(width, height) );
+	    Log.d(TAG, "CHANGED - Width: " + gGlobal.getSurfaceRect().width() + " - " + "Height: " + gGlobal.getSurfaceRect().height());
+	    //onSurfaceReady(holder); //?
+	  //Global Refactor
+        if(gGlobal==null){
+            gGlobal = GlobalState.getGlobalInstance();
+        }
+        gGlobal.onPanelReady(this);
  	}
 	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+	    if(gGlobal==null){
+	        gGlobal = GlobalState.getGlobalInstance();
+	    }
+	    Log.d(TAG, "Surface Created!");
 	    mStopRunningThreads = false; //deprecated
 	    Canvas c = holder.lockCanvas(null);
 	    try {
 	        Rect dangerRect = holder.getSurfaceFrame();
-	        mSurfaceRect = new ImmutableRect(dangerRect.width(), dangerRect.height());
+	        //mSurfaceRect = new ImmutableRect(dangerRect.width(), dangerRect.height());
+	        gGlobal.setSurfaceRect( new ImmutableRect(dangerRect.width(), dangerRect.height()) );
 	    } finally {
 	        holder.unlockCanvasAndPost(c);
 	    }
-	    Log.d(TAG, "CREATED - Width: " + mSurfaceRect.width() + " - " + "Height: " + mSurfaceRect.height());
-	    onSurfaceReady(holder);
+	    Log.d(TAG, "CREATED - Width: " + gGlobal.getSurfaceRect().width() + " - " + "Height: " + gGlobal.getSurfaceRect().height());
+	    //onSurfaceReady(holder); //mPnael.onSurfaceReady
+	    
+	  //Global Refactor
+        if(gGlobal==null){
+            gGlobal = GlobalState.getGlobalInstance();
+        }
+        gGlobal.onPanelReady(this);
 	    
 	}
 	@Override
