@@ -19,10 +19,10 @@ public class PanelDrawer {
     private static PanelDrawer instance = null;
     
     //Reference back to the Panel View
-    private Panel mPanel;
+    //private Panel mPanel;
     
     //The Thread Executor we use. It can create looped handlers as well as execute runnables
-    private static HandlerThreadExecutor mExecutor = new HandlerThreadExecutor("paneldrawer");
+    //private static HandlerThreadExecutor mExecutor = new HandlerThreadExecutor("paneldrawer");
     
     //Surface references
     public SurfaceHolder mSurfaceHolder;
@@ -42,25 +42,25 @@ public class PanelDrawer {
     //while defining these runnables. We get around this by using instance variables. Not ideal, but I'm not sure of
     //a better way
     //TODO: Is there better way to handle scaling bitmaps??
-    private Bitmap mOrigBitmap;
-    private Bitmap mScaledBitmap;
+    //private Bitmap mOrigBitmap;
+    //private Bitmap mScaledBitmap;
     
 
     //Panel Manager should only be created after Panel
     //is done initializing
-    public static PanelDrawer create(Panel panel) {
+    private static PanelDrawer create(Panel panel) {
         //ensure singleton
         if(instance!=null){
             return instance;
         } else {
 
             //Setup Surface Holder
-            SurfaceHolder panelSurfaceHolder = panel.getHolder();
+            //SurfaceHolder panelSurfaceHolder = panel.getHolder();
             
             //Setup the callbacks on panel
             //We do it here because rather than the panel constructor
             //so that we can be sure panel is fully initialized.
-            panel.getHolder().addCallback(panel);
+            //panel.getHolder().addCallback(panel);
             
             //set as the singleton
             instance = new PanelDrawer(panel);
@@ -71,10 +71,11 @@ public class PanelDrawer {
     //Constructor
     private PanelDrawer(Panel panel) {
         Log.d(TAG, "Constructing PanelDrawer");
-        this.mPanel = panel;
+        //this.mPanel = panel;
  
     }
     
+    /*
     public void onSurfaceReady() {
         Log.d(TAG, "Surface Ready tasks");
         this.mSurfaceHolder = mPanel.getHolder();
@@ -87,30 +88,10 @@ public class PanelDrawer {
         }
         mGlobal.setRegionArea(DrawRegionNames.RADAR, this);
         mGlobal.setRegionArea(DrawRegionNames.GRAPH, this);
-        //Now that we know the surface dimensions we can create the drawing regions
-        //this.mDrawRegionAreas.put(DrawRegionNames.RADAR, DrawRegionFactory.radarRegion(this));
-        //this.mDrawRegionAreas.put(DrawRegionNames.GRAPH, DrawRegionFactory.graphRegion(this));
         
         mGlobal.setRegionThread(DrawRegionNames.RADAR);
         mGlobal.setRegionThread(DrawRegionNames.GRAPH);
-        //If the radar drawing thread doesn't exist create it
-        //if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.RADAR)){ //contains key
-        //    if(!this.mDrawRegionHThreads.get(DrawRegionNames.RADAR).isAlive()){ //but not alive
-        //        this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler-reborn"));  //create thread  
-        //    } //if it's alive then we're ok
-        //} else { //doesn't contain key (so can't be alive)      
-        //    this.mDrawRegionHThreads.put(DrawRegionNames.RADAR, mExecutor.execute(null, "radarHandler")); 
-        //}
-        
-        //If the graph drawing thread doesn't exist create it
-        //if(this.mDrawRegionHThreads.containsKey(DrawRegionNames.GRAPH)){ //contains key
-        //    if(!this.mDrawRegionHThreads.get(DrawRegionNames.GRAPH).isAlive()){ //but not alive
-        //        this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler-reborn"));  //create thread  
-        //    } //if it's alive then we're ok
-        //} else { //doesn't contain key (so can't be alive)      
-        //    this.mDrawRegionHThreads.put(DrawRegionNames.GRAPH, mExecutor.execute(null, "graphHandler")); 
-        //}
-        
+
         
         //mDrawRegionHThreads.get(DrawRegionNames.RADAR).handler.post(
         mGlobal.getRegionThread(DrawRegionNames.RADAR).handler.post(
@@ -124,6 +105,7 @@ public class PanelDrawer {
                     };
                 });
     }
+    */
     
     public void onSurfaceDestroyed() {
         Log.d(TAG, "Notified Surface Destroyed - shutdown handlers and clear data");

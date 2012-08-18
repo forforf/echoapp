@@ -88,9 +88,10 @@ public class GlobalState extends Application {
     
     //Set up the regions to draw on surface
     public void readySurfaceRegions(){
-        if(mPanelDrawer == null){
-            mPanelDrawer = PanelDrawer.create(mPanel);
-        } Log.d(TAG, "Surface Ready tasks");
+        //if(mPanelDrawer == null){
+        //    mPanelDrawer = PanelDrawer.create(mPanel);
+        //}
+        Log.d(TAG, "Surface Ready tasks");
         
         setRegionArea(DrawRegionNames.RADAR, mPanelDrawer);
         setRegionArea(DrawRegionNames.GRAPH, mPanelDrawer);
