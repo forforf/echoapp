@@ -18,17 +18,22 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 
-public class PlotSupervisor implements Callback {
+public class PlotSupervisor{ 
     
     private static final String TAG = "EchoApp PlotSupervisor";
+    
     //This class should be a singleton
     private static PlotSupervisor instance = null;
+    
+    private GlobalState gGlobal;
     
     //TODO: Migrate to executor and thread factory.
     public HandlerThread mPlotterThr;
     public final Handler mPlotterHandler; //Handler for Plotter thread
     
-    public static Plotter mPlotter = Plotter.create();
+    //public static Plotter mPlotter = Plotter.create();
+    private Plotter mPlotter;
+    
     public static Timer dwellTimer = new Timer();
     public boolean pauseQCheck = true;
     
@@ -39,7 +44,7 @@ public class PlotSupervisor implements Callback {
     private short[] mBuffer;
     
     //TODO FIX THIS HACK
-    private Panel mPanel;
+    //private Panel mPanel;
 
     private Runnable checkingQ = new Runnable() {
         @Override
@@ -84,14 +89,15 @@ public class PlotSupervisor implements Callback {
     private PlotSupervisor(HandlerThread plotThr, Handler plotHandler, Plotter plotter) {
         this.mPlotterThr = plotThr;
         this.mPlotterHandler = plotHandler;
-        this.mPlotter = plotter;
+        this.gGlobal = GlobalState.getGlobalInstance();
+        this.mPlotter = gGlobal.getPlotter();
     }
     
     
     //TODO: THIS IS A HACK
-    public void setPanel(Panel panel){
-        this.mPanel = panel;
-    }
+    //public void setPanel(Panel panel){
+    //    this.mPanel = panel;
+    //}
     
     //IMPORTANT: In the current implementation this is called only once
     //since the buffer size = audio data size. Changing to be more flexible
@@ -117,15 +123,5 @@ public class PlotSupervisor implements Callback {
         Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
         
     }
-    
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-        case MsgIds.BUFFER_DATA:
-          onBufferData(msg.obj);
-          break;
-        }
-        return false;
-    }
-    
 }
     

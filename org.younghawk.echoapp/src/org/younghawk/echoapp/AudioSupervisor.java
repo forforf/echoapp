@@ -18,6 +18,8 @@ public class AudioSupervisor implements Callback {
 	//This class should be a singleton
 	private static AudioSupervisor instance = null;
 	
+	private GlobalState gGlobal;
+	
 	//TODO: Migrate to executor and thread factory.
 	public HandlerThread mAudioRecordThr;
 	public HandlerThread mAudioBufferThr;
@@ -128,7 +130,7 @@ public class AudioSupervisor implements Callback {
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
-		//this.mCallback = callback;
+		this.gGlobal = GlobalState.getGlobalInstance();
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -248,7 +250,9 @@ public class AudioSupervisor implements Callback {
 		if(mPlotSupervisor==null){
 		    mPlotSupervisor = PlotSupervisor.create();
 		}
-		mPlotSupervisor.mPlotter.addToQ(filter_data);
+		//mPlotSupervisor.mPlotter.addToQ(filter_data);
+		gGlobal.getPlotter().addToQ(filter_data);
+		
 
 		//Checking if Paused (default when started)
 		//If its paused we start it .. this is not robust, since we can't

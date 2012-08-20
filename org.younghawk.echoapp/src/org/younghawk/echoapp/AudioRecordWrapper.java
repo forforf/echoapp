@@ -15,6 +15,7 @@ public class AudioRecordWrapper {
 
 	
 	public static AudioRecordWrapper create(int samp_per_sec, double max_sample_time) {
+	    //TODO: Put in check for minimum buffer size
 		int buffersizeshorts = (int) Math.round((double) samp_per_sec * max_sample_time); //for 16bit PCM
 		int buffersizebytes = buffersizeshorts * 2;
 		short[] buffer = new short[buffersizeshorts];

@@ -6,6 +6,8 @@ import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.ScrollingBitmap;
 
+import android.util.Log;
+
 public class Plotter {
     private static final String TAG = "EchoApp Plotter";
     
@@ -31,10 +33,8 @@ public class Plotter {
     //TODO: Calculate in create?
     public static final int PTS_PER_PX = Math.round(PX_DWELL_TIME * RAW_INPUT_RATE);
     
-    //TODO: Figure out optimum instantiation size
-    //TODO: Refactor so it isn't static?
     //Queue that holds samples to plot
-    public static ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>(2*PTS_PER_PX);
+    public ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>(2*PTS_PER_PX);
     
     //TODO: Move to GlobalState method. This is where we send data to get drawn
     private static ScrollingBitmap scr_bmp;
@@ -65,6 +65,7 @@ public class Plotter {
             mGlobal = GlobalState.getGlobalInstance();
         }
         this.mSamplesToPlot = new float[PTS_PER_PX];
+        Log.d(TAG, "Constructed");
         
     }
     
@@ -75,22 +76,22 @@ public class Plotter {
     public synchronized void grabSamplesToPlot(){
        
         //TODO: Fix for when the size is less than PTS_PER_PX
-        mScaledSamplesSize = Plotter.mScaledSamples.size();
+        mScaledSamplesSize = mScaledSamples.size();
         if (mScaledSamplesSize>PTS_PER_PX) {
             //IMPORTANT: The array must be completely overwritten since 
             //its been recycled and the previous values have not been cleared
             for(int i=0;i<PTS_PER_PX;i++){
-                mSamplesToPlot[i] = Plotter.mScaledSamples.removeFirst();
+                mSamplesToPlot[i] = mScaledSamples.removeFirst();
                 
                 //Crude mechanism for keeping the Q from always growing
                 if(mScaledSamplesSize>2*PTS_PER_PX){
-                    Plotter.mScaledSamples.removeFirst();
+                    mScaledSamples.removeFirst();
                 }
             }
             
             //Lazy Load some dependencies
             if(scr_bmp==null){
-                scr_bmp = ScrollingBitmap.create();
+                scr_bmp = mGlobal.getScrollingBitmap();
             }
                         
             if(mGraphData==null){

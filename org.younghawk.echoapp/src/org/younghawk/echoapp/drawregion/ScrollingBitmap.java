@@ -12,6 +12,8 @@ public class ScrollingBitmap {
     public static final String TAG="EchoApp ScrollingBitmap";
     public Bitmap mScrollingBitmap;
     
+    //private GlobalState gGlobal;
+    
     //TODO: Defaults will be updated with scaled size from Draw Region
     private static final int DEFAULT_WIDTH = 400;
     private static final int DEFAULT_HEIGHT = 400;

@@ -6,6 +6,7 @@ import org.younghawk.echoapp.drawregion.DrawRegionFactory;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.DrawRegionRadar;
 import org.younghawk.echoapp.drawregion.DrawRegionType;
+import org.younghawk.echoapp.drawregion.ScrollingBitmap;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
 
@@ -25,6 +26,8 @@ public class GlobalState extends Application {
     private Panel mPanel;
     private PanelDrawer mPanelDrawer;
     private AudioSupervisor mAudioSupervisor;
+    private Plotter mPlotter;
+    private ScrollingBitmap mScrollingBitmap;
     
     //Shared Variables
     private ImmutableRect mFullSurfaceRect;
@@ -129,6 +132,18 @@ public class GlobalState extends Application {
             holder = mPanel.getHolder();
         }
         return holder;
+    }
+    
+    public Plotter getPlotter(){
+        if(mPlotter==null){
+            mPlotter = Plotter.create();
+        }
+        return mPlotter;
+    }
+    
+    public ScrollingBitmap getScrollingBitmap(){
+        //TODO: Enforce single Scrolling Bitmap object?
+        return ScrollingBitmap.create();
     }
     
     //Executor Methods
