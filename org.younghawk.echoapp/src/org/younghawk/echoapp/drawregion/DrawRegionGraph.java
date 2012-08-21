@@ -20,7 +20,7 @@ public class DrawRegionGraph implements DrawRegionType {
 
     private DrawRegionGraph mSelf;
     
-    private GlobalState mGlobal;
+    private GlobalState gGlobal;
     private SurfaceHolder mCurrentHolder;
 
     
@@ -28,7 +28,7 @@ public class DrawRegionGraph implements DrawRegionType {
     public DrawRegionGraph(PanelDrawer panel_drawer, Rect rect){
         this.rect = rect;
         this.mSelf = this;
-        this.mGlobal = GlobalState.getGlobalInstance();
+        this.gGlobal = GlobalState.getGlobalInstance();
     }
 
     //TODO: See if getRect() is ever used (may need to change interface def)
@@ -41,13 +41,13 @@ public class DrawRegionGraph implements DrawRegionType {
         
         mScaledBitmap = scaleBitmap(bitmap, rect);
   
-        HThread graphThread = mGlobal.getRegionThread(DrawRegionNames.GRAPH);
+        HThread graphThread = gGlobal.getRegionThread(DrawRegionNames.GRAPH);
         if (graphThread.isAlive() && graphThread.handler!=null){
             Log.d(TAG, "Attempting to draw scaled bitmap");
             graphThread.handler.post( new Runnable(){
                 @Override
                 public void run() {
-                    mSelf.run( mGlobal.getMainHolder() );
+                    mSelf.run( gGlobal.getMainHolder() );
 
                 };
             });

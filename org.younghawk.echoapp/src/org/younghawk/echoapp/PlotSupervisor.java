@@ -36,15 +36,6 @@ public class PlotSupervisor{
     
     public static Timer dwellTimer = new Timer();
     public boolean pauseQCheck = true;
-    
-    //This gets set to a reference to the SurfaceView
-    
-    //to allow a local variable to go into an anonymous class
-    //grrrr java
-    private short[] mBuffer;
-    
-    //TODO FIX THIS HACK
-    //private Panel mPanel;
 
     private Runnable checkingQ = new Runnable() {
         @Override
@@ -62,9 +53,7 @@ public class PlotSupervisor{
         if(instance!=null){
             return instance;
         } else {
-            
-            
-            
+                   
             HandlerThread plotThr = new HandlerThread("Plotter");
             plotThr.start();
             
@@ -77,16 +66,12 @@ public class PlotSupervisor{
                 Log.e(TAG, "Plot Looper was null, was thread started?");
             }
             
-            Plotter plotter = Plotter.create();
-            
-
-            
-            instance = new PlotSupervisor(plotThr, plotHandler, plotter);
+            instance = new PlotSupervisor(plotThr, plotHandler);
             return instance;
         }
     }
 
-    private PlotSupervisor(HandlerThread plotThr, Handler plotHandler, Plotter plotter) {
+    private PlotSupervisor(HandlerThread plotThr, Handler plotHandler) {
         this.mPlotterThr = plotThr;
         this.mPlotterHandler = plotHandler;
         this.gGlobal = GlobalState.getGlobalInstance();
