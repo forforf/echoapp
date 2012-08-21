@@ -1,21 +1,12 @@
 package org.younghawk.echoapp;
 
-import java.util.ArrayDeque;
 import java.util.Timer;
 
-import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
+import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
-import android.view.SurfaceHolder;
 
 
 public class PlotSupervisor{ 
@@ -28,8 +19,8 @@ public class PlotSupervisor{
     private GlobalState gGlobal;
     
     //TODO: Migrate to executor and thread factory.
-    public HandlerThread mPlotterThr;
-    public final Handler mPlotterHandler; //Handler for Plotter thread
+    public final HThread mPlotterThr;
+    //public final Handler mPlotterHandler; //Handler for Plotter thread
     
     //public static Plotter mPlotter = Plotter.create();
     private Plotter mPlotter;
@@ -44,46 +35,48 @@ public class PlotSupervisor{
             mPlotter.grabSamplesToPlot();
             
             if (!pauseQCheck){
-                mPlotterHandler.postDelayed(checkingQ, (long) (Plotter.PX_DWELL_TIME * 1000) );
+                mPlotterThr.handler.postDelayed(checkingQ, (long) (Plotter.PX_DWELL_TIME * 1000) );
             }
         }
     };
     
     public static PlotSupervisor create() {
+        //singleton
         if(instance!=null){
             return instance;
         } else {
                    
-            HandlerThread plotThr = new HandlerThread("Plotter");
-            plotThr.start();
+            //HandlerThread plotThr = new HandlerThread("Plotter");
+            //plotThr.start();
             
-            Looper plotLooper = plotThr.getLooper();
-            Handler plotHandler = null;
-            if (plotLooper!=null) {
-                plotHandler = new Handler(plotLooper);
+            //Looper plotLooper = plotThr.getLooper();
+            //Handler plotHandler = null;
+            //if (plotLooper!=null) {
+            //    plotHandler = new Handler(plotLooper);
 
-            } else {
-                Log.e(TAG, "Plot Looper was null, was thread started?");
-            }
+            //} else {
+            //    Log.e(TAG, "Plot Looper was null, was thread started?");
+            //}
             
-            instance = new PlotSupervisor(plotThr, plotHandler);
+            //HThread plotThr = gGlobal.getHandlerThread("Plotter");
+            
+            //instance = new PlotSupervisor(plotThr, plotHandler);
+            instance = new PlotSupervisor();
             return instance;
         }
     }
 
-    private PlotSupervisor(HandlerThread plotThr, Handler plotHandler) {
-        this.mPlotterThr = plotThr;
-        this.mPlotterHandler = plotHandler;
+    //private PlotSupervisor(HandlerThread plotThr, Handler plotHandler) {
+    private PlotSupervisor() {
         this.gGlobal = GlobalState.getGlobalInstance();
+        this.mPlotterThr = gGlobal.getHandlerThread("Plotter");
+        //this.mPlotterHandler = mPlotterThr.handler;
+        
         this.mPlotter = gGlobal.getPlotter();
     }
     
     
-    //TODO: THIS IS A HACK
-    //public void setPanel(Panel panel){
-    //    this.mPanel = panel;
-    //}
-    
+
     //IMPORTANT: In the current implementation this is called only once
     //since the buffer size = audio data size. Changing to be more flexible
     //will require this method to execute via a thread handler post, and
@@ -95,8 +88,7 @@ public class PlotSupervisor{
     public void startQCheck() {
         Log.d(TAG, "Starting Q Check");
         pauseQCheck = false;
-        mPlotterHandler.postDelayed(checkingQ, 1000);
-
+        mPlotterThr.handler.postDelayed(checkingQ, 1000);
     }
     
     public void stopQCheck() {
