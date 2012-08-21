@@ -4,7 +4,13 @@ import android.media.AudioRecord;
 
 import android.util.Log;
 
-public class AudioRecordWrapper {
+/**
+ * Facade for AudioRecord
+ * Wraps AudioRecord with some specific implementations
+ * Sets the Audio source, format, encoding
+ * and handles initialization details.
+ */
+public class AudioRecorder {
 	
 	private final static int SOURCE = android.media.MediaRecorder.AudioSource.MIC;
 	private final static int FORMAT = android.media.AudioFormat.CHANNEL_IN_MONO;
@@ -14,7 +20,7 @@ public class AudioRecordWrapper {
 	public int mBufferSizeShorts;
 
 	
-	public static AudioRecordWrapper create(int samp_per_sec, double max_sample_time) {
+	public static AudioRecorder create(int samp_per_sec, double max_sample_time) {
 	    //TODO: Put in check for minimum buffer size
 		int buffersizeshorts = (int) Math.round((double) samp_per_sec * max_sample_time); //for 16bit PCM
 		int buffersizebytes = buffersizeshorts * 2;
@@ -32,10 +38,10 @@ public class AudioRecordWrapper {
 			//TODO: Have UI Error handler (in caller, not here)
 		}
 		
-		return new AudioRecordWrapper(audioRecord, buffer, buffersizeshorts);
+		return new AudioRecorder(audioRecord, buffer, buffersizeshorts);
 	}
 	
-	private AudioRecordWrapper(AudioRecord audioRecord, short[] buffer, int buffersizeshorts) {
+	private AudioRecorder(AudioRecord audioRecord, short[] buffer, int buffersizeshorts) {
 		this.mAudioRecord = audioRecord;
 		this.mBuffer = buffer;
 		this.mBufferSizeShorts = buffersizeshorts;

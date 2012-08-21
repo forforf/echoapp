@@ -29,7 +29,7 @@ public class AudioSupervisor implements Callback {
 	private final Handler mPingerHandler; //Handler for pinger thread
 	private final Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
-	private AudioRecordWrapper mAudioRecordWrapper;
+	private AudioRecorder mAudioRecordWrapper; //Facade for AudioRecord
 	private static final int SAMPPERSEC = 44100; 
 	private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
@@ -60,7 +60,7 @@ public class AudioSupervisor implements Callback {
 	        HandlerThread mPingerThr = new HandlerThread("Play Audio Ping");
 	        mPingerThr.start();
 
-	        AudioRecordWrapper audioRecordWrapper = AudioRecordWrapper.create(SAMPPERSEC, MAX_SAMPLE_TIME);
+	        AudioRecorder audioRecorder = AudioRecorder.create(SAMPPERSEC, MAX_SAMPLE_TIME);
 	        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
 
 	        //TODO: This should get spun up in its own handler thread like the others
@@ -102,7 +102,7 @@ public class AudioSupervisor implements Callback {
 	                audioHandler, 
 	                bufferHandler,
 	                pingerHandler,
-	                audioRecordWrapper,
+	                audioRecorder,
 	                pinger,
 	                audioFilter);
 	        
@@ -115,7 +115,7 @@ public class AudioSupervisor implements Callback {
 			Handler audioHandler, 
 			Handler bufferHandler,
 			Handler pingHandler,
-			AudioRecordWrapper audioRecordWrapper,
+			AudioRecorder audioRecorder,
 			PingRunner pinger,
 			AudioFilterProxy audioFilter) {
 		
@@ -126,8 +126,8 @@ public class AudioSupervisor implements Callback {
 		this.mAudioBufferHandler = bufferHandler;
 		this.mPingerHandler = pingHandler;
 		this.mMainHandler = new Handler(this);
-		this.mAudioRecordWrapper = audioRecordWrapper;
-		this.mAudioRecord = audioRecordWrapper.mAudioRecord;
+		this.mAudioRecordWrapper = audioRecorder;
+		this.mAudioRecord = audioRecorder.mAudioRecord;
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
@@ -246,8 +246,7 @@ public class AudioSupervisor implements Callback {
 		int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 		
-		//Lazy Load Plot Supervisor
-		//TODO: Get rid of the PlotSuperviosr middleman here and use GlobalState method
+		//Lazy Load Plotter
 		if(mPlotter==null){
 		    mPlotter = gGlobal.getPlotter();
 		}
