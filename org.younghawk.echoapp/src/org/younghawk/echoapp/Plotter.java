@@ -17,7 +17,7 @@ public class Plotter {
     //See GlobalState for how its used
     private GlobalState mGlobal;
     
-    //TODO: Move Constants to parameters
+    //TODO: Move Constants to configuration preferences or paramaters
     public static final float PLOT_DWELL_TIME = (float) 10.0; //seconds (duration a pt will be on plot)
     public static final int PLOT_WIDTH = 200; //px
     public static final int PLOT_HEIGHT = 300; //px
@@ -36,7 +36,6 @@ public class Plotter {
     //Queue that holds samples to plot
     public ArrayDeque<Float> mScaledSamples = new ArrayDeque<Float>(2*PTS_PER_PX);
     
-    //TODO: Move to GlobalState method. This is where we send data to get drawn
     private static ScrollingBitmap scr_bmp;
     
     //TODO: Make sure it works when there is no samples to plot for a give tick/pixel as well
