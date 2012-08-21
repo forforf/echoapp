@@ -29,11 +29,11 @@ public class AudioSupervisor implements Callback {
 	private final Handler mPingerHandler; //Handler for pinger thread
 	private final Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
-	private AudioRecorder mAudioRecordWrapper; //Facade for AudioRecord
+	private AudioRecorder mAudioRecorder; //Facade for AudioRecord
 	private static final int SAMPPERSEC = 44100; 
 	private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
-	private AudioRecord mAudioRecord;
+	//private AudioRecord mAudioRecord;
 	private PingRunner mPinger;
 	private short[] mFilter;
 	//TODO Abstracted AudioFilterDead to allow for multiple filters. See AudioFilterProxy
@@ -126,8 +126,8 @@ public class AudioSupervisor implements Callback {
 		this.mAudioBufferHandler = bufferHandler;
 		this.mPingerHandler = pingHandler;
 		this.mMainHandler = new Handler(this);
-		this.mAudioRecordWrapper = audioRecorder;
-		this.mAudioRecord = audioRecorder.mAudioRecord;
+		this.mAudioRecorder = audioRecorder;
+		//this.mAudioRecord = audioRecorder.mAudioRecord;
 		this.mPinger = pinger;
 		this.mFilter = pinger.mPcmFilterMask;
 		this.mAudioFilter = audioFilter;
@@ -140,31 +140,31 @@ public class AudioSupervisor implements Callback {
 		mAudioRecordHandler.post(new Runnable(){
 			@Override
 			public void run() {
-				Log.d(TAG, "Trying to start AudioRecord: " + mAudioRecord + " on thread: " + Thread.currentThread().getName());
-				mAudioRecord.startRecording();
+				Log.d(TAG, "Trying to start AudioRecord: " + mAudioRecorder + " on thread: " + Thread.currentThread().getName());
+				mAudioRecorder.startRecording();
 				mMainHandler.sendEmptyMessage(MsgIds.RECORD_READY);
 				
 				int iter = 0;
 				while(iter<2000){
-				    int samplesRead = mAudioRecord.read(mAudioRecordWrapper.mBuffer,  0, mAudioRecordWrapper.mBufferSizeShorts);
+				    int samplesRead = mAudioRecorder.read(mAudioRecorder.mBuffer,  0, mAudioRecorder.mBufferSizeShorts);
 				    Log.d(TAG, "Audior recorder read " + samplesRead + " audio samples");
 
 
 				    Log.d(TAG, "Im Alive 1");
-				    //Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
-				    Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecordWrapper.mBuffer);
+				    //Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecorder.mBuffer);
+				    Message bufferMsg = Message.obtain(mMainHandler, MsgIds.BUFFER_DATA, mAudioRecorder.mBuffer);
 				    Log.d(TAG, "Im Alive 2");
 				    mMainHandler.sendMessage(bufferMsg);
 				    Log.d(TAG, "Im Alive 3");
 				    //Apply AudioFilterStub
 				    //TODO: Requires refactoring, expensive operation here - perhaps its own thread?
 				    //TODO: Also class is inside deprecated package
-				    //AudioFilterDead rxEnergyFilter = AudioFilterDead.create(mAudioRecordWrapper.mBuffer, mFilter);
+				    //AudioFilterDead rxEnergyFilter = AudioFilterDead.create(mAudioRecorder.mBuffer, mFilter);
 				    Log.d(TAG, "Audio AudioFilterStub: " + mAudioFilter.toString());
 				    Log.d(TAG, "Im Alive 4");
 				    
 				    //Data is filtered here!!!
-				    int[] rx_energy = mAudioFilter.filter(mAudioRecordWrapper.mBuffer);
+				    int[] rx_energy = mAudioFilter.filter(mAudioRecorder.mBuffer);
 				    
 				    
 				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
