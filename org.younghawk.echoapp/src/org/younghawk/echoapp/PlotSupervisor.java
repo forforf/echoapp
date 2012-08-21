@@ -6,7 +6,7 @@ import android.util.Log;
 
 
 public class PlotSupervisor{ 
-    
+ /*   
     private static final String TAG = "EchoApp PlotSupervisor";
     
     //This class should be a singleton
@@ -65,5 +65,6 @@ public class PlotSupervisor{
         Log.d(TAG, "Plotter Q has " + mPlotter.mScaledSamples.size() + "elements now");
         
     }
+    */
 }
     

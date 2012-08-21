@@ -1,10 +1,12 @@
 package org.younghawk.echoapp;
 
 import java.util.ArrayDeque;
+import java.util.Timer;
 
 import org.younghawk.echoapp.drawregion.DrawRegionGraph;
 import org.younghawk.echoapp.drawregion.DrawRegionNames;
 import org.younghawk.echoapp.drawregion.ScrollingBitmap;
+import org.younghawk.echoapp.handlerthreadfactory.HThread;
 
 import android.util.Log;
 
@@ -46,6 +48,12 @@ public class Plotter {
     private int mScaledSamplesSize;
     private DrawRegionGraph mGraphData;
     
+    //From PlotSupervisor, refactoring into this class
+    public final HThread mPlotterThr;
+    public static Timer dwellTimer = new Timer();
+    public boolean pauseQCheck = true;
+    
+    
     //Factory
     public static Plotter create() {
         if(instance!=null){
@@ -63,6 +71,7 @@ public class Plotter {
         if(mGlobal==null){
             mGlobal = GlobalState.getGlobalInstance();
         }
+        this.mPlotterThr = mGlobal.getHandlerThread("Plotter");
         this.mSamplesToPlot = new float[PTS_PER_PX];
         Log.d(TAG, "Constructed");
         
@@ -114,4 +123,35 @@ public class Plotter {
            mScaledSamples.add( data[i] * HT_SCALE_FACTOR );
         }
     }
+   
+   
+   private Runnable checkingQ(){
+       return new Runnable() {
+           @Override
+           public void run() {
+               Log.d(TAG, "Plotter Q has " + mScaledSamples.size() + "elements now");
+               grabSamplesToPlot();
+           
+               if (!pauseQCheck){
+                   mPlotterThr.handler.postDelayed(checkingQ(), (long) (Plotter.PX_DWELL_TIME * 1000) );
+               }
+           }
+       };
+   }
+   
+   public void startQCheck() {
+       Log.d(TAG, "Starting Q Check");
+       pauseQCheck = false;
+       mPlotterThr.handler.postDelayed(checkingQ(), 1000);
+   }
+   
+   public void stopQCheck() {
+       pauseQCheck = true;
+   }
+
+   
+   public void checkQ() {
+       Log.d(TAG, "Plotter Q has " + mScaledSamples.size() + "elements now");
+       
+   }
 }

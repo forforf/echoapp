@@ -40,8 +40,9 @@ public class AudioSupervisor implements Callback {
 	//private AudioFilterDead mAudioFilter;
 	private AudioFilterProxy mAudioFilter;
 	
+	private Plotter mPlotter;
 	//TODO: Undesired coupling between Supervisors
-	private PlotSupervisor mPlotSupervisor;
+	//private PlotSupervisor mPlotSupervisor;
 	//private AudioUpdatesDeadCode mCallback;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
@@ -247,11 +248,11 @@ public class AudioSupervisor implements Callback {
 		
 		//Lazy Load Plot Supervisor
 		//TODO: Get rid of the PlotSuperviosr middleman here and use GlobalState method
-		if(mPlotSupervisor==null){
-		    mPlotSupervisor = PlotSupervisor.create();
+		if(mPlotter==null){
+		    mPlotter = gGlobal.getPlotter();
 		}
 		//mPlotSupervisor.mPlotter.addToQ(filter_data);
-		gGlobal.getPlotter().addToQ(filter_data);
+		mPlotter.addToQ(filter_data);
 		
 
 		//Checking if Paused (default when started)
@@ -259,8 +260,8 @@ public class AudioSupervisor implements Callback {
 		//actually ever stop it now
 		//Ummmm ... this should only be done when?
 		//Log.d(TAG, "Plot Supervisor: " + mPlotSupervisor);
-		if(mPlotSupervisor.pauseQCheck){
-		    mPlotSupervisor.startQCheck();
+		if(mPlotter.pauseQCheck){
+		    mPlotter.startQCheck();
 		}
 	}
 }
