@@ -48,7 +48,6 @@ public class Plotter {
     private int mScaledSamplesSize;
     private DrawRegionGraph mGraphData;
     
-    //From PlotSupervisor, refactoring into this class
     public final HThread mPlotterThr;
     public static Timer dwellTimer = new Timer();
     public boolean pauseQCheck = true;
@@ -112,7 +111,6 @@ public class Plotter {
             
             //update scrolling bitmap with samples to plot
             scr_bmp.onVectorUpate(mSamplesToPlot, (float) MAX_PLOT_HT, (float) MIN_PLOT_HT);
-
         }
     }
     
@@ -152,6 +150,5 @@ public class Plotter {
    
    public void checkQ() {
        Log.d(TAG, "Plotter Q has " + mScaledSamples.size() + "elements now");
-       
    }
 }
