@@ -16,8 +16,8 @@ import android.util.Log;
  */
 public class PingRunner implements Runnable  {
 	private static final String TAG = "EchoApp PingThread";
+	
 	private short[] mPcmSignal;
-	public short[] mPcmFilterMask;
 		
 	/**
 	 * Factory to initialize the waveform signal
@@ -27,33 +27,18 @@ public class PingRunner implements Runnable  {
 	 */
 	public static PingRunner create() {
 		
-		//TODO: Can SignalGenerator be moved out of the thread for better performance?
-		SignalGenerator sig_gen = null;
-		short[] pcm_signal = null;
-		short[] filter_mask = null;
-
-		
-		//sig_gen = SignalGenerator.create(instructions, num_of_samples);
+		SignalGenerator sig_gen;
 		sig_gen = GlobalState.getGlobalInstance().getSigGen();
-		//if (sig_gen!=null) {
-		//	Log.i("EchoApp","Created Signal Generator");
-		//    pcm_signal = sig_gen.mSignal;
-		//    filter_mask = sig_gen.mFilterMask;
-		//    //Log.v("EchoApp", "FilterMask: " + Arrays.toString(filter_mask));
-		//} else {
-		//	return null;
-		//}
-		return new PingRunner(sig_gen.mSignal, sig_gen.mFilterMask);
+		
+		return new PingRunner(sig_gen.mSignal);
 	}
 	
 	/**
 	 * Create the thread object with the waveform signal
 	 * @param pcm_signal
 	 */
-	private PingRunner(short[] pcm_signal, short[] filter_mask) {
+	private PingRunner(short[] pcm_signal) {
 		this.mPcmSignal = pcm_signal;
-		this.mPcmFilterMask = filter_mask;
-		//this.mPingThread = new Thread(this);  //this thread object
 	}
 
 	/**
