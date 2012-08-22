@@ -19,6 +19,14 @@ import android.view.SurfaceView;
 public class GlobalState extends Application {
     private static final String TAG="EchoApp GlobalState";
     
+    //TODO: Move to shared preferences
+    //Audio Constants
+    public class Audio {
+        public static final int SAMPPERSEC = 44100; 
+        //TODO: Ensure sample time doesn't go lower than the min buffer allowed
+        public static final double MAX_SAMPLE_TIME = 0.1; //seconds
+    }
+    
     //All instance variables are lazy loaded unless otherwise noted
     
     //Reference to Surface View -- Created automatically with application
@@ -28,6 +36,7 @@ public class GlobalState extends Application {
     private AudioSupervisor mAudioSupervisor;
     private Plotter mPlotter;
     private ScrollingBitmap mScrollingBitmap;
+    private AudioFilterProxy mFilterProxy;
     
     //Shared Variables
     private ImmutableRect mFullSurfaceRect;
@@ -146,6 +155,22 @@ public class GlobalState extends Application {
         return ScrollingBitmap.create();
     }
     
+    public AudioFilterProxy getFilterProxy(){
+        if(mFilterProxy==null){
+            mFilterProxy = AudioFilterProxy.create();
+        }
+        return mFilterProxy;
+    }
+    
+    
+    //Apply Audio Filter Methods
+    public void echoFilterOn(){
+        Log.d(TAG, "Echo Filter On");
+    }
+    
+    public void echoFilterOff(){
+        Log.d(TAG, "Echo Filter Off");
+    }
     //Executor Methods
     public HThread getHandlerThread(String name){
         if(gExecutor==null){

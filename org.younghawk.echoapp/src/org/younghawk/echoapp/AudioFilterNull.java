@@ -11,7 +11,6 @@ public class AudioFilterNull implements AudioFilterStub {
     
     @Override
     public int[] filter(short[] buffer_data) {
-        //A non-null would probably call a method on a specific filter class
         
         //If the buffer size is the same, we reuse the array
         buffer_size = buffer_data.length;

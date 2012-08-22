@@ -25,19 +25,18 @@ public class AudioSupervisor implements Callback {
 	public HandlerThread mAudioBufferThr;
 	public HandlerThread mPingerThr;
 	private final Handler mAudioRecordHandler; //Handler for hw thread
-	private final Handler mAudioBufferHandler; //Handler for data thread
+	
 	private final Handler mPingerHandler; //Handler for pinger thread
 	private final Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
 	private AudioRecorder mAudioRecorder; //Facade for AudioRecord
-	private static final int SAMPPERSEC = 44100; 
-	private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
+	//private static final int SAMPPERSEC = 44100; 
+	//private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
 	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
-	//private AudioRecord mAudioRecord;
+
 	private PingRunner mPinger;
 	private short[] mFilter;
-	//TODO Abstracted AudioFilterDead to allow for multiple filters. See AudioFilterProxy
-	//private AudioFilterDead mAudioFilter;
+
 	private AudioFilterProxy mAudioFilter;
 	
 	private Plotter mPlotter;
@@ -54,13 +53,16 @@ public class AudioSupervisor implements Callback {
 	        HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
 	        mAudioRecordThr.start();
 
-	        HandlerThread mAudioBufferThr = new HandlerThread("Audio Buffering");
-	        mAudioBufferThr.start();
+	        //HandlerThread mAudioBufferThr = new HandlerThread("Audio Buffering");
+	        //mAudioBufferThr.start();
 
 	        HandlerThread mPingerThr = new HandlerThread("Play Audio Ping");
 	        mPingerThr.start();
 
-	        AudioRecorder audioRecorder = AudioRecorder.create(SAMPPERSEC, MAX_SAMPLE_TIME);
+	        AudioRecorder audioRecorder = AudioRecorder.create(
+	                GlobalState.Audio.SAMPPERSEC, 
+	                GlobalState.Audio.MAX_SAMPLE_TIME);
+	        
 	        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
 
 	        //TODO: This should get spun up in its own handler thread like the others
@@ -79,13 +81,13 @@ public class AudioSupervisor implements Callback {
 	            Log.e(TAG, "Audio Looper was null, was thread started?");
 	        }
 
-	        Looper bufLooper = mAudioBufferThr.getLooper();
-	        Handler bufferHandler = new Handler(bufLooper);
-	        if (bufLooper!=null){
-	            bufferHandler = new Handler(bufLooper);
-	        } else {
-	            Log.e(TAG, "Buffer Looper was null, was thread started?");
-	        }
+	        //Looper bufLooper = mAudioBufferThr.getLooper();
+	        //Handler bufferHandler = new Handler(bufLooper);
+	        //if (bufLooper!=null){
+	        //    bufferHandler = new Handler(bufLooper);
+	        //} else {
+	        //    Log.e(TAG, "Buffer Looper was null, was thread started?");
+	        //}
 
 	        Looper pingLooper = mPingerThr.getLooper();
 	        Handler pingerHandler = new Handler(pingLooper);
@@ -97,10 +99,10 @@ public class AudioSupervisor implements Callback {
 	        
 	        instance =  new AudioSupervisor(
 	                mAudioRecordThr, 
-	                mAudioBufferThr,
+	                //mAudioBufferThr,
 	                mPingerThr,
 	                audioHandler, 
-	                bufferHandler,
+	                //bufferHandler,
 	                pingerHandler,
 	                audioRecorder,
 	                pinger,
@@ -110,20 +112,20 @@ public class AudioSupervisor implements Callback {
 	    }
 	}
 	private AudioSupervisor(HandlerThread audioRecThr, 
-			HandlerThread audioBufThr,
+			//HandlerThread audioBufThr,
 			HandlerThread pingThr,
 			Handler audioHandler, 
-			Handler bufferHandler,
+			//Handler bufferHandler,
 			Handler pingHandler,
 			AudioRecorder audioRecorder,
 			PingRunner pinger,
 			AudioFilterProxy audioFilter) {
 		
 		this.mAudioRecordThr = audioRecThr;
-		this.mAudioBufferThr = audioBufThr;
+		//this.mAudioBufferThr = audioBufThr;
 		this.mPingerThr = pingThr;
 		this.mAudioRecordHandler = audioHandler;
-		this.mAudioBufferHandler = bufferHandler;
+		//this.mAudioBufferHandler = bufferHandler;
 		this.mPingerHandler = pingHandler;
 		this.mMainHandler = new Handler(this);
 		this.mAudioRecorder = audioRecorder;

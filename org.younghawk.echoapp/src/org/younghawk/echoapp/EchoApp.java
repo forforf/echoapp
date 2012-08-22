@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 
 /**
@@ -33,7 +36,25 @@ public class EchoApp extends Activity {
         Log.d(TAG, "Views created, setup App");
         gGlobal = GlobalState.getGlobalInstance();
         gGlobal.onEchoAppReady(this);    	
+        
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
+        checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    gGlobal.echoFilterOn();
+                } else {
+                    gGlobal.echoFilterOff();
+                }
+                
+            }
+            
+        });
     }
+    
+    
+    
     
     public void onPause() {
         super.onPause();
@@ -41,9 +62,26 @@ public class EchoApp extends Activity {
     }
     
     //TODO: Fix so startButton starts audio, ping button sends signal
+    
+    //Potentially Helpful code for this
+    /*
+    Button b = new Button(this);
+    b.setOnClickListener(new OnClickListener() {
+
+           public void onClick(View v) {
+                         // Perform action on click
+                     }
+
+    });
+    b.setText(""+ i);
+    b.setTag("button"+i);
+    b.setWidth(30);
+    b.setHeight(20);
+    
     public void startButton(View view){
         Log.d(TAG, "Start Button Pressed");
     }
+    */
     
     /**
      * Handles pingButton presses (click handler defined in layout)
