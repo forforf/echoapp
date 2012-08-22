@@ -55,7 +55,6 @@ public class AudioFilterEcho implements AudioFilterStub {
 	  }
 
 	  private AudioFilterEcho(int[] filter) {
-	      Log.d(TAG, "Dead Code Test -- Constructed!!");
 		  this.mFilter = filter;
 		  this.mWindowSize = filter.length;
 		  //this.mAudioBufferSize = audio_buffer_size;
@@ -66,7 +65,7 @@ public class AudioFilterEcho implements AudioFilterStub {
 	  
 	  @Override
 	  public int[] filter(short[] audio_buffer_short) {
-	      
+	      Log.d(TAG, "Using echo app filter");
 	      mAudioBufferSize = audio_buffer_short.length;
 	      mCombinedBufferSize = mAudioBufferSize + mWindowSize -1;
 	      
@@ -94,6 +93,7 @@ public class AudioFilterEcho implements AudioFilterStub {
 	        } else {
 	            //we have to create a new one
 	            mAudioBuffer = new int[mAudioBufferSize];
+	            mAudioEnergy = new int[mAudioBufferSize];
 	            mCombinedBuffer = new int[mCombinedBufferSize];
 	            for(int i=0;i<mAudioBufferSize;i++){
 	                mAudioBuffer[i] = (int) audio_buffer_short[i];

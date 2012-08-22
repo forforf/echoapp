@@ -9,6 +9,7 @@ import org.younghawk.echoapp.drawregion.DrawRegionType;
 import org.younghawk.echoapp.drawregion.ScrollingBitmap;
 import org.younghawk.echoapp.handlerthreadfactory.HThread;
 import org.younghawk.echoapp.handlerthreadfactory.HandlerThreadExecutor;
+import org.younghawk.echoapp.signals.SignalGenerator;
 
 import android.app.Activity;
 import android.app.Application;
@@ -19,6 +20,10 @@ import android.view.SurfaceView;
 public class GlobalState extends Application {
     private static final String TAG="EchoApp GlobalState";
     
+    
+    public enum ControlButtonState {
+        START, PING
+    }
     //TODO: Move to shared preferences
     //Audio Constants
     public class Audio {
@@ -37,9 +42,15 @@ public class GlobalState extends Application {
     private Plotter mPlotter;
     private ScrollingBitmap mScrollingBitmap;
     private AudioFilterProxy mFilterProxy;
+    private SignalGenerator mSigGen;
+    private short[] mEchoFilterMask;
+    private AudioFilterStub mEchoFilter;
+    private AudioFilterStub mNullFilter;
+    private PingRunner mPinger;
     
     //Shared Variables
     private ImmutableRect mFullSurfaceRect;
+    private ControlButtonState mControlButtonState;
     
     //Centralized Executor
     //mainly so we can stop all application threads easily
@@ -81,8 +92,11 @@ public class GlobalState extends Application {
     public void onEchoAppReady(Activity act){
         mEchoApp = (EchoApp) act;
         Log.d(TAG, "Echo App Ready");
+        mControlButtonState = GlobalState.ControlButtonState.START;
     }
     
+    
+    //TODO: Refactot the duplication with signal generator
     public void startAudioRecording(){
         if(mAudioSupervisor==null){
             mAudioSupervisor = AudioSupervisor.create(
@@ -162,21 +176,84 @@ public class GlobalState extends Application {
         return mFilterProxy;
     }
     
+    public SignalGenerator getSigGen(){
+        if(mSigGen == null){
+            mSigGen =  SignalGenerator.create(
+                    getString(R.string.signal_instructions),
+                    getResources().getInteger(R.integer.samples_per_wav)
+                    );
+        }
+        
+        return mSigGen;
+    }
+    
+    public short[] getEchoFilterMask(){
+        if(mEchoFilterMask==null){
+            mEchoFilterMask = getSigGen().mFilterMask;
+        }
+        
+        return mEchoFilterMask;
+    }
+    
+    public AudioFilterStub getEchoFilter(){
+        if(mEchoFilter==null){
+            mEchoFilter = AudioFilterEcho.create( getEchoFilterMask() );
+        }
+        return mEchoFilter;
+    }
+    
+    public AudioFilterStub getNullFilter(){
+        if(mNullFilter==null){
+            mNullFilter = new AudioFilterNull();
+        }
+        return mNullFilter;
+    }
+    
+    public GlobalState.ControlButtonState getControlButtonState(){
+        if(mControlButtonState==null){
+            mControlButtonState = ControlButtonState.START;
+        }
+        return mControlButtonState;
+    }
+    
+    public void setControlButtonState(GlobalState.ControlButtonState btn_state){
+        mControlButtonState = btn_state;
+    }
+    
+    
+    public void sendPing(){
+        getExecutor().execute(getPinger(), "Pinger");
+    }
+    
+    //TODO: Where should private methods go?
+    private PingRunner getPinger(){
+        if(mPinger==null){
+            mPinger = PingRunner.create();
+        }
+        return mPinger;
+    }
     
     //Apply Audio Filter Methods
     public void echoFilterOn(){
         Log.d(TAG, "Echo Filter On");
+        getFilterProxy().setFilter( getEchoFilter() );
     }
     
     public void echoFilterOff(){
         Log.d(TAG, "Echo Filter Off");
+        getFilterProxy().setFilter( getNullFilter() );
     }
+    
     //Executor Methods
-    public HThread getHandlerThread(String name){
+    public HandlerThreadExecutor getExecutor(){
         if(gExecutor==null){
             gExecutor = new HandlerThreadExecutor("EchoApp");
         }
-        return gExecutor.execute(null, name);
+        return gExecutor;
+    }
+    
+    public HThread getHandlerThread(String name){
+        return getExecutor().execute(null, name);
     }
     
     public void stopAllThreads(){

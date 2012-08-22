@@ -25,8 +25,8 @@ public final class R {
         public static final int kangoo=0x7f020002;
     }
     public static final class id {
-        public static final int PingButton=0x7f0a0002;
         public static final int checkBox1=0x7f0a0001;
+        public static final int controlButton=0x7f0a0002;
         public static final int menu_settings=0x7f0a0003;
         public static final int panel=0x7f0a0000;
     }
@@ -43,10 +43,10 @@ public final class R {
     public static final class string {
         public static final int activity_title=0x7f080001;
         public static final int app_name=0x7f080000;
+        public static final int control_button_init=0x7f080002;
+        public static final int control_button_ready=0x7f080003;
         public static final int hello_world=0x7f080005;
         public static final int menu_settings=0x7f080006;
-        public static final int ping_button_init=0x7f080002;
-        public static final int ping_button_ready=0x7f080003;
         public static final int signal_instructions=0x7f080004;
         public static final int title_activity_echo_app_preferences=0x7f080007;
     }

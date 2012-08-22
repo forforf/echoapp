@@ -66,11 +66,11 @@ public class AudioSupervisor implements Callback {
 	        //AudioRecord audioRecord = audioRecordWrapper.mAudioRecord;
 
 	        //TODO: This should get spun up in its own handler thread like the others
-	        PingRunner pinger = PingRunner.create(instructions, num_of_samples);
+	        //PingRunner pinger = PingRunner.create(instructions, num_of_samples);
 	        
 	        //TODO: UPDATE THE FILTER CLASSES TO SUPPORT PCMFILTERING
 	        //AudioFilterDead audioFilter = AudioFilterDead.create(pinger.mPcmFilterMask, audioRecordWrapper.mBufferSizeShorts);
-	        AudioFilterProxy audioFilter = AudioFilterProxy.getInstance();
+	        AudioFilterProxy audioFilter;// = AudioFilterProxy.getInstance();
 	        
 	        
 	        Looper arLooper = mAudioRecordThr.getLooper();
@@ -104,9 +104,7 @@ public class AudioSupervisor implements Callback {
 	                audioHandler, 
 	                //bufferHandler,
 	                pingerHandler,
-	                audioRecorder,
-	                pinger,
-	                audioFilter);
+	                audioRecorder);
 	        
 	        return instance;
 	    }
@@ -117,9 +115,7 @@ public class AudioSupervisor implements Callback {
 			Handler audioHandler, 
 			//Handler bufferHandler,
 			Handler pingHandler,
-			AudioRecorder audioRecorder,
-			PingRunner pinger,
-			AudioFilterProxy audioFilter) {
+			AudioRecorder audioRecorder) {
 		
 		this.mAudioRecordThr = audioRecThr;
 		//this.mAudioBufferThr = audioBufThr;
@@ -130,10 +126,13 @@ public class AudioSupervisor implements Callback {
 		this.mMainHandler = new Handler(this);
 		this.mAudioRecorder = audioRecorder;
 		//this.mAudioRecord = audioRecorder.mAudioRecord;
-		this.mPinger = pinger;
-		this.mFilter = pinger.mPcmFilterMask;
-		this.mAudioFilter = audioFilter;
+		//this.mPinger = pinger;
+		//this.mFilter = pinger.mPcmFilterMask;
+		
+		
 		this.gGlobal = GlobalState.getGlobalInstance();
+		this.mAudioFilter = gGlobal.getFilterProxy();
+		this.mFilter = gGlobal.getEchoFilterMask();
 	}
 	
 	//TODO: Pass in filter as parameter

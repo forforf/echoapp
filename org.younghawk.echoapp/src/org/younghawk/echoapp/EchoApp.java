@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -35,7 +37,26 @@ public class EchoApp extends Activity {
 
         Log.d(TAG, "Views created, setup App");
         gGlobal = GlobalState.getGlobalInstance();
-        gGlobal.onEchoAppReady(this);    	
+        gGlobal.onEchoAppReady(this);
+        
+        
+        final Button controlButton = (Button) findViewById(R.id.controlButton);
+        controlButton.setText(R.string.control_button_init);
+        
+        controlButton.setOnClickListener(new OnClickListener(){
+
+            @Override
+            public void onClick(View buttonView) {
+                if( gGlobal.getControlButtonState() == GlobalState.ControlButtonState.START){
+                    gGlobal.setControlButtonState(GlobalState.ControlButtonState.PING);
+                    controlButton.setText(R.string.control_button_ready);
+                    startButton(buttonView);
+                } else {
+                    pingButton(buttonView);
+                }
+            }
+           
+        });
         
         final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
         checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
@@ -46,53 +67,31 @@ public class EchoApp extends Activity {
                     gGlobal.echoFilterOn();
                 } else {
                     gGlobal.echoFilterOff();
-                }
-                
+                }              
             }
-            
         });
     }
-    
-    
-    
-    
+  
     public void onPause() {
         super.onPause();
         gGlobal.pauseApp();
     }
-    
-    //TODO: Fix so startButton starts audio, ping button sends signal
-    
-    //Potentially Helpful code for this
-    /*
-    Button b = new Button(this);
-    b.setOnClickListener(new OnClickListener() {
-
-           public void onClick(View v) {
-                         // Perform action on click
-                     }
-
-    });
-    b.setText(""+ i);
-    b.setTag("button"+i);
-    b.setWidth(30);
-    b.setHeight(20);
-    
-    public void startButton(View view){
-        Log.d(TAG, "Start Button Pressed");
-    }
-    */
-    
+       
     /**
-     * Handles pingButton presses (click handler defined in layout)
+     * Handles main button presses 
      *   Retrieves the information needed to build a signal from 
      *   resource files and kicks off a thread that generates the
      *   signal that will be the echo-location "ping".
      * @param view
      */
-    public void pingButton(View view) {
-    	Log.d(TAG, "Ping Button Pressed");
+    public void startButton(View view) {
+    	Log.d(TAG, "Start Button Pressed");
     	gGlobal.startAudioRecording();
+    }
+    
+    public void pingButton(View view) {
+        Log.d(TAG, "Ping Button Pressed");
+        gGlobal.sendPing();
     }
 
     @Override

@@ -25,7 +25,7 @@ public class PingRunner implements Runnable  {
 	 * @param num_of_samples
 	 * @return
 	 */
-	public static PingRunner create(String instructions, int num_of_samples) {
+	public static PingRunner create() {
 		
 		//TODO: Can SignalGenerator be moved out of the thread for better performance?
 		SignalGenerator sig_gen = null;
@@ -33,16 +33,17 @@ public class PingRunner implements Runnable  {
 		short[] filter_mask = null;
 
 		
-		sig_gen = SignalGenerator.create(instructions, num_of_samples);
-		if (sig_gen!=null) {
-			Log.i("EchoApp","Created Signal Generator");
-		    pcm_signal = sig_gen.mSignal;
-		    filter_mask = sig_gen.mFilterMask;
-		    //Log.v("EchoApp", "FilterMask: " + Arrays.toString(filter_mask));
-		} else {
-			return null;
-		}
-		return new PingRunner(pcm_signal, filter_mask);
+		//sig_gen = SignalGenerator.create(instructions, num_of_samples);
+		sig_gen = GlobalState.getGlobalInstance().getSigGen();
+		//if (sig_gen!=null) {
+		//	Log.i("EchoApp","Created Signal Generator");
+		//    pcm_signal = sig_gen.mSignal;
+		//    filter_mask = sig_gen.mFilterMask;
+		//    //Log.v("EchoApp", "FilterMask: " + Arrays.toString(filter_mask));
+		//} else {
+		//	return null;
+		//}
+		return new PingRunner(sig_gen.mSignal, sig_gen.mFilterMask);
 	}
 	
 	/**
