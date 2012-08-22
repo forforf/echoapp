@@ -99,9 +99,7 @@ public class GlobalState extends Application {
     //TODO: Refactot the duplication with signal generator
     public void startAudioRecording(){
         if(mAudioSupervisor==null){
-            mAudioSupervisor = AudioSupervisor.create(
-                    getString(R.string.signal_instructions),
-                    getResources().getInteger(R.integer.samples_per_wav));
+            mAudioSupervisor = AudioSupervisor.create();
         }
         mAudioSupervisor.startRecording();
     }

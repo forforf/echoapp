@@ -30,9 +30,7 @@ public class AudioSupervisor implements Callback {
 	private final Handler mMainHandler; //Handler for this thread (main thread)
 	//Audio Data
 	private AudioRecorder mAudioRecorder; //Facade for AudioRecord
-	//private static final int SAMPPERSEC = 44100; 
-	//private static final double MAX_SAMPLE_TIME = 0.1; //in seconds
-	//public short[] mBuffer;  //TODO: Make sure this is uded correctly
+
 
 	private PingRunner mPinger;
 	private short[] mFilter;
@@ -45,7 +43,8 @@ public class AudioSupervisor implements Callback {
 	//private AudioUpdatesDeadCode mCallback;
 
 	//TODO: Change to local variable naming convention instead of instance variable naming convention
-	public static AudioSupervisor create(String instructions, int num_of_samples) {
+	//public static AudioSupervisor create(String instructions, int num_of_samples) {
+	public static AudioSupervisor create() {
 	    if(instance!=null){
 	        return instance;
 	    } else {
