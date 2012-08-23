@@ -96,13 +96,13 @@ public class AudioSupervisor implements Callback {
 				    //Data is filtered here!!!
 				    int[] rx_energy = mAudioFilter.filter(mAudioRecorder.mBuffer);
 				    
-				    
+				    onFilterData(rx_energy);
 				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
 				    //DebugData.setDebugArray(audioPlot);
 				    
-				    Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
+				    //Message filterMsg = Message.obtain(mMainHandler, MsgIds.FILTER_DATA, rx_energy);
 				    
-				    mMainHandler.sendMessage(filterMsg);
+				    //mMainHandler.sendMessage(filterMsg);
 				    iter++;
 				}
 			}
@@ -120,9 +120,9 @@ public class AudioSupervisor implements Callback {
 		    //to Filter data with a null filter.
 		    //mPlotSupervisor.onBufferData(msg.obj);
 			break;
-		case MsgIds.FILTER_DATA:
-			onFilterData(msg.obj);
-			break;
+		//case MsgIds.FILTER_DATA:
+		//	onFilterData(msg.obj);
+		//	break;
 		}
 		
 		return false;
@@ -152,8 +152,9 @@ public class AudioSupervisor implements Callback {
         //DebugData.setDebugArray( CollectionGrapher.create(100,100,250,40, buffer) );
     }
 	
-	public void onFilterData(Object objFilterData) {
-		int[] filter_data = (int[]) objFilterData;
+	//public void onFilterData(Object objFilterData) {
+    public void onFilterData(int[] filter_data) {
+		//int[] filter_data = (int[]) objFilterData;
 		Log.d(TAG,"Main thread notified with filter data with " + filter_data.length + " elements (samples).");
 		
 		//Lazy Load Plotter
