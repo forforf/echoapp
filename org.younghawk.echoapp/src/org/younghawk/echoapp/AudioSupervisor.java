@@ -23,6 +23,7 @@ public class AudioSupervisor implements Callback {
 	//public HandlerThread mAudioRecordThr;
 	public HThread mAudioRecordThr;
 	private final Handler mAudioRecordHandler; //Handler for hw thread
+	private CaptureAudio mCaptureAudio;
 	
 
 	private final Handler mMainHandler; //Handler for this thread (main thread)
@@ -78,6 +79,7 @@ public class AudioSupervisor implements Callback {
 		
 		this.gGlobal = GlobalState.getGlobalInstance();
 		this.mAudioFilter = gGlobal.getFilterProxy();
+		this.mCaptureAudio = gGlobal.getCaptureAudio();
 	}
 	
 	//TODO: Pass in filter as parameter
@@ -101,7 +103,7 @@ public class AudioSupervisor implements Callback {
 				    
 				    //Data is filtered here!!!
 				    int[] rx_energy = mAudioFilter.filter(mAudioRecorder.mBuffer);
-				    
+				    mCaptureAudio.bulkInput(rx_energy);
 				    onFilterData(rx_energy);
 				    //CollectionGrapher audioPlot = CollectionGrapher.create(50,100,350,400, rx_energy);
 				    //DebugData.setDebugArray(audioPlot);

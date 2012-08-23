@@ -13,6 +13,7 @@ import org.younghawk.echoapp.signals.SignalGenerator;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,13 +25,19 @@ public class GlobalState extends Application {
     public enum ControlButtonState {
         START, PING
     }
+    
+    public Handler mMainHandler = new Handler();
+    
     //TODO: Move to shared preferences
     //Audio Constants
     public class Audio {
         public static final int SAMPPERSEC = 44100; 
         //TODO: Ensure sample time doesn't go lower than the min buffer allowed
         public static final double MAX_SAMPLE_TIME = 0.1; //seconds
+        
+        
     }
+    
     
     //All instance variables are lazy loaded unless otherwise noted
     
@@ -47,6 +54,7 @@ public class GlobalState extends Application {
     private AudioFilterStub mEchoFilter;
     private AudioFilterStub mNullFilter;
     private PingRunner mPinger;
+    private CaptureAudio mCaptureAudio;
     
     //Shared Variables
     private ImmutableRect mFullSurfaceRect;
@@ -55,6 +63,7 @@ public class GlobalState extends Application {
     //Centralized Executor
     //mainly so we can stop all application threads easily
     private HandlerThreadExecutor gExecutor;
+    
     
     //Draw Regions
     //The Surface is divided into different independently operating regions
@@ -218,10 +227,21 @@ public class GlobalState extends Application {
         mControlButtonState = btn_state;
     }
     
+    public CaptureAudio getCaptureAudio(){
+        //Created when sending ping
+        if(mCaptureAudio==null){
+            mCaptureAudio = CaptureAudio.create(mMainHandler, Audio.SAMPPERSEC);
+        }
+        return mCaptureAudio;
+    }
     
     public void sendPing(){
+        //synchronized( getCaptureAudio() ){
+        //    getCaptureAudio().start();
+        //}
         getExecutor().execute(getPinger(), "Pinger");
     }
+    
     
     //TODO: Where should private methods go?
     private PingRunner getPinger(){
