@@ -1,9 +1,10 @@
 package org.younghawk.echoapp;
 
+import org.younghawk.echoapp.handlerthreadfactory.HThread;
+
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -19,7 +20,8 @@ public class AudioSupervisor implements Callback {
 	private GlobalState gGlobal;
 	
 	//TODO: Migrate to executor and thread factory.
-	public HandlerThread mAudioRecordThr;
+	//public HandlerThread mAudioRecordThr;
+	public HThread mAudioRecordThr;
 	private final Handler mAudioRecordHandler; //Handler for hw thread
 	
 
@@ -37,31 +39,35 @@ public class AudioSupervisor implements Callback {
 	        return instance;
 	    } else {
 	    
-	        HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
-	        mAudioRecordThr.start();
+	        //HandlerThread mAudioRecordThr = new HandlerThread("Audio Recorder");
+	        //mAudioRecordThr.start();
 
 	        AudioRecorder audioRecorder = AudioRecorder.create(
 	                GlobalState.Audio.SAMPPERSEC, 
 	                GlobalState.Audio.MAX_SAMPLE_TIME);
 
 	        
-	        Looper arLooper = mAudioRecordThr.getLooper();
-	        Handler audioHandler = null;
-	        if (arLooper!=null) {
-	            audioHandler = new Handler(arLooper); 
-	        } else {
-	            Log.e(TAG, "Audio Looper was null, was thread started?");
-	        }
+	        //Looper arLooper = mAudioRecordThr.getLooper();
+	        //Handler audioHandler = null;
+	        //if (arLooper!=null) {
+	        //    audioHandler = new Handler(arLooper); 
+	        //} else {
+	        //    Log.e(TAG, "Audio Looper was null, was thread started?");
+	        //}
+	        
+	        HThread audio_thr = GlobalState.getGlobalInstance().getExecutor().execute(null, "AudioRec");
+	        Handler audioHandler = audio_thr.handler;
 	        
 	        instance =  new AudioSupervisor(
-	                mAudioRecordThr, 
+	                //mAudioRecordThr,
+	                audio_thr,
 	                audioHandler, 
 	                audioRecorder);
 	        
 	        return instance;
 	    }
 	}
-	private AudioSupervisor(HandlerThread audioRecThr, 
+	private AudioSupervisor(HThread audioRecThr, 
 			Handler audioHandler, 
 			AudioRecorder audioRecorder) {
 		
@@ -131,13 +137,13 @@ public class AudioSupervisor implements Callback {
 	public void shutDown() {
 	    //There may be more to do, but this at least
 	    //cleans up the running threads.
-	    Log.d(TAG, "Shutting threads down");
-	    if (mAudioRecordThr!=null){
-	        mAudioRecordThr.quit();
-	        mAudioRecordThr = null;
-	    }
+	    //Log.d(TAG, "Shutting threads down");
+	    //if (mAudioRecordThr!=null){
+	    //    mAudioRecordThr.quit();
+	    //    mAudioRecordThr = null;
+	    //}
 
-        Log.d(TAG, "Threads shut down");
+        //Log.d(TAG, "Threads shut down");
 	}
 	
 	public void onRecordReady(){
