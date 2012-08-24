@@ -90,11 +90,9 @@ public class GlobalState extends Application {
         gGlobal = this;
     }
     
-    public void pauseApp() {
-        if (mAudioSupervisor!=null){
-            mAudioSupervisor.shutDown();
-            mAudioSupervisor = null;
-        }
+    public void onDestroy() {
+        Log.i(TAG, "Stopping all threads");
+        stopAllThreads();
     }
     
     //Clearing house for cross-component events

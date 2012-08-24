@@ -20,7 +20,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
     private GlobalState gGlobal;
     
     //Reference to the main drawing class for this panel
-    public PanelDrawer mPanelDrawer;
+    //public PanelDrawer mPanelDrawer;
    
     //TODO: Refactor Audio threads away from this
     //public static boolean mStopRunningThreads = false; //deprecated
@@ -103,9 +103,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback{
 	public void surfaceDestroyed(SurfaceHolder holder) {
 	    //TODO: Need to clean up after surface destroyed
 	    Log.d(TAG, "Surfaced destroyed, notifying panel drawer");
-	    mPanelDrawer.onSurfaceDestroyed();
+	    //mPanelDrawer.onSurfaceDestroyed();
 	    //invalidate any surface related data
-	    mSurfaceRect = null;
+	    //mSurfaceRect = null;
 	    
 	}
 	

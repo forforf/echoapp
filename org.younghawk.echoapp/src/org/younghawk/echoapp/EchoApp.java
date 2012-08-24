@@ -71,10 +71,23 @@ public class EchoApp extends Activity {
             }
         });
     }
+    
+    
+    public void onResume(){
+        super.onResume();
+    }
   
     public void onPause() {
         super.onPause();
-        gGlobal.pauseApp();
+    }
+    
+    public void onDestroy() {
+        //super IS global state
+        super.onDestroy();
+    }
+    
+    public void setup(){
+        
     }
        
     /**
