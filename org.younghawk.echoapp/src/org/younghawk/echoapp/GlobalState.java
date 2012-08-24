@@ -51,8 +51,8 @@ public class GlobalState extends Application {
     private AudioFilterProxy mFilterProxy;
     private SignalGenerator mSigGen;
     private short[] mEchoFilterMask;
-    private AudioFilterStub mEchoFilter;
-    private AudioFilterStub mNullFilter;
+    private AudioFilter mEchoFilter;
+    private AudioFilter mNullFilter;
     private PingRunner mPinger;
     private CaptureAudio mCaptureAudio;
     
@@ -202,14 +202,14 @@ public class GlobalState extends Application {
         return mEchoFilterMask;
     }
     
-    public AudioFilterStub getEchoFilter(){
+    public AudioFilter getEchoFilter(){
         if(mEchoFilter==null){
             mEchoFilter = AudioFilterEcho.create( getEchoFilterMask() );
         }
         return mEchoFilter;
     }
     
-    public AudioFilterStub getNullFilter(){
+    public AudioFilter getNullFilter(){
         if(mNullFilter==null){
             mNullFilter = new AudioFilterNull();
         }

@@ -2,7 +2,9 @@ package org.younghawk.echoapp;
 
 import android.util.Log;
 
-public class AudioFilterNull implements AudioFilterStub {
+public class AudioFilterNull implements AudioFilter {
+    private final static String TAG = "EchoApp AudioFilterNull";
+    private  final static AudioFilter.Type FILTER_TYPE = AudioFilter.Type.NULL;
     private int[] int_data;
     private int buffer_size;
     private int prev_size;
@@ -29,6 +31,11 @@ public class AudioFilterNull implements AudioFilterStub {
         prev_size = buffer_size;
         
         return int_data;
+    }
+
+    @Override
+    public AudioFilter.Type getType() {
+        return FILTER_TYPE;
     }
 
 }

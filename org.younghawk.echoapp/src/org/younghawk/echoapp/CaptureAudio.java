@@ -28,17 +28,17 @@ public class CaptureAudio {
     }
 
     public void input(int data){
-        if(isOn && !isFinished){
+        //if(isOn && !isFinished){
             mCircularBuffer.insert(data);
-        }
+        //}
     }
     
     public void bulkInput(int[] data){
-        if(isOn && !isFinished){
+        //if(isOn && !isFinished){
             for(int i=0;i<data.length;i++){
                 input( data[i] );
             }
-        }    
+        //}    
     }
     
     public void start(){

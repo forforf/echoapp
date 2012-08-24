@@ -1,5 +1,8 @@
 package org.younghawk.echoapp.drawregion;
 
+import org.younghawk.echoapp.AudioFilter;
+import org.younghawk.echoapp.GlobalState;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,7 +15,7 @@ public class ScrollingBitmap {
     public static final String TAG="EchoApp ScrollingBitmap";
     public Bitmap mScrollingBitmap;
     
-    //private GlobalState gGlobal;
+    private GlobalState gGlobal;
     
     //TODO: Defaults will be updated with scaled size from Draw Region
     private static final int DEFAULT_WIDTH = 400;
@@ -33,6 +36,7 @@ public class ScrollingBitmap {
     //Implemented as instance variables rather than local for performance reasons
     private Paint mPaint = new Paint();
     private Matrix mMatrix = new Matrix();
+    private AudioFilter.Type mFilterType;
     
     //Debug 
     private long counter=0;
@@ -55,6 +59,7 @@ public class ScrollingBitmap {
         setBitmaps(scroll_bmp, mRegionWidth, mRegionHeight);
         
         this.mMatrix.setTranslate(-1, 0);   //translate left by one
+        this.gGlobal = GlobalState.getGlobalInstance();
     }
     
     private void setBitmaps(Bitmap scroll_bmp, int height, int width){
@@ -117,7 +122,21 @@ public class ScrollingBitmap {
                 i+=2;
             }
 
-            mPaint.setColor(Color.CYAN);
+            
+       //     ////if   mPaint.setColor(Color.CYAN);
+            mFilterType = gGlobal.getFilterProxy().getType();
+            switch(mFilterType) {
+            case NULL:
+                mPaint.setColor(Color.BLUE);
+                break;
+            case ECHO:
+                mPaint.setColor(Color.CYAN);
+                break;
+            default:
+                mPaint.setColor(Color.GRAY);
+            }
+      
+            
             mSliverCanvas.drawPoints(mCanvasPts, mPaint);
             
             //synchronized (mScrollingBitmap) {  

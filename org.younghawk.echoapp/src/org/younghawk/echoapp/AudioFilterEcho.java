@@ -2,8 +2,9 @@ package org.younghawk.echoapp;
 
 import android.util.Log;
 
-public class AudioFilterEcho implements AudioFilterStub {
+public class AudioFilterEcho implements AudioFilter {
     private static final String TAG = "EchoApp AudioFilterEcho";
+    private static final AudioFilter.Type FILTER_TYPE = AudioFilter.Type.ECHO;
     
 	private int[] mFilter;
 	private int mWindowSize;
@@ -129,4 +130,9 @@ public class AudioFilterEcho implements AudioFilterStub {
 		  }
 		  return mAudioEnergy;
 	  }
+
+    @Override
+    public AudioFilter.Type getType() {
+        return FILTER_TYPE;
+    }
 }

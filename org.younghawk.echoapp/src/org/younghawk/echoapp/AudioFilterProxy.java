@@ -1,13 +1,13 @@
 package org.younghawk.echoapp;
 
-public class AudioFilterProxy implements AudioFilterStub{
-    private AudioFilterStub current_filter;
-    
+public class AudioFilterProxy implements AudioFilter{
+    private AudioFilter current_filter;
+ 
     private static AudioFilterProxy instance = AudioFilterProxy.create();
     
     //factory
     public static AudioFilterProxy create(){
-        AudioFilterStub init_filter = new AudioFilterNull();
+        AudioFilter init_filter = new AudioFilterNull();
         return new AudioFilterProxy(init_filter);
     }
     
@@ -16,12 +16,12 @@ public class AudioFilterProxy implements AudioFilterStub{
     }
     
     //constructor
-    private AudioFilterProxy(AudioFilterStub init_filter){
+    private AudioFilterProxy(AudioFilter init_filter){
         this.current_filter = init_filter;
     }
     
     //change filter
-    public void setFilter(AudioFilterStub filter){
+    public void setFilter(AudioFilter filter){
         synchronized (current_filter){
             current_filter = filter;
         }
@@ -30,6 +30,11 @@ public class AudioFilterProxy implements AudioFilterStub{
     @Override
     public int[] filter(short[] buffer_data) {
         return current_filter.filter(buffer_data);
+    }
+
+    @Override
+    public AudioFilter.Type getType() {
+        return current_filter.getType();
     }
     
     
